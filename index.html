@@ -256,24 +256,29 @@
         /* PERSONAS, modo Artículos: grilla 3x3 con posiciones fijas a mano —
            definidas/indefinidos/partitivos arriba; demostrativos+mapa+fusiones
            en medio (algunas celdas con 2 tarjetas apiladas); COD/COI abajo. */
-        .personas-articulos-grid {
-            display: grid;
-            grid-template-columns: auto auto auto;
+        /* PERSONAS, modo Artículos: 3 filas independientes (cada fila su propio
+           flex), no un grid de columnas compartidas — así cada tarjeta se pega
+           a la siguiente, sin que el ancho de una fila condicione a otra ni
+           queden huecos entre tarjetas chicas y la columna de una más ancha. */
+        .personas-articulos-filas {
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            align-items: start;
-            justify-content: start;
             overflow-y: auto;
             max-height: 100%;
         }
-        /* Cada tarjeta toma el ancho de su propio contenido, no el ancho que le
-           tocaría por estar alineada en una columna del grid junto a otra más
-           ancha — así ninguna tarjeta se estira de más ni se desborda. */
-        .personas-articulos-grid > .tarjeta,
+        .personas-articulos-fila {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .personas-articulos-fila .tarjeta,
         .personas-articulos-apiladas .tarjeta {
             width: fit-content;
             max-width: 100%;
         }
-        .personas-articulos-grid > .tarjeta table,
+        .personas-articulos-fila .tarjeta table,
         .personas-articulos-apiladas .tarjeta table {
             width: auto;
         }
@@ -5196,15 +5201,13 @@
         };
         const apiladas = (tabla1, tabla2) => `<div class="personas-articulos-apiladas">${t(tabla1)}${t(tabla2)}</div>`;
 
-        let html = '<div class="personas-articulos-grid">';
-        html += t(a.pos1);
-        html += t(a.pos2);
-        html += t(a.pos3);
-        html += apiladas(a.pos4a, a.pos4b);
-        html += t(a.pos5);
-        html += apiladas(a.pos6a, a.pos6b);
-        html += t(a.pos7);
-        html += t(a.pos8);
+        // 3 filas independientes (cada una su propio flex), en vez de un grid
+        // de columnas compartidas — así cada tarjeta se pega a la siguiente sin
+        // que el ancho de una fila se condicione por el de otra.
+        let html = '<div class="personas-articulos-filas">';
+        html += `<div class="personas-articulos-fila">${t(a.pos1)}${t(a.pos2)}${t(a.pos3)}</div>`;
+        html += `<div class="personas-articulos-fila">${apiladas(a.pos4a, a.pos4b)}${t(a.pos5)}${apiladas(a.pos6a, a.pos6b)}</div>`;
+        html += `<div class="personas-articulos-fila">${t(a.pos7)}${t(a.pos8)}</div>`;
         html += '</div>';
 
         if (a.abajo && a.abajo.length) {
