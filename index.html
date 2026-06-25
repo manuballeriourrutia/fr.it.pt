@@ -283,6 +283,55 @@
         .personas-articulos-apiladas .tarjeta table {
             width: 100%;
         }
+        /* EXPERIMENTO: lienzo de arrastre libre (solo PERSONAS → Artículos →
+           francés). Sin overflow en el lienzo en sí — el que scrollea es el
+           panel contenedor general (.content-area), nunca esta capa. */
+        .personas-lienzo {
+            position: relative;
+            width: 100%;
+        }
+        .tarjeta-libre {
+            position: absolute;
+            z-index: 1;
+            box-sizing: border-box;
+        }
+        .tarjeta-libre:active { z-index: 50; }
+        .tarjeta-libre .tarjeta {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .tarjeta-libre .tarjeta table { width: 100%; }
+        /* Contenido interno: scroll SOLO vertical, nunca horizontal — el ancho
+           de la tarjeta nunca baja del ancho natural del contenido, así que no
+           hace falta scroll lateral en ningún caso. */
+        .tarjeta-libre-contenido {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .tarjeta-libre-manija-mover,
+        .tarjeta-libre-manija-resize {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #999;
+            cursor: grab;
+            z-index: 5;
+            touch-action: none;
+        }
+        .tarjeta-libre-manija-mover { top: -8px; left: -8px; cursor: move; }
+        .tarjeta-libre-manija-resize { bottom: -8px; right: -8px; cursor: nwse-resize; }
+        .tarjeta-libre-manija-mover:hover,
+        .tarjeta-libre-manija-resize:hover { color: var(--color-idioma); border-color: var(--color-idioma); }
         /* Mapa de posiciones: tiene varias filas (devant/derrière/sur/sous/etc.)
            y ocupaba mucho espacio vertical sin necesidad — se limita su alto y
            se hace scrolleable para que no estire toda la fila. */
@@ -5207,8 +5256,41 @@
     // apiladas] | mapa de posiciones | [destinos + orígenes apiladas]. Fila 3:
     // COD | COI. Una fila final, fuera de la grilla 3x3, con la tabla de formas
     // de posesivos (provisoria, sin posición definida todavía).
+    // EXPERIMENTO: arrastre y redimensión libre con snap a grilla invisible,
+    // solo en PERSONAS → Artículos → francés, por ahora. Cada tarjeta es un
+    // elemento posicionado absoluto (col/fila/ancho/alto en celdas), sin
+    // colisión automática entre tarjetas — si se superponen al moverlas, se
+    // quedan superpuestas (capas por orden de z-index fijo). Ancho mínimo = el
+    // ancho natural del contenido; alto se puede achicar hasta 1 ítem visible,
+    // con scroll SOLO vertical a partir de ahí. Sin scroll de página.
+    const GRILLA_CELDA_W = 300;
+    const GRILLA_CELDA_H = 64;
+    const GRILLA_GAP = 16;
+
+    // Posiciones iniciales (en celdas), replicando el layout fijo que ya
+    // teníamos armado a mano: col/fila = esquina superior-izquierda en celdas;
+    // anchoCeldas/altoCeldas = tamaño ocupado.
+    let posicionesArticulosFrances = {
+        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
+        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
+        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
+        pos4a: { col: 0, fila: 2, anchoCeldas: 1, altoCeldas: 1 },
+        pos4b: { col: 0, fila: 3, anchoCeldas: 1, altoCeldas: 1 },
+        pos5:  { col: 1, fila: 2, anchoCeldas: 1, altoCeldas: 3 },
+        pos6a: { col: 2, fila: 2, anchoCeldas: 1, altoCeldas: 1 },
+        pos6b: { col: 2, fila: 3, anchoCeldas: 1, altoCeldas: 1 },
+        pos7:  { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 1 },
+        pos8:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 1 },
+        abajo: { col: 0, fila: 6, anchoCeldas: 1, altoCeldas: 2 }
+    };
+
     function renderPersonasArticulos(idioma) {
         const a = data[idioma]["PERSONAS"].articulos;
+
+        if (idioma === "FRANCÉS") {
+            return renderPersonasArticulosLienzo(a, idioma);
+        }
+
         const t = (tabla, claseExtra) => {
             const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
             const clase = claseExtra ? ` ${claseExtra}` : "";
@@ -5231,6 +5313,129 @@
             html += '</div>';
         }
         return html;
+    }
+
+    // Modo lienzo (solo francés, experimental): cada tarjeta es position:
+    // absolute, ubicada según posicionesArticulosFrances. Incluye 2 manijas
+    // (arrastrar arriba-izq, redimensionar abajo-der) y un wrap interno con
+    // scroll vertical (nunca horizontal) para cuando el contenido no entra en
+    // el alto asignado.
+    function renderPersonasArticulosLienzo(a, idioma) {
+        const claves = ["pos1", "pos2", "pos3", "pos4a", "pos4b", "pos5", "pos6a", "pos6b", "pos7", "pos8", "abajo"];
+        let maxFilaUsada = 0;
+        claves.forEach(clave => {
+            const p = posicionesArticulosFrances[clave];
+            maxFilaUsada = Math.max(maxFilaUsada, p.fila + p.altoCeldas);
+        });
+        const altoLienzo = maxFilaUsada * (GRILLA_CELDA_H + GRILLA_GAP);
+
+        let html = `<div class="personas-lienzo" id="personasLienzo" style="height:${altoLienzo}px;">`;
+        claves.forEach(clave => {
+            const tabla = clave === "abajo" ? (a.abajo && a.abajo[0]) : a[clave];
+            if (!tabla) return;
+            const p = posicionesArticulosFrances[clave];
+            const left = p.col * (GRILLA_CELDA_W + GRILLA_GAP);
+            const top = p.fila * (GRILLA_CELDA_H + GRILLA_GAP);
+            const width = p.anchoCeldas * GRILLA_CELDA_W + (p.anchoCeldas - 1) * GRILLA_GAP;
+            const height = p.altoCeldas * GRILLA_CELDA_H + (p.altoCeldas - 1) * GRILLA_GAP;
+            const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
+            const claseExtra = clave === "pos5" ? " tarjeta-mapa-posiciones" : "";
+            html += `<div class="tarjeta-libre" data-clave="${clave}" style="left:${left}px; top:${top}px; width:${width}px; height:${height}px;">
+                <div class="tarjeta-libre-manija-mover" title="Mover"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2L9 5h2v5H6V8L3 11l3 3v-2h5v5H9l3 3 3-3h-2v-5h5v2l3-3-3-3v2h-5V7h2L12 2z" fill="currentColor"/></svg></div>
+                <div class="tarjeta-libre-contenido${claseExtra}">
+                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Redimensionar"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M22 22H16V20H20V16H22V22ZM22 12H20V10H22V12ZM14 22H12V20H14V22Z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    // Calcula el ancho/alto mínimo real de una tarjeta-libre a partir de su
+    // contenido (para no dejar que el resize la achique por debajo de su
+    // ancho natural, ni por debajo de "1 ítem visible" de alto).
+    function medirMinimosTarjetaLibre(elTarjetaLibre) {
+        const contenido = elTarjetaLibre.querySelector('.tarjeta-libre-contenido');
+        const tabla = contenido.querySelector('table');
+        const anchoMinimo = tabla ? tabla.scrollWidth + 32 : 150; // +padding aprox.
+        const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+        const altoUnaFila = filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30;
+        const altoTitulo = 40; // título/caption aproximado
+        const altoMinimo = Math.max(altoTitulo + altoUnaFila, GRILLA_CELDA_H * 0.6);
+        return { anchoMinimo, altoMinimo };
+    }
+
+    function inicializarArrastreLibre() {
+        const lienzo = document.getElementById('personasLienzo');
+        if (!lienzo) return;
+        const tarjetas = lienzo.querySelectorAll('.tarjeta-libre');
+
+        tarjetas.forEach(el => {
+            const clave = el.dataset.clave;
+            const manijaMover = el.querySelector('.tarjeta-libre-manija-mover');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            manijaMover.addEventListener('pointerdown', (ev) => {
+                ev.preventDefault();
+                el.style.zIndex = 50;
+                const inicioX = ev.clientX, inicioY = ev.clientY;
+                const left0 = el.offsetLeft, top0 = el.offsetTop;
+
+                function mover(e) {
+                    const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
+                    el.style.left = (left0 + dx) + "px";
+                    el.style.top = (top0 + dy) + "px";
+                }
+                function soltar() {
+                    document.removeEventListener('pointermove', mover);
+                    document.removeEventListener('pointerup', soltar);
+                    // Snap a la celda más cercana de la grilla invisible.
+                    const colNueva = Math.round(el.offsetLeft / (GRILLA_CELDA_W + GRILLA_GAP));
+                    const filaNueva = Math.round(el.offsetTop / (GRILLA_CELDA_H + GRILLA_GAP));
+                    const p = posicionesArticulosFrances[clave];
+                    p.col = Math.max(0, colNueva);
+                    p.fila = Math.max(0, filaNueva);
+                    el.style.left = (p.col * (GRILLA_CELDA_W + GRILLA_GAP)) + "px";
+                    el.style.top = (p.fila * (GRILLA_CELDA_H + GRILLA_GAP)) + "px";
+                }
+                document.addEventListener('pointermove', mover);
+                document.addEventListener('pointerup', soltar);
+            });
+
+            manijaResize.addEventListener('pointerdown', (ev) => {
+                ev.preventDefault();
+                el.style.zIndex = 50;
+                const { anchoMinimo, altoMinimo } = medirMinimosTarjetaLibre(el);
+                const inicioX = ev.clientX, inicioY = ev.clientY;
+                const w0 = el.offsetWidth, h0 = el.offsetHeight;
+
+                function mover(e) {
+                    const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
+                    const nuevoAncho = Math.max(anchoMinimo, w0 + dx);
+                    const nuevoAlto = Math.max(altoMinimo, h0 + dy);
+                    el.style.width = nuevoAncho + "px";
+                    el.style.height = nuevoAlto + "px";
+                }
+                function soltar() {
+                    document.removeEventListener('pointermove', mover);
+                    document.removeEventListener('pointerup', soltar);
+                    // Snap del tamaño a un número entero de celdas (nunca por
+                    // debajo del mínimo real del contenido).
+                    const p = posicionesArticulosFrances[clave];
+                    const celdasAncho = Math.max(1, Math.round(el.offsetWidth / (GRILLA_CELDA_W + GRILLA_GAP)));
+                    const celdasAlto = Math.max(1, Math.round(el.offsetHeight / (GRILLA_CELDA_H + GRILLA_GAP)));
+                    const anchoFinal = Math.max(anchoMinimo, celdasAncho * GRILLA_CELDA_W + (celdasAncho - 1) * GRILLA_GAP);
+                    const altoFinal = Math.max(altoMinimo, celdasAlto * GRILLA_CELDA_H + (celdasAlto - 1) * GRILLA_GAP);
+                    p.anchoCeldas = celdasAncho;
+                    p.altoCeldas = celdasAlto;
+                    el.style.width = anchoFinal + "px";
+                    el.style.height = altoFinal + "px";
+                }
+                document.addEventListener('pointermove', mover);
+                document.addEventListener('pointerup', soltar);
+            });
+        });
     }
 
     function cambiarModoPersonas(nuevoModo) {
@@ -5425,6 +5630,11 @@
         const html = renderUnidad(idioma, unidadActualKey);
         if (html !== null) {
             contentTable.innerHTML = html;
+            // El lienzo de arrastre libre (PERSONAS → Artículos → francés) necesita
+            // engancharse a los eventos recién creados, después de insertar el HTML.
+            if (unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idioma === "FRANCÉS") {
+                inicializarArrastreLibre();
+            }
             return;
         }
         // En VERBOS AUXILIARES, null puede significar "esta posición no existe en
