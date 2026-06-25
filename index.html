@@ -641,6 +641,7 @@
         </div>
     </div>
     <button class="dropbtn dropbtn-chico" id="btnEditorLibre" style="display: none;" onclick="toggleEditorLibre()">Editor: Off</button>
+    <button class="dropbtn dropbtn-chico" id="btnGuardarLibre" style="display: none;" onclick="guardarPosicionesLibres()">Guardar</button>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -4741,6 +4742,7 @@
         const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
         const visibleEditorLibre = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
         document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
+        document.getElementById('btnGuardarLibre').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
@@ -5304,6 +5306,39 @@
         abajo: { col: 0, fila: 16, anchoCeldas: 1, altoCeldas: 4 }
     };
 
+    // Persistencia del editor libre en LocalStorage: si hay algo guardado de
+    // una sesión anterior, reemplaza las posiciones por defecto de arriba al
+    // cargar la página. Falla en silencio (try/catch) si LocalStorage no está
+    // disponible (Safari en modo privado, por ejemplo) — en ese caso, sigue
+    // funcionando con las posiciones por defecto, simplemente no persiste.
+    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v1";
+    (function cargarPosicionesGuardadas() {
+        try {
+            const guardado = localStorage.getItem(CLAVE_LOCALSTORAGE_PERSONAS);
+            if (guardado) {
+                const datos = JSON.parse(guardado);
+                Object.keys(posicionesArticulosFrances).forEach(clave => {
+                    if (datos[clave]) posicionesArticulosFrances[clave] = datos[clave];
+                });
+            }
+        } catch (e) {
+            console.warn("No se pudo cargar la configuración guardada del editor libre:", e);
+        }
+    })();
+
+    function guardarPosicionesLibres() {
+        try {
+            localStorage.setItem(CLAVE_LOCALSTORAGE_PERSONAS, JSON.stringify(posicionesArticulosFrances));
+            const boton = document.getElementById('btnGuardarLibre');
+            const textoOriginal = boton.innerText;
+            boton.innerText = "¡Guardado!";
+            setTimeout(() => { boton.innerText = textoOriginal; }, 1200);
+        } catch (e) {
+            console.warn("No se pudo guardar la configuración del editor libre:", e);
+            alert("No se pudo guardar (almacenamiento no disponible en este modo de navegación).");
+        }
+    }
+
     function renderPersonasArticulos(idioma) {
         const a = data[idioma]["PERSONAS"].articulos;
 
@@ -5473,11 +5508,13 @@
     function toggleEditorLibre() {
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
+        document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
         const lienzo = document.getElementById('personasLienzo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
         }
     }
+
 
     // Selector clima/geografía: clona el patrón de Tarjetas/Reglas.
     function cambiarModoGeografiaClima(nuevoModo) {
