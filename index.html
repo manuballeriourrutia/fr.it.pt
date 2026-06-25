@@ -296,16 +296,29 @@
             box-sizing: border-box;
         }
         .tarjeta-libre:active { z-index: 50; }
+        /* Tamaño automático (recién agregada desde el selector, todavía sin
+           redimensionar a mano): se ve en su tamaño natural completo, sin
+           recorte ni scroll — el contenedor interno crece junto al contenido. */
+        .tarjeta-libre-auto .tarjeta-libre-contenido {
+            height: auto;
+            overflow-y: visible;
+        }
+        .tarjeta-libre-auto .tarjeta-mapa-posiciones {
+            max-height: none;
+        }
         .tarjeta-libre .tarjeta {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             box-sizing: border-box;
             margin: 0;
         }
         .tarjeta-libre .tarjeta table { width: 100%; }
         /* Contenido interno: scroll SOLO vertical, nunca horizontal — el ancho
            de la tarjeta nunca baja del ancho natural del contenido, así que no
-           hace falta scroll lateral en ningún caso. */
+           hace falta scroll lateral en ningún caso. El borde/fondo de la
+           tarjeta (.tarjeta-con-borde) vive DENTRO de este contenedor con
+           scroll, así que crece con el contenido real y nunca se corta a la
+           mitad — lo que se recorta es el contenedor completo, no la tarjeta. */
         .tarjeta-libre-contenido {
             width: 100%;
             height: 100%;
@@ -641,6 +654,10 @@
         </div>
     </div>
     <button class="dropbtn dropbtn-chico" id="btnEditorLibre" style="display: none;" onclick="toggleEditorLibre()">Editor: Off</button>
+    <div class="dropdown" id="selectorTarjetasLibreWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnTarjetasLibre" onclick="inicializarMenuTarjetasLibre(); toggleDropdown('menuTarjetasLibre')">Tarjetas</button>
+        <div id="menuTarjetasLibre" class="dropdown-content"></div>
+    </div>
     <button class="dropbtn dropbtn-chico" id="btnGuardarLibre" style="display: none;" onclick="guardarPosicionesLibres()">Guardar</button>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
@@ -5292,18 +5309,33 @@
     // limpias (sin iconitos) pero mantienen la posición ya guardada.
     let editorLibreActivo = false;
 
+    // Qué tarjetas están visibles en el lienzo — arranca todo en false (caja
+    // vacía) hasta que se persista algo distinto en LocalStorage o el usuario
+    // las vaya agregando desde el selector "Tarjetas" (solo visible con el
+    // editor prendido).
+    let tarjetasVisiblesArticulosFrances = {
+        pos1: false, pos2: false, pos3: false, pos4a: false, pos4b: false,
+        pos5: false, pos6a: false, pos6b: false, pos7: false, pos8: false, abajo: false
+    };
+    const ETIQUETAS_TARJETAS_ARTICULOS = {
+        pos1: "Definidos", pos2: "Indefinidos", pos3: "Partitivos",
+        pos4a: "Demostrativos — Singular", pos4b: "Demostrativos — Plural",
+        pos5: "Mapa de posiciones", pos6a: "Destinos", pos6b: "Orígenes",
+        pos7: "COD", pos8: "COI", abajo: "Formas (posesivos)"
+    };
+
     let posicionesArticulosFrances = {
-        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
-        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
-        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
-        pos4a: { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 2 },
-        pos4b: { col: 0, fila: 8, anchoCeldas: 1, altoCeldas: 2 },
-        pos5:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 7 },
-        pos6a: { col: 2, fila: 5, anchoCeldas: 1, altoCeldas: 2 },
-        pos6b: { col: 2, fila: 8, anchoCeldas: 1, altoCeldas: 2 },
-        pos7:  { col: 0, fila: 13, anchoCeldas: 1, altoCeldas: 2 },
-        pos8:  { col: 1, fila: 13, anchoCeldas: 1, altoCeldas: 2 },
-        abajo: { col: 0, fila: 16, anchoCeldas: 1, altoCeldas: 4 }
+        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
+        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
+        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
+        pos4a: { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        pos4b: { col: 0, fila: 8, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        pos5:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 7, tamanoManual: false },
+        pos6a: { col: 2, fila: 5, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        pos6b: { col: 2, fila: 8, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        pos7:  { col: 0, fila: 13, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        pos8:  { col: 1, fila: 13, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
+        abajo: { col: 0, fila: 16, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false }
     };
 
     // Persistencia del editor libre en LocalStorage: si hay algo guardado de
@@ -5311,15 +5343,22 @@
     // cargar la página. Falla en silencio (try/catch) si LocalStorage no está
     // disponible (Safari en modo privado, por ejemplo) — en ese caso, sigue
     // funcionando con las posiciones por defecto, simplemente no persiste.
-    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v1";
+    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v2";
     (function cargarPosicionesGuardadas() {
         try {
             const guardado = localStorage.getItem(CLAVE_LOCALSTORAGE_PERSONAS);
             if (guardado) {
                 const datos = JSON.parse(guardado);
-                Object.keys(posicionesArticulosFrances).forEach(clave => {
-                    if (datos[clave]) posicionesArticulosFrances[clave] = datos[clave];
-                });
+                if (datos.posiciones) {
+                    Object.keys(posicionesArticulosFrances).forEach(clave => {
+                        if (datos.posiciones[clave]) posicionesArticulosFrances[clave] = datos.posiciones[clave];
+                    });
+                }
+                if (datos.visibles) {
+                    Object.keys(tarjetasVisiblesArticulosFrances).forEach(clave => {
+                        if (typeof datos.visibles[clave] === "boolean") tarjetasVisiblesArticulosFrances[clave] = datos.visibles[clave];
+                    });
+                }
             }
         } catch (e) {
             console.warn("No se pudo cargar la configuración guardada del editor libre:", e);
@@ -5328,7 +5367,10 @@
 
     function guardarPosicionesLibres() {
         try {
-            localStorage.setItem(CLAVE_LOCALSTORAGE_PERSONAS, JSON.stringify(posicionesArticulosFrances));
+            localStorage.setItem(CLAVE_LOCALSTORAGE_PERSONAS, JSON.stringify({
+                posiciones: posicionesArticulosFrances,
+                visibles: tarjetasVisiblesArticulosFrances
+            }));
             const boton = document.getElementById('btnGuardarLibre');
             const textoOriginal = boton.innerText;
             boton.innerText = "¡Guardado!";
@@ -5377,26 +5419,34 @@
     // el alto asignado.
     function renderPersonasArticulosLienzo(a, idioma) {
         const claves = ["pos1", "pos2", "pos3", "pos4a", "pos4b", "pos5", "pos6a", "pos6b", "pos7", "pos8", "abajo"];
+        const visibles = claves.filter(c => tarjetasVisiblesArticulosFrances[c]);
+
         let maxFilaUsada = 0;
-        claves.forEach(clave => {
+        visibles.forEach(clave => {
             const p = posicionesArticulosFrances[clave];
-            maxFilaUsada = Math.max(maxFilaUsada, p.fila + p.altoCeldas);
+            maxFilaUsada = Math.max(maxFilaUsada, p.fila + (p.tamanoManual ? p.altoCeldas : 6));
         });
-        const altoLienzo = maxFilaUsada * (GRILLA_CELDA_H + GRILLA_GAP);
+        // Más columnas de margen a los costados para tener libertad de mover
+        // tarjetas a la derecha sin que la cuadrícula se quede corta.
+        const anchoLienzo = 8 * (GRILLA_CELDA_W + GRILLA_GAP);
+        const altoLienzo = Math.max(maxFilaUsada, 8) * (GRILLA_CELDA_H + GRILLA_GAP);
 
         const claseEditor = editorLibreActivo ? " editor-activo" : "";
-        let html = `<div class="personas-lienzo${claseEditor}" id="personasLienzo" style="height:${altoLienzo}px;">`;
-        claves.forEach(clave => {
+        let html = `<div class="personas-lienzo${claseEditor}" id="personasLienzo" style="height:${altoLienzo}px; width:${anchoLienzo}px;">`;
+        visibles.forEach(clave => {
             const tabla = clave === "abajo" ? (a.abajo && a.abajo[0]) : a[clave];
             if (!tabla) return;
             const p = posicionesArticulosFrances[clave];
             const left = p.col * (GRILLA_CELDA_W + GRILLA_GAP);
             const top = p.fila * (GRILLA_CELDA_H + GRILLA_GAP);
-            const width = p.anchoCeldas * GRILLA_CELDA_W + (p.anchoCeldas - 1) * GRILLA_GAP;
-            const height = p.altoCeldas * GRILLA_CELDA_H + (p.altoCeldas - 1) * GRILLA_GAP;
+            // Tamaño automático (natural del contenido) hasta que se redimensione
+            // a mano una vez — recién ahí se fija al tamaño elegido en celdas.
+            const estiloTamano = p.tamanoManual
+                ? `width:${p.anchoCeldas * GRILLA_CELDA_W + (p.anchoCeldas - 1) * GRILLA_GAP}px; height:${p.altoCeldas * GRILLA_CELDA_H + (p.altoCeldas - 1) * GRILLA_GAP}px;`
+                : `width:auto; height:auto;`;
             const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
             const claseExtra = clave === "pos5" ? " tarjeta-mapa-posiciones" : "";
-            html += `<div class="tarjeta-libre" data-clave="${clave}" style="left:${left}px; top:${top}px; width:${width}px; height:${height}px;">
+            html += `<div class="tarjeta-libre${p.tamanoManual ? "" : " tarjeta-libre-auto"}" data-clave="${clave}" style="left:${left}px; top:${top}px; ${estiloTamano}">
                 <div class="tarjeta-libre-manija-mover" title="Mover"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2L9 5h2v5H6V8L3 11l3 3v-2h5v5H9l3 3 3-3h-2v-5h5v2l3-3-3-3v2h-5V7h2L12 2z" fill="currentColor"/></svg></div>
                 <div class="tarjeta-libre-contenido${claseExtra}">
                     <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
@@ -5477,7 +5527,8 @@
                     document.removeEventListener('pointermove', mover);
                     document.removeEventListener('pointerup', soltar);
                     // Snap del tamaño a un número entero de celdas (nunca por
-                    // debajo del mínimo real del contenido).
+                    // debajo del mínimo real del contenido). A partir de este
+                    // punto, la tarjeta deja de tener tamaño automático.
                     const p = posicionesArticulosFrances[clave];
                     const celdasAncho = Math.max(1, Math.round(el.offsetWidth / (GRILLA_CELDA_W + GRILLA_GAP)));
                     const celdasAlto = Math.max(1, Math.round(el.offsetHeight / (GRILLA_CELDA_H + GRILLA_GAP)));
@@ -5485,6 +5536,8 @@
                     const altoFinal = Math.max(altoMinimo, celdasAlto * GRILLA_CELDA_H + (celdasAlto - 1) * GRILLA_GAP);
                     p.anchoCeldas = celdasAncho;
                     p.altoCeldas = celdasAlto;
+                    p.tamanoManual = true;
+                    el.classList.remove("tarjeta-libre-auto");
                     el.style.width = anchoFinal + "px";
                     el.style.height = altoFinal + "px";
                 }
@@ -5509,10 +5562,35 @@
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
+        document.getElementById('selectorTarjetasLibreWrap').style.display = editorLibreActivo ? "inline-block" : "none";
+        if (editorLibreActivo) inicializarMenuTarjetasLibre();
         const lienzo = document.getElementById('personasLienzo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
         }
+    }
+
+    // Arma el menú "Tarjetas": una opción por cada una de las 11, marcando con
+    // ✓ las que ya están visibles. Tocar una alterna su visibilidad y vuelve a
+    // dibujar el lienzo entero (hace falta, porque agregar/quitar una tarjeta
+    // cambia el alto total necesario del lienzo).
+    function inicializarMenuTarjetasLibre() {
+        const menu = document.getElementById('menuTarjetasLibre');
+        menu.innerHTML = "";
+        Object.keys(ETIQUETAS_TARJETAS_ARTICULOS).forEach(clave => {
+            const div = document.createElement('div');
+            const marca = tarjetasVisiblesArticulosFrances[clave] ? "✓ " : "";
+            div.innerText = marca + ETIQUETAS_TARJETAS_ARTICULOS[clave];
+            div.onclick = () => {
+                tarjetasVisiblesArticulosFrances[clave] = !tarjetasVisiblesArticulosFrances[clave];
+                document.getElementById('menuTarjetasLibre').classList.remove("show");
+                actualizarPantalla();
+                // Al reabrir el menú después de togglear, vuelve a armarlo con
+                // las marcas ✓ actualizadas — se hace en el próximo click del
+                // botón, no hace falta reconstruirlo ahora mismo.
+            };
+            menu.appendChild(div);
+        });
     }
 
 
