@@ -253,6 +253,29 @@
             height: 100%;
             overflow-y: auto;
         }
+        /* PERSONAS, modo Artículos: grilla 3x3 con posiciones fijas a mano —
+           definidas/indefinidos/partitivos arriba; demostrativos+mapa+fusiones
+           en medio (algunas celdas con 2 tarjetas apiladas); COD/COI abajo. */
+        .personas-articulos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        .personas-articulos-apiladas {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .personas-articulos-apiladas .tarjeta { margin: 0; }
+        .personas-articulos-abajo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
         .tarjeta {
             flex: 0 0 auto;
             padding: 16px;
@@ -4485,7 +4508,7 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioFrances), "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances], articulos: [...articulosFrances, ...posicionesFrances, ...posesivosFrances, ...codCoiFrances, ...fusionesFrances] }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), "COLORES": [ 
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioFrances), "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), "COLORES": [ 
             { "esp": "Amarillo", "mSing": "jaune", "mPlur": "jaunes", "fSing": "jaune", "fPlur": "jaunes" },
             { "esp": "Naranja", "mSing": "orange", "mPlur": "oranges", "fSing": "orange", "fPlur": "oranges" },
             { "esp": "Rojo", "mSing": "rouge", "mPlur": "rouges", "fSing": "rouge", "fPlur": "rouges" },
@@ -4499,7 +4522,7 @@
             { "esp": "Gris", "mSing": "gris", "mPlur": "gris", "fSing": "grise", "fPlur": "grises" },
             { "esp": "Blanco", "mSing": "blanc", "mPlur": "blancs", "fSing": "blanche", "fPlur": "blanches" }
         ]},
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioItaliano), "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano], articulos: [...articulosItaliano, ...posicionesItaliano, ...posesivosItaliano, ...codCoiItaliano, ...fusionesItaliano] }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), "COLORES": [
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioItaliano), "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), "COLORES": [
             { "esp": "Amarillo", "mSing": "giallo", "mPlur": "gialli", "fSing": "gialla", "fPlur": "gialle" },
             { "esp": "Naranja", "mSing": "arancione", "mPlur": "arancioni", "fSing": "arancione", "fPlur": "arancioni" },
             { "esp": "Rojo", "mSing": "rosso", "mPlur": "rossi", "fSing": "rossa", "fPlur": "rosse" },
@@ -4513,7 +4536,7 @@
             { "esp": "Gris", "mSing": "grigio", "mPlur": "grigi", "fSing": "grigia", "fPlur": "grigie" },
             { "esp": "Blanco", "mSing": "bianco", "mPlur": "bianchi", "fSing": "bianca", "fPlur": "bianche" }
         ]},
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioPortugues), "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues], articulos: [...articulosPortugues, ...posicionesPortugues, ...posesivosPortugues, ...codCoiPortugues, ...fusionesPortugues] }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), "COLORES": [
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioPortugues), "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), "COLORES": [
             { "esp": "Amarillo", "mSing": "amarelo", "mPlur": "amarelos", "fSing": "amarela", "fPlur": "amarelas" },
             { "esp": "Naranja", "mSing": "laranja", "mPlur": "laranjas", "fSing": "laranja", "fPlur": "laranjas" },
             { "esp": "Rojo", "mSing": "vermelho", "mPlur": "vermelhos", "fSing": "vermelha", "fPlur": "vermelhas" },
@@ -5121,6 +5144,9 @@
     let modoPersonas = "tarjetas";
 
     function renderPersonas(idioma) {
+        if (modoPersonas === "articulos") {
+            return renderPersonasArticulos(idioma);
+        }
         const datos = data[idioma]["PERSONAS"];
         const tarjetas = datos[modoPersonas];
         let html = '<div class="tarjetas-grid">';
@@ -5140,6 +5166,39 @@
             }
         });
         html += '</div>';
+        return html;
+    }
+
+    // Modo "Artículos" de PERSONAS: grilla 3x3 con posiciones fijas, definida a
+    // mano por la persona (no es flex-wrap automático). Fila 1: artículos
+    // definidos/indefinidos/partitivos. Fila 2: [demostr. singular + plural
+    // apiladas] | mapa de posiciones | [destinos + orígenes apiladas]. Fila 3:
+    // COD | COI. Una fila final, fuera de la grilla 3x3, con la tabla de formas
+    // de posesivos (provisoria, sin posición definida todavía).
+    function renderPersonasArticulos(idioma) {
+        const a = data[idioma]["PERSONAS"].articulos;
+        const t = (tabla) => {
+            const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
+            return `<div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>`;
+        };
+        const apiladas = (tabla1, tabla2) => `<div class="personas-articulos-apiladas">${t(tabla1)}${t(tabla2)}</div>`;
+
+        let html = '<div class="personas-articulos-grid">';
+        html += t(a.pos1);
+        html += t(a.pos2);
+        html += t(a.pos3);
+        html += apiladas(a.pos4a, a.pos4b);
+        html += t(a.pos5);
+        html += apiladas(a.pos6a, a.pos6b);
+        html += t(a.pos7);
+        html += t(a.pos8);
+        html += '</div>';
+
+        if (a.abajo && a.abajo.length) {
+            html += '<div class="personas-articulos-abajo">';
+            a.abajo.forEach(tabla => { html += t(tabla); });
+            html += '</div>';
+        }
         return html;
     }
 
