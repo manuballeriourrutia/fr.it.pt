@@ -76,7 +76,7 @@
         }
         
         .dropdown { position: relative; display: inline-block; }
-        .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); min-width: 180px; text-align: center; color: var(--text-color); transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+        .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
         .dropbtn-chico { min-width: 0; padding: 10px 18px; }
 
         /* Botón circular de bandera, reemplaza al selector de idioma en texto */
@@ -131,7 +131,7 @@
         .flag-option.idioma-pt { color: #c8102e; }
 
         .dropdown-content { display: none; position: absolute; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-top: 8px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; left: 0; max-height: 70vh; overflow-y: auto; }
-        .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
+        .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
         /* Excepción: la zona de TIEMPOS VERBALES/VERBOS AUXILIARES mantiene el
            color de bandera del idioma en sus botones y menús — "mundo aparte",
            no se toca con el cambio de texto a negro del resto de la app. */
@@ -150,7 +150,7 @@
            misma especificidad gana el que está después en cascada — para no
            depender de eso, se califica el selector como descendiente directo
            para asegurar mayor especificidad y que siempre gane. */
-        .dropdown-content div .traduccion-unidad { font-size: 9px; color: #999; font-weight: normal; margin-top: 1px; white-space: nowrap; }
+        .dropdown-content div .traduccion-unidad { font-size: 9px; color: #999; font-weight: normal; margin-top: 1px; white-space: nowrap; text-transform: none; }
         .show { display: block; }
         
         /* Panel fijo, anclado a la izquierda; ancho se ajusta al contenido (con tope) */
@@ -273,21 +273,35 @@
             gap: 20px;
             flex-wrap: wrap;
         }
-        .personas-articulos-fila .tarjeta,
-        .personas-articulos-apiladas .tarjeta {
+        .personas-articulos-fila .tarjeta {
             width: fit-content;
             max-width: 100%;
         }
-        .personas-articulos-fila .tarjeta table,
-        .personas-articulos-apiladas .tarjeta table {
+        .personas-articulos-fila .tarjeta table {
             width: auto;
         }
+        .personas-articulos-apiladas .tarjeta table {
+            width: 100%;
+        }
+        /* Mapa de posiciones: tiene varias filas (devant/derrière/sur/sous/etc.)
+           y ocupaba mucho espacio vertical sin necesidad — se limita su alto y
+           se hace scrolleable para que no estire toda la fila. */
+        .tarjeta-mapa-posiciones {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        /* Las 2 tarjetas apiladas de un mismo grupo (demostrativos singular/
+           plural, fusiones destinos/orígenes) se estiran al ancho de la más
+           ancha del par — sin fijar un valor en px, así si el contenido de un
+           idioma cambia, el ancho se reacomoda solo. align-items: stretch es
+           el default de flex-direction: column, por eso alcanza con NO ponerle
+           width: fit-content a estas tarjetas (a diferencia de las sueltas). */
         .personas-articulos-apiladas {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-        .personas-articulos-apiladas .tarjeta { margin: 0; }
+        .personas-articulos-apiladas .tarjeta { margin: 0; width: auto; max-width: 100%; }
         .personas-articulos-abajo {
             display: flex;
             flex-wrap: wrap;
@@ -2604,7 +2618,7 @@
           rows: [
             ["Masc.", "ceux-ci", "ceux-là"], ["Fem.", "celles-ci", "celles-là"]
         ]},
-        { titulo: "Mapa de posiciones", headers: ["", "Francés"], rows: [
+        { titulo: "Mapa de posiciones", headers: ["", ""], rows: [
             ["⬆️", "Devant"], ["⬇️", "Derrière"], ["↔️", "À côté de"], ["🔼", "Sur"],
             ["📦", "Dans"], ["🔽", "Sous"], ["↕️", "Entre"], ["👀", "En face de"],
             ["📍", "Près de"], ["🌍", "Loin de"], ["⏫", "Au-dessus de"], ["⏬", "Au-dessous de"], ["🔄", "Autour de"]
@@ -2622,7 +2636,7 @@
           rows: [
             ["Masc.", "questi", "quelli"], ["Fem.", "queste", "quelle"]
         ]},
-        { titulo: "Mappa delle posizioni", headers: ["", "Italiano"], rows: [
+        { titulo: "Mappa delle posizioni", headers: ["", ""], rows: [
             ["⬆️", "Davanti a"], ["⬇️", "Dietro (a)"], ["↔️", "Accanto a"], ["🔼", "Sopra"],
             ["📦", "Dentro"], ["🔽", "Sotto"], ["↕️", "Tra / Fra"], ["👀", "Di fronte a"],
             ["📍", "Vicino a"], ["🌍", "Lontano da"], ["⏫", "Al di sopra di"], ["⏬", "Al di sotto di"], ["🔄", "Intorno a"]
@@ -2640,7 +2654,7 @@
           rows: [
             ["Masc.", "estes", "esses", "aqueles"], ["Fem.", "estas", "essas", "aquelas"]
         ]},
-        { titulo: "Mapa de posições", headers: ["", "Portugués"], rows: [
+        { titulo: "Mapa de posições", headers: ["", ""], rows: [
             ["⬆️", "À frente de"], ["⬇️", "Atrás de"], ["↔️", "Ao lado de"], ["🔼", "Em cima de"],
             ["📦", "Dentro de"], ["🔽", "Debaixo de"], ["↕️", "Entre"], ["👀", "Em frente a"],
             ["📍", "Perto de"], ["🌍", "Longe de"], ["⏫", "Por cima de"], ["⏬", "Por baixo de"], ["🔄", "Ao redor de"]
@@ -5195,9 +5209,10 @@
     // de posesivos (provisoria, sin posición definida todavía).
     function renderPersonasArticulos(idioma) {
         const a = data[idioma]["PERSONAS"].articulos;
-        const t = (tabla) => {
+        const t = (tabla, claseExtra) => {
             const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
-            return `<div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>`;
+            const clase = claseExtra ? ` ${claseExtra}` : "";
+            return `<div class="tarjeta tarjeta-con-borde${clase}">${renderTabla(final, idioma)}</div>`;
         };
         const apiladas = (tabla1, tabla2) => `<div class="personas-articulos-apiladas">${t(tabla1)}${t(tabla2)}</div>`;
 
@@ -5206,7 +5221,7 @@
         // que el ancho de una fila se condicione por el de otra.
         let html = '<div class="personas-articulos-filas">';
         html += `<div class="personas-articulos-fila">${t(a.pos1)}${t(a.pos2)}${t(a.pos3)}</div>`;
-        html += `<div class="personas-articulos-fila">${apiladas(a.pos4a, a.pos4b)}${t(a.pos5)}${apiladas(a.pos6a, a.pos6b)}</div>`;
+        html += `<div class="personas-articulos-fila">${apiladas(a.pos4a, a.pos4b)}${t(a.pos5, 'tarjeta-mapa-posiciones')}${apiladas(a.pos6a, a.pos6b)}</div>`;
         html += `<div class="personas-articulos-fila">${t(a.pos7)}${t(a.pos8)}</div>`;
         html += '</div>';
 
