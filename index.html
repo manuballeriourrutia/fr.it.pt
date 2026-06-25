@@ -317,7 +317,7 @@
             position: absolute;
             width: 22px;
             height: 22px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             background: var(--panel-bg);
@@ -327,6 +327,12 @@
             cursor: grab;
             z-index: 5;
             touch-action: none;
+        }
+        /* Las manijas solo se ven (y solo entonces se pueden tocar) cuando el
+           editor está prendido — apagado, las tarjetas quedan limpias. */
+        .personas-lienzo.editor-activo .tarjeta-libre-manija-mover,
+        .personas-lienzo.editor-activo .tarjeta-libre-manija-resize {
+            display: flex;
         }
         .tarjeta-libre-manija-mover { top: -8px; left: -8px; cursor: move; }
         .tarjeta-libre-manija-resize { bottom: -8px; right: -8px; cursor: nwse-resize; }
@@ -634,6 +640,7 @@
             <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
         </div>
     </div>
+    <button class="dropbtn dropbtn-chico" id="btnEditorLibre" style="display: none;" onclick="toggleEditorLibre()">Editor: Off</button>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -4673,6 +4680,8 @@
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoPersonas = "tarjetas";
                 document.getElementById('btnModoPersonas').innerText = "Personas";
+                editorLibreActivo = false;
+                document.getElementById('btnEditorLibre').innerText = "Editor: Off";
                 document.getElementById('btnUnidad').innerText = unidades[u][idioma];
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
@@ -4726,6 +4735,12 @@
 
         const visiblePersonas = unidadActualKey === "PERSONAS";
         document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
+
+        // El botón de editor libre solo aplica al lienzo experimental:
+        // PERSONAS → Artículos → francés.
+        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
+        const visibleEditorLibre = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
+        document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
@@ -5264,24 +5279,29 @@
     // ancho natural del contenido; alto se puede achicar hasta 1 ítem visible,
     // con scroll SOLO vertical a partir de ahí. Sin scroll de página.
     const GRILLA_CELDA_W = 300;
-    const GRILLA_CELDA_H = 64;
-    const GRILLA_GAP = 16;
+    const GRILLA_CELDA_H = 28;
+    const GRILLA_GAP = 10;
 
     // Posiciones iniciales (en celdas), replicando el layout fijo que ya
     // teníamos armado a mano: col/fila = esquina superior-izquierda en celdas;
     // anchoCeldas/altoCeldas = tamaño ocupado.
+    // Editor on/off: las manijas de mover/redimensionar solo se ven y
+    // funcionan cuando este modo está activo — apagado, las tarjetas se ven
+    // limpias (sin iconitos) pero mantienen la posición ya guardada.
+    let editorLibreActivo = false;
+
     let posicionesArticulosFrances = {
-        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
-        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
-        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 2 },
-        pos4a: { col: 0, fila: 2, anchoCeldas: 1, altoCeldas: 1 },
-        pos4b: { col: 0, fila: 3, anchoCeldas: 1, altoCeldas: 1 },
-        pos5:  { col: 1, fila: 2, anchoCeldas: 1, altoCeldas: 3 },
-        pos6a: { col: 2, fila: 2, anchoCeldas: 1, altoCeldas: 1 },
-        pos6b: { col: 2, fila: 3, anchoCeldas: 1, altoCeldas: 1 },
-        pos7:  { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 1 },
-        pos8:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 1 },
-        abajo: { col: 0, fila: 6, anchoCeldas: 1, altoCeldas: 2 }
+        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
+        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
+        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 4 },
+        pos4a: { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 2 },
+        pos4b: { col: 0, fila: 8, anchoCeldas: 1, altoCeldas: 2 },
+        pos5:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 7 },
+        pos6a: { col: 2, fila: 5, anchoCeldas: 1, altoCeldas: 2 },
+        pos6b: { col: 2, fila: 8, anchoCeldas: 1, altoCeldas: 2 },
+        pos7:  { col: 0, fila: 13, anchoCeldas: 1, altoCeldas: 2 },
+        pos8:  { col: 1, fila: 13, anchoCeldas: 1, altoCeldas: 2 },
+        abajo: { col: 0, fila: 16, anchoCeldas: 1, altoCeldas: 4 }
     };
 
     function renderPersonasArticulos(idioma) {
@@ -5329,7 +5349,8 @@
         });
         const altoLienzo = maxFilaUsada * (GRILLA_CELDA_H + GRILLA_GAP);
 
-        let html = `<div class="personas-lienzo" id="personasLienzo" style="height:${altoLienzo}px;">`;
+        const claseEditor = editorLibreActivo ? " editor-activo" : "";
+        let html = `<div class="personas-lienzo${claseEditor}" id="personasLienzo" style="height:${altoLienzo}px;">`;
         claves.forEach(clave => {
             const tabla = clave === "abajo" ? (a.abajo && a.abajo[0]) : a[clave];
             if (!tabla) return;
@@ -5443,7 +5464,19 @@
         const etiquetas = { tarjetas: 'Personas', reglas: 'Reglas', articulos: 'Artículos' };
         document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoPersonas').classList.remove("show");
+        actualizarVisibilidadSelectorVerbo();
         actualizarPantalla();
+    }
+
+    // Prende/apaga el editor de arrastre libre: alterna la clase en el lienzo
+    // ya existente en el DOM (no hace falta re-renderizar todo).
+    function toggleEditorLibre() {
+        editorLibreActivo = !editorLibreActivo;
+        document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
+        const lienzo = document.getElementById('personasLienzo');
+        if (lienzo) {
+            lienzo.classList.toggle("editor-activo", editorLibreActivo);
+        }
     }
 
     // Selector clima/geografía: clona el patrón de Tarjetas/Reglas.
