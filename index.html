@@ -258,11 +258,24 @@
            en medio (algunas celdas con 2 tarjetas apiladas); COD/COI abajo. */
         .personas-articulos-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: auto auto auto;
             gap: 20px;
             align-items: start;
+            justify-content: start;
             overflow-y: auto;
             max-height: 100%;
+        }
+        /* Cada tarjeta toma el ancho de su propio contenido, no el ancho que le
+           tocaría por estar alineada en una columna del grid junto a otra más
+           ancha — así ninguna tarjeta se estira de más ni se desborda. */
+        .personas-articulos-grid > .tarjeta,
+        .personas-articulos-apiladas .tarjeta {
+            width: fit-content;
+            max-width: 100%;
+        }
+        .personas-articulos-grid > .tarjeta table,
+        .personas-articulos-apiladas .tarjeta table {
+            width: auto;
         }
         .personas-articulos-apiladas {
             display: flex;
