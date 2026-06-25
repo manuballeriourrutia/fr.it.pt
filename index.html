@@ -8,6 +8,15 @@
     <title>Idiomas Romances</title>
     <style>
         :root { --bg-color: #faf6ef; --panel-bg: #ffffff; --border-color: #e2e2e7; --text-color: #2c2c2e; --color-idioma: #0055a4; --color-borde-idioma: #0055a4; --sombra-borde-idioma: rgba(0, 85, 164, 0.35); }
+        /* REGLA NO NEGOCIABLE: la pantalla completa nunca scrollea, bajo
+           ninguna circunstancia — ni aunque algún elemento hijo se desborde.
+           Esto va en el elemento <html> (no solo <body>) porque si algo se
+           desborda con position:fixed/absolute, el scroll del documento puede
+           aparecer a nivel de <html> incluso con overflow:hidden en <body>. */
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
         
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -288,7 +297,7 @@
            panel contenedor general (.content-area), nunca esta capa. */
         .personas-lienzo {
             position: relative;
-            width: 100%;
+            overflow: hidden;
         }
         .tarjeta-libre {
             position: absolute;
@@ -4716,7 +4725,9 @@
     const unidadesPantallaCompleta = ["NÚMEROS Y TIEMPO", "TIEMPOS VERBALES", "VERBOS AUXILIARES", "VOCABULARIO"];
     function actualizarModoPantalla() {
         const panel = document.querySelector('.content-area');
-        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey));
+        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
+        const esLienzoPersonas = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
+        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey) || esLienzoPersonas);
     }
 
     // El selector de regularidad y el de verbo solo se muestran dentro de TIEMPOS
@@ -5421,15 +5432,14 @@
         const claves = ["pos1", "pos2", "pos3", "pos4a", "pos4b", "pos5", "pos6a", "pos6b", "pos7", "pos8", "abajo"];
         const visibles = claves.filter(c => tarjetasVisiblesArticulosFrances[c]);
 
-        let maxFilaUsada = 0;
-        visibles.forEach(clave => {
-            const p = posicionesArticulosFrances[clave];
-            maxFilaUsada = Math.max(maxFilaUsada, p.fila + (p.tamanoManual ? p.altoCeldas : 6));
-        });
-        // Más columnas de margen a los costados para tener libertad de mover
-        // tarjetas a la derecha sin que la cuadrícula se quede corta.
-        const anchoLienzo = 8 * (GRILLA_CELDA_W + GRILLA_GAP);
-        const altoLienzo = Math.max(maxFilaUsada, 8) * (GRILLA_CELDA_H + GRILLA_GAP);
+        // El lienzo ocupa exactamente el espacio real disponible en pantalla
+        // (.content-area) — nunca más que eso. Si una tarjeta se mueve fuera de
+        // ese límite, queda recortada/oculta (overflow: hidden), no genera
+        // scroll de página. Para "recuperarla" se apaga y prende el editor,
+        // que la reinicia a su posición de origen (esquina superior izquierda).
+        const panel = document.querySelector('.content-area');
+        const anchoLienzo = panel ? panel.clientWidth : 900;
+        const altoLienzo = panel ? panel.clientHeight : 600;
 
         const claseEditor = editorLibreActivo ? " editor-activo" : "";
         let html = `<div class="personas-lienzo${claseEditor}" id="personasLienzo" style="height:${altoLienzo}px; width:${anchoLienzo}px;">`;
@@ -5553,6 +5563,8 @@
         document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoPersonas').classList.remove("show");
         actualizarVisibilidadSelectorVerbo();
+        actualizarModoPantalla();
+        fijarAnchoPanel();
         actualizarPantalla();
     }
 
@@ -5563,11 +5575,42 @@
         document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
         document.getElementById('selectorTarjetasLibreWrap').style.display = editorLibreActivo ? "inline-block" : "none";
-        if (editorLibreActivo) inicializarMenuTarjetasLibre();
+        if (editorLibreActivo) {
+            inicializarMenuTarjetasLibre();
+            recuperarTarjetasFueraDePantalla();
+        }
         const lienzo = document.getElementById('personasLienzo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
         }
+    }
+
+    // Si una tarjeta quedó (parcial o totalmente) fuera del área visible del
+    // lienzo — por ejemplo, la movieron muy a la derecha y el lienzo después
+    // se hizo más chico — se reubica en la esquina superior izquierda (zona de
+    // "spawn"), apilándose una sobre otra si hay varias para recuperar.
+    function recuperarTarjetasFueraDePantalla() {
+        const panel = document.querySelector('.content-area');
+        if (!panel) return;
+        const anchoDisponible = panel.clientWidth;
+        const altoDisponible = panel.clientHeight;
+        let huboFueraDePantalla = false;
+        let offsetRecuperacion = 0;
+
+        Object.keys(posicionesArticulosFrances).forEach(clave => {
+            if (!tarjetasVisiblesArticulosFrances[clave]) return;
+            const p = posicionesArticulosFrances[clave];
+            const left = p.col * (GRILLA_CELDA_W + GRILLA_GAP);
+            const top = p.fila * (GRILLA_CELDA_H + GRILLA_GAP);
+            if (left >= anchoDisponible || top >= altoDisponible || left < 0 || top < 0) {
+                p.col = 0;
+                p.fila = Math.round(offsetRecuperacion / (GRILLA_CELDA_H + GRILLA_GAP));
+                offsetRecuperacion += 30; // apila las recuperadas, escalonadas
+                huboFueraDePantalla = true;
+            }
+        });
+
+        if (huboFueraDePantalla) actualizarPantalla();
     }
 
     // Arma el menú "Tarjetas": una opción por cada una de las 11, marcando con
