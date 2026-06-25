@@ -523,9 +523,9 @@
         </div>
     </div>
     <div class="dropdown" id="selectorModoPersonasWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoPersonas" onclick="toggleDropdown('menuModoPersonas')">Tarjetas</button>
+        <button class="dropbtn dropbtn-chico" id="btnModoPersonas" onclick="toggleDropdown('menuModoPersonas')">Personas</button>
         <div id="menuModoPersonas" class="dropdown-content">
-            <div onclick="cambiarModoPersonas('tarjetas')">Tarjetas</div>
+            <div onclick="cambiarModoPersonas('tarjetas')">Personas</div>
             <div onclick="cambiarModoPersonas('reglas')">Reglas</div>
             <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
         </div>
@@ -4568,7 +4568,7 @@
                 modoCulturaTipica = "local";
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoPersonas = "tarjetas";
-                document.getElementById('btnModoPersonas').innerText = "Tarjetas";
+                document.getElementById('btnModoPersonas').innerText = "Personas";
                 document.getElementById('btnUnidad').innerText = unidades[u][idioma];
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
@@ -5124,13 +5124,20 @@
         const datos = data[idioma]["PERSONAS"];
         const tarjetas = datos[modoPersonas];
         let html = '<div class="tarjetas-grid">';
-        tarjetas.forEach(tablaData => {
+        tarjetas.forEach((tablaData, i) => {
             const claseExtra = tablaData.ancha ? " tarjeta-ancha" : "";
             // Solo se recalcula el color por artículo si la tarjeta no trae ya
             // su propio colorPorCelda (las 3 de género ya tienen el suyo, basado
             // en "Masc."/"Fem." explícito, no en el artículo de una palabra real).
             const final = tablaData.colorPorCelda ? tablaData : tarjetaConColorDeGenero(tablaData, idioma);
             html += `<div class="tarjeta tarjeta-con-borde${claseExtra}">${renderTabla(final, idioma)}</div>`;
+            // En el modo "Personas" (sujeto/tónico/reflexivo + género), la 1ª
+            // tarjeta va sola en su fila (posición 1) y las 3 de género abajo
+            // alineadas (posiciones 4-5-6) — se fuerza el salto con un separador
+            // de ancho completo, truco estándar de flex-wrap.
+            if (modoPersonas === "tarjetas" && i === 0) {
+                html += '<div style="flex-basis: 100%; height: 0;"></div>';
+            }
         });
         html += '</div>';
         return html;
@@ -5138,7 +5145,7 @@
 
     function cambiarModoPersonas(nuevoModo) {
         modoPersonas = nuevoModo;
-        const etiquetas = { tarjetas: 'Tarjetas', reglas: 'Reglas', articulos: 'Artículos' };
+        const etiquetas = { tarjetas: 'Personas', reglas: 'Reglas', articulos: 'Artículos' };
         document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoPersonas').classList.remove("show");
         actualizarPantalla();
