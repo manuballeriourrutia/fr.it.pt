@@ -442,7 +442,7 @@
         }
         .tarjeta-ancha table { table-layout: auto; width: 100%; }
         .tarjeta-ancha th { display: none; }
-        .tarjeta-ancha td { text-align: left; white-space: normal; font-size: 14px; line-height: 1.5; }
+        .tarjeta-ancha td { text-align: left; white-space: normal; font-size: 12px; line-height: 1.5; }
         .tarjeta-ancha td:first-child { display: none; }
 
         /* Layout especial de REGLAS en VERBOS AUXILIARES: columna izquierda angosta
@@ -563,19 +563,9 @@
            días/meses a la izquierda (angosta, apiladas) y HORA a la derecha
            (ocupando el resto). Reemplaza la vieja grilla de 10 tarjetas. */
         /* NÚMEROS Y TIEMPO: pantalla dividida 50/50. Izquierda: grid 2x2 con las
-           4 tarjetas del mismo tamaño (0-9, decena elegida, días, meses).
-           Derecha: todo HORA apilado, con su propio scroll si no entra entero. */
-        .numeros-tiempo-layout { display: flex; gap: 20px; height: 100%; }
-        .numeros-tiempo-izq {
-            flex: 1 1 50%; min-width: 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto;
-            gap: 20px;
-            align-content: start;
-        }
-        .numeros-tiempo-izq > div { overflow-y: auto; }
-        .numeros-tiempo-fila-completa { grid-column: 1 / -1; }
+           HORAS Y FECHAS ahora vive en su propio sub-modo, con lienzo libre. */
+        .numeros-tiempo-layout { display: flex; gap: 20px; height: 100%; align-items: flex-start; }
+        .numeros-tiempo-fila { display: flex; gap: 20px; }
         /* Relojes visuales: grilla de 6 esferas SVG chicas con su frase debajo. */
         .tarjeta-relojes { padding: 14px 16px; }
         .relojes-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; text-align: center; margin-bottom: 8px; }
@@ -583,11 +573,6 @@
         .reloj-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .reloj-svg { width: 56px; height: 56px; }
         .reloj-etiqueta { font-size: 10px; text-align: center; line-height: 1.2; }
-        .numeros-tiempo-der {
-            flex: 1 1 50%; min-width: 0;
-            display: flex; flex-direction: column; gap: 20px;
-            height: 100%; overflow-y: auto;
-        }
         /* VOCABULARIO: una sola tarjeta grande ocupando toda la pantalla, con
            scroll interno para buscar la palabra — se elige el tema con el
            selector que aparece junto al nombre de la unidad. Letra más grande
@@ -655,6 +640,13 @@
         <button class="dropbtn" id="btnAuxiliar" onclick="toggleDropdown('menuAuxiliar')">Reglas</button>
         <div id="menuAuxiliar" class="dropdown-content"></div>
     </div>
+    <div class="dropdown" id="selectorModoNumerosYTiempoWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoNumerosYTiempo" onclick="toggleDropdown('menuModoNumerosYTiempo')">Números</button>
+        <div id="menuModoNumerosYTiempo" class="dropdown-content">
+            <div onclick="cambiarModoNumerosYTiempo('numeros')">Números</div>
+            <div onclick="cambiarModoNumerosYTiempo('horasyfechas')">Horas y Fechas</div>
+        </div>
+    </div>
     <div class="dropdown" id="selectorDecenasWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnDecenas" onclick="toggleDropdown('menuDecenas')">10 – 19</button>
         <div id="menuDecenas" class="dropdown-content"></div>
@@ -674,6 +666,7 @@
         <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClima" onclick="toggleDropdown('menuModoGeografiaClima')">Clima</button>
         <div id="menuModoGeografiaClima" class="dropdown-content">
             <div onclick="cambiarModoGeografiaClima('clima')">Clima</div>
+            <div onclick="cambiarModoGeografiaClima('estaciones')">Estaciones</div>
             <div onclick="cambiarModoGeografiaClima('geografia')">Geografía</div>
         </div>
     </div>
@@ -4075,6 +4068,73 @@
         ]}
     ];
 
+    // EXPRESIONES RELATIVAS DE TIEMPO: verificado con fuentes gramaticales de
+    // cada idioma. Dos grupos bien distintos: días concretos respecto a hoy
+    // (ayer/anteayer/hoy/mañana/pasado mañana — patrón simétrico en los 3
+    // idiomas), y momentos imprecisos (en un rato/hace un rato/ahora mismo).
+    const tiempoRelativoFrances = [
+        { titulo: "Días concretos respecto a hoy", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["avant-hier", "anteayer"],
+            ["hier", "ayer"],
+            ["aujourd'hui", "hoy"],
+            ["demain", "mañana"],
+            ["après-demain", "pasado mañana"]
+        ]},
+        { titulo: "Momentos imprecisos", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["maintenant", "ahora"],
+            ["tout à l'heure", "en un rato / hace un rato (según contexto)"],
+            ["dans un instant", "en un instante"],
+            ["il y a peu de temps", "hace poco"],
+            ["plus tard", "más tarde"],
+            ["bientôt", "pronto"]
+        ]},
+        { titulo: "\"Tout à l'heure\": pasado o futuro según el contexto", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Tout à l'heure\" sirve para pasado reciente y futuro próximo dentro del mismo día: \"Je l'ai vu tout à l'heure\" (lo vi hace un rato) vs. \"Je t'appelle tout à l'heure\" (te llamo en un rato) — el tiempo verbal de la frase es lo que marca la diferencia, no la expresión en sí."]
+        ]}
+    ];
+
+    const tiempoRelativoItaliano = [
+        { titulo: "Días concretos respecto a hoy", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["l'altro ieri", "anteayer"],
+            ["ieri", "ayer"],
+            ["oggi", "hoy"],
+            ["domani", "mañana"],
+            ["dopodomani", "pasado mañana"]
+        ]},
+        { titulo: "Momentos imprecisos", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["adesso", "ahora"],
+            ["tra poco", "en un rato"],
+            ["poco fa", "hace poco"],
+            ["più tardi", "más tarde"],
+            ["presto", "pronto"],
+            ["subito", "en seguida"]
+        ]},
+        { titulo: "A diferencia del francés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El italiano separa con claridad pasado y futuro próximo: \"poco fa\" siempre es pasado (hace poco), \"tra poco\" siempre es futuro (en un rato) — no hay ambigüedad como con el francés \"tout à l'heure\"."]
+        ]}
+    ];
+
+    const tiempoRelativoPortugues = [
+        { titulo: "Días concretos respecto a hoy", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["anteontem", "anteayer"],
+            ["ontem", "ayer"],
+            ["hoje", "hoy"],
+            ["amanhã", "mañana"],
+            ["depois de amanhã", "pasado mañana"]
+        ]},
+        { titulo: "Momentos imprecisos", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["agora", "ahora"],
+            ["agora mesmo", "ahora mismo"],
+            ["dentro de pouco", "en un rato"],
+            ["há pouco", "hace poco"],
+            ["mais tarde", "más tarde"],
+            ["em breve", "pronto"]
+        ]},
+        { titulo: "\"Anteontem\" vs. \"antes de ontem\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Ambas formas son correctas y significan lo mismo (anteayer) — \"anteontem\" es la forma más precisa y formal, mientras que \"antes de ontem\" es más coloquial, típica del habla cotidiana."]
+        ]}
+    ];
+
     // DÍAS Y MESES: verificado con fuentes gramaticales — confirma lo ya visto en
     // GÉNERO Y NÚMERO. FR e IT: días masculinos (IT excepto domenica, femenino).
     // PT: días femeninos de segunda a sexta, sábado/domingo masculinos — y la
@@ -4092,7 +4152,9 @@
             ["janvier", "enero"], ["février", "febrero"], ["mars", "marzo"], ["avril", "abril"],
             ["mai", "mayo"], ["juin", "junio"], ["juillet", "julio"], ["août", "agosto"],
             ["septembre", "septiembre"], ["octobre", "octubre"], ["novembre", "noviembre"], ["décembre", "diciembre"]
-        ]},
+        ]}
+    ];
+    const estacionesFrances = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Francés", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -4114,7 +4176,9 @@
             ["gennaio", "enero"], ["febbraio", "febrero"], ["marzo", "marzo"], ["aprile", "abril"],
             ["maggio", "mayo"], ["giugno", "junio"], ["luglio", "julio"], ["agosto", "agosto"],
             ["settembre", "septiembre"], ["ottobre", "octubre"], ["novembre", "noviembre"], ["dicembre", "diciembre"]
-        ]},
+        ]}
+    ];
+    const estacionesItaliano = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Italiano", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -4136,7 +4200,9 @@
             ["janeiro", "enero"], ["fevereiro", "febrero"], ["março", "marzo"], ["abril", "abril"],
             ["maio", "mayo"], ["junho", "junio"], ["julho", "julio"], ["agosto", "agosto"],
             ["setembro", "septiembre"], ["outubro", "octubre"], ["novembro", "noviembre"], ["dezembro", "diciembre"]
-        ]},
+        ]}
+    ];
+    const estacionesPortugues = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Português", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -4646,7 +4712,7 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioFrances), "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), "COLORES": [ 
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioFrances), "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances, tiempoRelativo: tiempoRelativoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), "COLORES": [ 
             { "esp": "Amarillo", "mSing": "jaune", "mPlur": "jaunes", "fSing": "jaune", "fPlur": "jaunes" },
             { "esp": "Naranja", "mSing": "orange", "mPlur": "oranges", "fSing": "orange", "fPlur": "oranges" },
             { "esp": "Rojo", "mSing": "rouge", "mPlur": "rouges", "fSing": "rouge", "fPlur": "rouges" },
@@ -4660,7 +4726,7 @@
             { "esp": "Gris", "mSing": "gris", "mPlur": "gris", "fSing": "grise", "fPlur": "grises" },
             { "esp": "Blanco", "mSing": "blanc", "mPlur": "blancs", "fSing": "blanche", "fPlur": "blanches" }
         ]},
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioItaliano), "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), "COLORES": [
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioItaliano), "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano, tiempoRelativo: tiempoRelativoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), "COLORES": [
             { "esp": "Amarillo", "mSing": "giallo", "mPlur": "gialli", "fSing": "gialla", "fPlur": "gialle" },
             { "esp": "Naranja", "mSing": "arancione", "mPlur": "arancioni", "fSing": "arancione", "fPlur": "arancioni" },
             { "esp": "Rojo", "mSing": "rosso", "mPlur": "rossi", "fSing": "rossa", "fPlur": "rosse" },
@@ -4674,7 +4740,7 @@
             { "esp": "Gris", "mSing": "grigio", "mPlur": "grigi", "fSing": "grigia", "fPlur": "grigie" },
             { "esp": "Blanco", "mSing": "bianco", "mPlur": "bianchi", "fSing": "bianca", "fPlur": "bianche" }
         ]},
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioPortugues), "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), "COLORES": [
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioPortugues), "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues, tiempoRelativo: tiempoRelativoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), "COLORES": [
             { "esp": "Amarillo", "mSing": "amarelo", "mPlur": "amarelos", "fSing": "amarela", "fPlur": "amarelas" },
             { "esp": "Naranja", "mSing": "laranja", "mPlur": "laranjas", "fSing": "laranja", "fPlur": "laranjas" },
             { "esp": "Rojo", "mSing": "vermelho", "mPlur": "vermelhos", "fSing": "vermelha", "fPlur": "vermelhas" },
@@ -4730,6 +4796,8 @@
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoPersonas = "tarjetas";
                 document.getElementById('btnModoPersonas').innerText = "Personas";
+                modoNumerosYTiempo = "numeros";
+                document.getElementById('btnModoNumerosYTiempo').innerText = "Números";
                 editorLibreActivo = false;
                 document.getElementById('btnEditorLibre').innerText = "Editor: Off";
                 document.getElementById('btnUnidad').innerText = unidades[u][idioma];
@@ -4746,12 +4814,27 @@
     // Algunas unidades (ej. NÚMEROS) necesitan ocupar toda la pantalla en vez de
     // ajustarse al contenido, para que el texto se vea grande y sin scroll.
     const unidadesPantallaCompleta = ["NÚMEROS Y TIEMPO", "TIEMPOS VERBALES", "VERBOS AUXILIARES", "VOCABULARIO"];
+
+    // Unidades genéricas excluidas del sistema de lienzo (verbos tienen su
+    // grilla propia de 8 tiempos; vocabulario se revisa aparte más adelante).
+    const UNIDADES_SIN_LIENZO = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "VOCABULARIO"];
+
+    // Detecta si el lienzo libre está activo en este momento: Personas →
+    // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
+    // modo "tarjetas" que no esté en la lista de exclusión.
+    function esModoLienzoActivo() {
+        if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
+        if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
+        if (unidadActualKey === "NÚMEROS Y TIEMPO") return modoNumerosYTiempo === "horasyfechas"; // Números queda fijo, Horas y Fechas usa lienzo
+        if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
+        if (unidadActualKey === "CULTURA TÍPICA") return false; // texto fijo
+        return modoVistaUnidad === "tarjetas";
+    }
+
     function actualizarModoPantalla() {
         const panel = document.querySelector('.content-area');
-        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
-        const esLienzoPersonas = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
         panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey));
-        panel.classList.toggle('lienzo-fijo', esLienzoPersonas);
+        panel.classList.toggle('lienzo-fijo', esModoLienzoActivo());
     }
 
     // El selector de regularidad y el de verbo solo se muestran dentro de TIEMPOS
@@ -4768,7 +4851,10 @@
             inicializarMenuAuxiliares();
         }
 
-        const visibleDecenas = unidadActualKey === "NÚMEROS Y TIEMPO";
+        const visibleModoNumerosYTiempo = unidadActualKey === "NÚMEROS Y TIEMPO";
+        document.getElementById('selectorModoNumerosYTiempoWrap').style.display = visibleModoNumerosYTiempo ? "inline-block" : "none";
+
+        const visibleDecenas = unidadActualKey === "NÚMEROS Y TIEMPO" && modoNumerosYTiempo === "numeros";
         document.getElementById('selectorDecenasWrap').style.display = visibleDecenas ? "inline-block" : "none";
         if (visibleDecenas) {
             inicializarMenuDecenas();
@@ -4789,10 +4875,10 @@
         const visiblePersonas = unidadActualKey === "PERSONAS";
         document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
 
-        // El botón de editor libre solo aplica al lienzo experimental:
-        // PERSONAS → Artículos → francés.
-        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
-        const visibleEditorLibre = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
+        // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
+        // activo: Personas → Artículos → francés, o unidades genéricas en
+        // modo Tarjetas.
+        const visibleEditorLibre = esModoLienzoActivo();
         document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
         document.getElementById('btnGuardarLibre').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
 
@@ -5188,37 +5274,56 @@
     // que había antes). Arriba: 0-9 fija a la izquierda + la decena elegida en el
     // selector a la derecha (10-19 ... 90-99, vía decenaActualIndex). Abajo: días
     // y meses apilados a la izquierda, HORA fija ocupando toda la derecha.
+    // NÚMEROS Y TIEMPO: 2 sub-modos — "Números" (0-9 fija + decena que se elige
+    // con el selector de arriba) y "Horas y Fechas" (relojes + hora + tiempo
+    // relativo + días/meses). Las estaciones se mudaron a GEOGRAFÍA Y CLIMA.
+    let modoNumerosYTiempo = "numeros";
+
+    function cambiarModoNumerosYTiempo(nuevoModo) {
+        modoNumerosYTiempo = nuevoModo;
+        const etiquetas = { numeros: 'Números', horasyfechas: 'Horas y Fechas' };
+        document.getElementById('btnModoNumerosYTiempo').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoNumerosYTiempo').classList.remove("show");
+        actualizarVisibilidadSelectorVerbo();
+        actualizarPantalla();
+    }
+
     function renderNumerosYTiempo(idioma) {
+        if (modoNumerosYTiempo === "horasyfechas") {
+            return renderHorasYFechas(idioma);
+        }
         const datos = data[idioma]["NÚMEROS Y TIEMPO"];
         const decenaElegida = datos.numeros[decenaActualIndex];
         let html = '<div class="numeros-tiempo-layout">';
-
-        // Mitad izquierda: grid 2x2 — arriba números (0-9 y la decena elegida),
-        // abajo días y meses, las 4 tarjetas del mismo tamaño.
-        html += '<div class="numeros-tiempo-izq">';
+        html += '<div class="numeros-tiempo-fila">';
         html += `<div class="tarjeta-numero tarjeta-con-borde">${renderTablaNumero(datos.numeros[0], idioma)}</div>`;
         html += `<div class="tarjeta-numero tarjeta-con-borde">${renderTablaNumero(decenaElegida, idioma)}</div>`;
-        datos.dias.forEach(tablaData => {
-            html += `<div class="tarjeta tarjeta-con-borde">${renderTabla(tablaData, idioma)}</div>`;
-        });
-        datos.meses.forEach(tablaData => {
-            const claseAncha = tablaData.titulo && tablaData.titulo.includes("Estaciones") ? " numeros-tiempo-fila-completa" : "";
-            html += `<div class="tarjeta tarjeta-con-borde${claseAncha}">${renderTabla(tablaData, idioma)}</div>`;
-        });
         html += '</div>';
-
-        // Mitad derecha: relojes visuales primero, después todo HORA apilado,
-        // con scroll propio si no entra entero.
-        html += '<div class="numeros-tiempo-der">';
-        html += renderTarjetaRelojes(idioma);
-        datos.hora.forEach(tablaData => {
-            const claseExtra = tablaData.ancha ? " tarjeta-ancha" : "";
-            html += `<div class="tarjeta tarjeta-con-borde${claseExtra}">${renderTabla(tablaData, idioma)}</div>`;
-        });
-        html += '</div>';
-
         html += '</div>';
         return html;
+    }
+
+    // Horas y Fechas: usa el lienzo libre genérico. El reloj entra como una
+    // tarjeta más, con htmlPersonalizado en vez de {titulo, headers, rows} —
+    // el motor ya sabe usar ese HTML tal cual, sin pasar por renderTabla.
+    function renderHorasYFechas(idioma) {
+        const datos = data[idioma]["NÚMEROS Y TIEMPO"];
+        const lienzoId = "HORAS Y FECHAS__" + idioma;
+        const piezas = [
+            { titulo: "Relojes", htmlPersonalizado: renderTarjetaRelojes(idioma) },
+            ...datos.hora, ...datos.tiempoRelativo, ...datos.dias, ...datos.meses
+        ];
+        const etiquetas = {};
+        const posicionesIniciales = {};
+        piezas.forEach((t, i) => {
+            const clave = "t" + i;
+            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
+            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+        });
+        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
+        const tarjetasPorClave = {};
+        piezas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
+        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
     }
 
     // VOCABULARIO: 9 temas, pero ahora se ven de UNO por vez en una sola tarjeta
@@ -5270,21 +5375,22 @@
     // artículo, igual criterio que VOCABULARIO.
     function renderGeografiaClima(idioma) {
         const datos = data[idioma]["GEOGRAFÍA Y CLIMA"];
-        if (modoGeografiaClima === "clima") {
-            let html = '<div class="tarjetas-grid clima-grid">';
-            datos.clima.forEach(tablaData => {
-                html += `<div class="tarjeta tarjeta-con-borde">${renderTabla(tablaData, idioma)}</div>`;
-            });
-            html += '</div>';
-            return html;
-        }
-        let html = '<div class="tarjetas-grid">';
-        datos.geografia.forEach(tablaData => {
-            const limpia = tarjetaConColorDeGenero(tablaData, idioma);
-            html += `<div class="tarjeta tarjeta-con-borde">${renderTabla(limpia, idioma)}</div>`;
+        const tarjetas = modoGeografiaClima === "clima" ? datos.clima
+            : modoGeografiaClima === "estaciones" ? datos.estaciones
+            : datos.geografia;
+        const lienzoId = "GEOGRAFÍA Y CLIMA__" + modoGeografiaClima + "__" + idioma;
+        const etiquetas = {};
+        const posicionesIniciales = {};
+        tarjetas.forEach((t, i) => {
+            const clave = "t" + i;
+            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
+            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
         });
-        html += '</div>';
-        return html;
+        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
+        const tarjetasPorClave = {};
+        tarjetas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
+        const claseExtra = modoGeografiaClima === "clima" ? "clima-grid" : null;
+        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma, claseExtra);
     }
 
     // PERSONAS: 3 modos — Tarjetas (sujeto/tónico/reflexivo + género), Reglas
@@ -5293,118 +5399,130 @@
     // "modifica o reemplaza" un sustantivo, agrupado en un solo lugar).
     let modoPersonas = "tarjetas";
 
+    const ETIQUETAS_PERSONAS_ARTICULOS = {
+        pos1: "Definidos", pos2: "Indefinidos", pos3: "Partitivos",
+        pos4a: "Demostrativos — Singular", pos4b: "Demostrativos — Plural",
+        pos5: "Mapa de posiciones", pos6a: "Destinos", pos6b: "Orígenes",
+        pos7: "COD", pos8: "COI", abajo: "Formas (posesivos)"
+    };
+    const POSICIONES_INICIALES_PERSONAS_ARTICULOS = {
+        pos1:  { leftPx: 0,   topPx: 0   },
+        pos2:  { leftPx: 310, topPx: 0   },
+        pos3:  { leftPx: 620, topPx: 0   },
+        pos4a: { leftPx: 0,   topPx: 160 },
+        pos4b: { leftPx: 0,   topPx: 280 },
+        pos5:  { leftPx: 310, topPx: 160 },
+        pos6a: { leftPx: 620, topPx: 160 },
+        pos6b: { leftPx: 620, topPx: 280 },
+        pos7:  { leftPx: 0,   topPx: 420 },
+        pos8:  { leftPx: 310, topPx: 420 },
+        abajo: { leftPx: 0,   topPx: 560 }
+    };
+
+    function renderPersonasArticulos(idioma) {
+        const lienzoId = "personas-articulos__" + idioma;
+        registrarLienzo(lienzoId, ETIQUETAS_PERSONAS_ARTICULOS, POSICIONES_INICIALES_PERSONAS_ARTICULOS);
+        const a = data[idioma]["PERSONAS"].articulos;
+        const tarjetasPorClave = {
+            pos1: a.pos1, pos2: a.pos2, pos3: a.pos3, pos4a: a.pos4a, pos4b: a.pos4b,
+            pos5: a.pos5, pos6a: a.pos6a, pos6b: a.pos6b, pos7: a.pos7, pos8: a.pos8,
+            abajo: a.abajo && a.abajo[0]
+        };
+        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
+    }
+
     function renderPersonas(idioma) {
         if (modoPersonas === "articulos") {
             return renderPersonasArticulos(idioma);
         }
         const datos = data[idioma]["PERSONAS"];
         const tarjetas = datos[modoPersonas];
-        let html = '<div class="tarjetas-grid">';
-        tarjetas.forEach((tablaData, i) => {
-            const claseExtra = tablaData.ancha ? " tarjeta-ancha" : "";
-            // Solo se recalcula el color por artículo si la tarjeta no trae ya
-            // su propio colorPorCelda (las 3 de género ya tienen el suyo, basado
-            // en "Masc."/"Fem." explícito, no en el artículo de una palabra real).
-            const final = tablaData.colorPorCelda ? tablaData : tarjetaConColorDeGenero(tablaData, idioma);
-            html += `<div class="tarjeta tarjeta-con-borde${claseExtra}">${renderTabla(final, idioma)}</div>`;
-            // En el modo "Personas" (sujeto/tónico/reflexivo + género), la 1ª
-            // tarjeta va sola en su fila (posición 1) y las 3 de género abajo
-            // alineadas (posiciones 4-5-6) — se fuerza el salto con un separador
-            // de ancho completo, truco estándar de flex-wrap.
-            if (modoPersonas === "tarjetas" && i === 0) {
-                html += '<div style="flex-basis: 100%; height: 0;"></div>';
+        const lienzoId = "PERSONAS__" + modoPersonas + "__" + idioma;
+        const etiquetas = {};
+        const posicionesIniciales = {};
+        tarjetas.forEach((t, i) => {
+            const clave = "t" + i;
+            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
+            // En modo "tarjetas", la 1ª tarjeta (Sujeto/Tónico/Reflexivo) arranca
+            // sola arriba, y el resto (terminaciones de género) abajo en fila —
+            // mismo acomodo inicial que ya teníamos, ahora como punto de partida
+            // libre en vez de layout fijo.
+            if (modoPersonas === "tarjetas") {
+                posicionesIniciales[clave] = i === 0 ? { leftPx: 0, topPx: 0 } : { leftPx: (i - 1) * 310, topPx: 160 };
+            } else {
+                posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
             }
         });
-        html += '</div>';
-        return html;
+        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
+        const tarjetasPorClave = {};
+        tarjetas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
+        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
     }
 
     // Modo "Artículos" de PERSONAS: grilla 3x3 con posiciones fijas, definida a
     // mano por la persona (no es flex-wrap automático). Fila 1: artículos
     // definidos/indefinidos/partitivos. Fila 2: [demostr. singular + plural
-    // apiladas] | mapa de posiciones | [destinos + orígenes apiladas]. Fila 3:
-    // COD | COI. Una fila final, fuera de la grilla 3x3, con la tabla de formas
-    // de posesivos (provisoria, sin posición definida todavía).
-    // EXPERIMENTO: arrastre y redimensión libre con snap a grilla invisible,
-    // solo en PERSONAS → Artículos → francés, por ahora. Cada tarjeta es un
-    // elemento posicionado absoluto (col/fila/ancho/alto en celdas), sin
-    // colisión automática entre tarjetas — si se superponen al moverlas, se
-    // quedan superpuestas (capas por orden de z-index fijo). Ancho mínimo = el
-    // ancho natural del contenido; alto se puede achicar hasta 1 ítem visible,
-    // con scroll SOLO vertical a partir de ahí. Sin scroll de página.
-    const GRILLA_CELDA_W = 300;
-    const GRILLA_CELDA_H = 28;
-    const GRILLA_GAP = 10;
-
-    // Posiciones iniciales (en celdas), replicando el layout fijo que ya
-    // teníamos armado a mano: col/fila = esquina superior-izquierda en celdas;
-    // anchoCeldas/altoCeldas = tamaño ocupado.
-    // Editor on/off: las manijas de mover/redimensionar solo se ven y
-    // funcionan cuando este modo está activo — apagado, las tarjetas se ven
-    // limpias (sin iconitos) pero mantienen la posición ya guardada.
+    // ===== MOTOR GENÉRICO DE LIENZOS (arrastre + redimensión de altura libre) =====
+    // Aplica a cualquier "lienzo" identificado por un lienzoId único (string).
+    // Cada lienzo tiene: sus propias tarjetas visibles/ocultas, sus propias
+    // posiciones (leftPx/topPx/altoPx libres, sin snap a grilla), su propia
+    // clave de LocalStorage. El editor (mover/redimensionar/mostrar-ocultar) es
+    // uno solo, compartido — actúa sobre "el lienzo actualmente en pantalla".
     let editorLibreActivo = false;
+    let lienzoActualId = null; // qué lienzo está activo ahora mismo en pantalla
 
-    // Qué tarjetas están visibles en el lienzo — arranca todo en false (caja
-    // vacía) hasta que se persista algo distinto en LocalStorage o el usuario
-    // las vaya agregando desde el selector "Tarjetas" (solo visible con el
-    // editor prendido).
-    let tarjetasVisiblesArticulosFrances = {
-        pos1: false, pos2: false, pos3: false, pos4a: false, pos4b: false,
-        pos5: false, pos6a: false, pos6b: false, pos7: false, pos8: false, abajo: false
-    };
-    const ETIQUETAS_TARJETAS_ARTICULOS = {
-        pos1: "Definidos", pos2: "Indefinidos", pos3: "Partitivos",
-        pos4a: "Demostrativos — Singular", pos4b: "Demostrativos — Plural",
-        pos5: "Mapa de posiciones", pos6a: "Destinos", pos6b: "Orígenes",
-        pos7: "COD", pos8: "COI", abajo: "Formas (posesivos)"
-    };
+    // Registro central: lienzoId -> { etiquetas: {clave: "Nombre visible"} }.
+    // Las posiciones/visibilidad de cada lienzo se guardan en estos 2 mapas,
+    // indexados primero por lienzoId y después por clave de tarjeta.
+    const LIENZOS_ETIQUETAS = {};
+    const LIENZOS_VISIBLES = {};
+    const LIENZOS_POSICIONES = {};
 
-    let posicionesArticulosFrances = {
-        pos1:  { leftPx: 0,   topPx: 0,   altoPx: null, tamanoManual: false },
-        pos2:  { leftPx: 310, topPx: 0,   altoPx: null, tamanoManual: false },
-        pos3:  { leftPx: 620, topPx: 0,   altoPx: null, tamanoManual: false },
-        pos4a: { leftPx: 0,   topPx: 160, altoPx: null, tamanoManual: false },
-        pos4b: { leftPx: 0,   topPx: 280, altoPx: null, tamanoManual: false },
-        pos5:  { leftPx: 310, topPx: 160, altoPx: null, tamanoManual: false },
-        pos6a: { leftPx: 620, topPx: 160, altoPx: null, tamanoManual: false },
-        pos6b: { leftPx: 620, topPx: 280, altoPx: null, tamanoManual: false },
-        pos7:  { leftPx: 0,   topPx: 420, altoPx: null, tamanoManual: false },
-        pos8:  { leftPx: 310, topPx: 420, altoPx: null, tamanoManual: false },
-        abajo: { leftPx: 0,   topPx: 560, altoPx: null, tamanoManual: false }
-    };
+    // Registra un lienzo nuevo la primera vez que se necesita (idempotente).
+    // claveAPosicionInicial: { clave: {leftPx, topPx} } — posiciones de fábrica.
+    function registrarLienzo(lienzoId, etiquetas, posicionesIniciales) {
+        if (LIENZOS_ETIQUETAS[lienzoId]) return; // ya registrado
+        LIENZOS_ETIQUETAS[lienzoId] = etiquetas;
+        LIENZOS_VISIBLES[lienzoId] = {};
+        LIENZOS_POSICIONES[lienzoId] = {};
+        Object.keys(etiquetas).forEach((clave, i) => {
+            LIENZOS_VISIBLES[lienzoId][clave] = false;
+            const pos = posicionesIniciales[clave] || { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+            LIENZOS_POSICIONES[lienzoId][clave] = { leftPx: pos.leftPx, topPx: pos.topPx, altoPx: null, tamanoManual: false };
+        });
+        cargarLienzoGuardado(lienzoId);
+    }
 
-    // Persistencia del editor libre en LocalStorage: si hay algo guardado de
-    // una sesión anterior, reemplaza las posiciones por defecto de arriba al
-    // cargar la página. Falla en silencio (try/catch) si LocalStorage no está
-    // disponible (Safari en modo privado, por ejemplo) — en ese caso, sigue
-    // funcionando con las posiciones por defecto, simplemente no persiste.
-    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v3";
-    (function cargarPosicionesGuardadas() {
+    function claveLocalStorageLienzo(lienzoId) {
+        return "idiomasRomances_lienzo_" + lienzoId + "_v1";
+    }
+
+    function cargarLienzoGuardado(lienzoId) {
         try {
-            const guardado = localStorage.getItem(CLAVE_LOCALSTORAGE_PERSONAS);
-            if (guardado) {
-                const datos = JSON.parse(guardado);
-                if (datos.posiciones) {
-                    Object.keys(posicionesArticulosFrances).forEach(clave => {
-                        if (datos.posiciones[clave]) posicionesArticulosFrances[clave] = datos.posiciones[clave];
-                    });
-                }
-                if (datos.visibles) {
-                    Object.keys(tarjetasVisiblesArticulosFrances).forEach(clave => {
-                        if (typeof datos.visibles[clave] === "boolean") tarjetasVisiblesArticulosFrances[clave] = datos.visibles[clave];
-                    });
-                }
+            const guardado = localStorage.getItem(claveLocalStorageLienzo(lienzoId));
+            if (!guardado) return;
+            const datos = JSON.parse(guardado);
+            if (datos.posiciones) {
+                Object.keys(LIENZOS_POSICIONES[lienzoId]).forEach(clave => {
+                    if (datos.posiciones[clave]) LIENZOS_POSICIONES[lienzoId][clave] = datos.posiciones[clave];
+                });
+            }
+            if (datos.visibles) {
+                Object.keys(LIENZOS_VISIBLES[lienzoId]).forEach(clave => {
+                    if (typeof datos.visibles[clave] === "boolean") LIENZOS_VISIBLES[lienzoId][clave] = datos.visibles[clave];
+                });
             }
         } catch (e) {
-            console.warn("No se pudo cargar la configuración guardada del editor libre:", e);
+            console.warn("No se pudo cargar el lienzo guardado:", lienzoId, e);
         }
-    })();
+    }
 
     function guardarPosicionesLibres() {
+        if (!lienzoActualId) return;
         try {
-            localStorage.setItem(CLAVE_LOCALSTORAGE_PERSONAS, JSON.stringify({
-                posiciones: posicionesArticulosFrances,
-                visibles: tarjetasVisiblesArticulosFrances
+            localStorage.setItem(claveLocalStorageLienzo(lienzoActualId), JSON.stringify({
+                posiciones: LIENZOS_POSICIONES[lienzoActualId],
+                visibles: LIENZOS_VISIBLES[lienzoActualId]
             }));
             const boton = document.getElementById('btnGuardarLibre');
             const textoOriginal = boton.innerText;
@@ -5416,72 +5534,35 @@
         }
     }
 
-    function renderPersonasArticulos(idioma) {
-        const a = data[idioma]["PERSONAS"].articulos;
+    // Renderiza cualquier lienzo: recibe el lienzoId y un objeto {clave: tabla}
+    // con las tarjetas disponibles (algunas pueden no estar visibles).
+    function renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma, claseExtraLienzo) {
+        lienzoActualId = lienzoId;
+        const visiblesMap = LIENZOS_VISIBLES[lienzoId];
+        const posicionesMap = LIENZOS_POSICIONES[lienzoId];
+        const claves = Object.keys(tarjetasPorClave).filter(c => visiblesMap[c]);
 
-        if (idioma === "FRANCÉS") {
-            return renderPersonasArticulosLienzo(a, idioma);
-        }
-
-        const t = (tabla, claseExtra) => {
-            const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
-            const clase = claseExtra ? ` ${claseExtra}` : "";
-            return `<div class="tarjeta tarjeta-con-borde${clase}">${renderTabla(final, idioma)}</div>`;
-        };
-        const apiladas = (tabla1, tabla2) => `<div class="personas-articulos-apiladas">${t(tabla1)}${t(tabla2)}</div>`;
-
-        // 3 filas independientes (cada una su propio flex), en vez de un grid
-        // de columnas compartidas — así cada tarjeta se pega a la siguiente sin
-        // que el ancho de una fila se condicione por el de otra.
-        let html = '<div class="personas-articulos-filas">';
-        html += `<div class="personas-articulos-fila">${t(a.pos1)}${t(a.pos2)}${t(a.pos3)}</div>`;
-        html += `<div class="personas-articulos-fila">${apiladas(a.pos4a, a.pos4b)}${t(a.pos5, 'tarjeta-mapa-posiciones')}${apiladas(a.pos6a, a.pos6b)}</div>`;
-        html += `<div class="personas-articulos-fila">${t(a.pos7)}${t(a.pos8)}</div>`;
-        html += '</div>';
-
-        if (a.abajo && a.abajo.length) {
-            html += '<div class="personas-articulos-abajo">';
-            a.abajo.forEach(tabla => { html += t(tabla); });
-            html += '</div>';
-        }
-        return html;
-    }
-
-    // Modo lienzo (solo francés, experimental): cada tarjeta es position:
-    // absolute, ubicada según posicionesArticulosFrances. Incluye 2 manijas
-    // (arrastrar arriba-izq, redimensionar abajo-der) y un wrap interno con
-    // scroll vertical (nunca horizontal) para cuando el contenido no entra en
-    // el alto asignado.
-    function renderPersonasArticulosLienzo(a, idioma) {
-        const claves = ["pos1", "pos2", "pos3", "pos4a", "pos4b", "pos5", "pos6a", "pos6b", "pos7", "pos8", "abajo"];
-        const visibles = claves.filter(c => tarjetasVisiblesArticulosFrances[c]);
-
-        // El lienzo ocupa exactamente el espacio real disponible en pantalla
-        // (.content-area) — nunca más que eso. Si una tarjeta se mueve fuera de
-        // ese límite, queda recortada/oculta (overflow: hidden), no genera
-        // scroll de página. Para "recuperarla" se apaga y prende el editor,
-        // que la reinicia a su posición de origen (esquina superior izquierda).
         const panel = document.querySelector('.content-area');
         const anchoLienzo = panel ? panel.clientWidth : 900;
         const altoLienzo = panel ? panel.clientHeight : 600;
 
         const claseEditor = editorLibreActivo ? " editor-activo" : "";
-        let html = `<div class="personas-lienzo${claseEditor}" id="personasLienzo" style="height:${altoLienzo}px; width:${anchoLienzo}px;">`;
-        visibles.forEach(clave => {
-            const tabla = clave === "abajo" ? (a.abajo && a.abajo[0]) : a[clave];
+        const claseExtra = claseExtraLienzo ? " " + claseExtraLienzo : "";
+        let html = `<div class="personas-lienzo${claseEditor}${claseExtra}" id="lienzoActivo" data-lienzo-id="${lienzoId}" style="height:${altoLienzo}px; width:${anchoLienzo}px;">`;
+        claves.forEach(clave => {
+            const tabla = tarjetasPorClave[clave];
             if (!tabla) return;
-            const p = posicionesArticulosFrances[clave];
-            // Ancho SIEMPRE automático (al contenido) — ya no es redimensionable.
-            // Alto: automático hasta que se redimensione a mano una vez; a partir
-            // de ahí, queda fijo en el valor libre (en píxeles) que se le dio.
-            const estiloTamano = p.tamanoManual
-                ? `width:auto; height:${p.altoPx}px;`
-                : `width:auto; height:auto;`;
-            const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
-            const claseExtra = clave === "pos5" ? " tarjeta-mapa-posiciones" : "";
+            const p = posicionesMap[clave];
+            const estiloTamano = p.tamanoManual ? `width:auto; height:${p.altoPx}px;` : `width:auto; height:auto;`;
+            // Caso especial: tarjeta sin tabla de datos real (ej. el reloj
+            // visual de NÚMEROS Y TIEMPO) — htmlPersonalizado se usa tal cual,
+            // sin pasar por renderTabla ni por el cálculo de color de género.
+            const contenidoInterno = tabla.htmlPersonalizado
+                ? tabla.htmlPersonalizado
+                : `<div class="tarjeta tarjeta-con-borde">${renderTabla(tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma), idioma)}</div>`;
             html += `<div class="tarjeta-libre${p.tamanoManual ? "" : " tarjeta-libre-auto"}" data-clave="${clave}" style="left:${p.leftPx}px; top:${p.topPx}px; ${estiloTamano}">
-                <div class="tarjeta-libre-contenido${claseExtra}">
-                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                <div class="tarjeta-libre-contenido">
+                    ${contenidoInterno}
                 </div>
                 <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
             </div>`;
@@ -5490,29 +5571,28 @@
         return html;
     }
 
-    // Calcula el ancho/alto mínimo real de una tarjeta-libre a partir de su
-    // contenido (para no dejar que el resize la achique por debajo de su
-    // ancho natural, ni por debajo de "1 ítem visible" de alto).
+    // Calcula la altura mínima real de una tarjeta-libre a partir de su
+    // contenido (para no dejar que el resize la achique por debajo de
+    // "1 ítem visible" de alto).
     function medirMinimosTarjetaLibre(elTarjetaLibre) {
         const contenido = elTarjetaLibre.querySelector('.tarjeta-libre-contenido');
         const tabla = contenido.querySelector('table');
-        const anchoMinimo = tabla ? tabla.scrollWidth + 32 : 150; // +padding aprox.
         const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
         const altoUnaFila = filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30;
         const altoTitulo = 40; // título/caption aproximado
-        const altoMinimo = Math.max(altoTitulo + altoUnaFila, GRILLA_CELDA_H * 0.6);
-        return { anchoMinimo, altoMinimo };
+        const altoMinimo = altoTitulo + altoUnaFila;
+        return { altoMinimo };
     }
 
     function inicializarArrastreLibre() {
-        const lienzo = document.getElementById('personasLienzo');
+        const lienzo = document.getElementById('lienzoActivo');
         if (!lienzo) return;
+        const lienzoId = lienzo.dataset.lienzoId;
+        const posicionesMap = LIENZOS_POSICIONES[lienzoId];
         const tarjetas = lienzo.querySelectorAll('.tarjeta-libre');
 
         tarjetas.forEach(el => {
             const clave = el.dataset.clave;
-            // La zona de arrastre es el título de la tarjeta (caption de la
-            // tabla), no un ícono aparte — más limpio visualmente.
             const zonaMover = el.querySelector('caption');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
             if (!zonaMover) return;
@@ -5531,9 +5611,7 @@
                 function soltar() {
                     document.removeEventListener('pointermove', mover);
                     document.removeEventListener('pointerup', soltar);
-                    // Sin snap — la posición queda libre, en el píxel exacto
-                    // donde se soltó.
-                    const p = posicionesArticulosFrances[clave];
+                    const p = posicionesMap[clave];
                     p.leftPx = el.offsetLeft;
                     p.topPx = el.offsetTop;
                 }
@@ -5556,9 +5634,7 @@
                 function soltar() {
                     document.removeEventListener('pointermove', mover);
                     document.removeEventListener('pointerup', soltar);
-                    // Sin snap — la altura queda libre, en el píxel exacto donde
-                    // se soltó (nunca por debajo del mínimo real del contenido).
-                    const p = posicionesArticulosFrances[clave];
+                    const p = posicionesMap[clave];
                     p.altoPx = el.offsetHeight;
                     p.tamanoManual = true;
                     el.classList.remove("tarjeta-libre-auto");
@@ -5569,19 +5645,8 @@
         });
     }
 
-    function cambiarModoPersonas(nuevoModo) {
-        modoPersonas = nuevoModo;
-        const etiquetas = { tarjetas: 'Personas', reglas: 'Reglas', articulos: 'Artículos' };
-        document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
-        document.getElementById('menuModoPersonas').classList.remove("show");
-        actualizarVisibilidadSelectorVerbo();
-        actualizarModoPantalla();
-        fijarAnchoPanel();
-        actualizarPantalla();
-    }
-
-    // Prende/apaga el editor de arrastre libre: alterna la clase en el lienzo
-    // ya existente en el DOM (no hace falta re-renderizar todo).
+    // Prende/apaga el editor de arrastre libre para el lienzo actualmente en
+    // pantalla (lienzoActualId).
     function toggleEditorLibre() {
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
@@ -5591,31 +5656,33 @@
             inicializarMenuTarjetasLibre();
             recuperarTarjetasFueraDePantalla();
         }
-        const lienzo = document.getElementById('personasLienzo');
+        const lienzo = document.getElementById('lienzoActivo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
         }
     }
 
-    // Si una tarjeta quedó (parcial o totalmente) fuera del área visible del
-    // lienzo — por ejemplo, la movieron muy a la derecha y el lienzo después
-    // se hizo más chico — se reubica en la esquina superior izquierda (zona de
-    // "spawn"), apilándose una sobre otra si hay varias para recuperar.
+    // Si una tarjeta del lienzo actual quedó fuera del área visible, se
+    // reubica en la esquina superior izquierda (zona de "spawn"), apilándose
+    // escalonada si hay varias para recuperar.
     function recuperarTarjetasFueraDePantalla() {
+        if (!lienzoActualId) return;
         const panel = document.querySelector('.content-area');
         if (!panel) return;
         const anchoDisponible = panel.clientWidth;
         const altoDisponible = panel.clientHeight;
+        const visiblesMap = LIENZOS_VISIBLES[lienzoActualId];
+        const posicionesMap = LIENZOS_POSICIONES[lienzoActualId];
         let huboFueraDePantalla = false;
         let offsetRecuperacion = 0;
 
-        Object.keys(posicionesArticulosFrances).forEach(clave => {
-            if (!tarjetasVisiblesArticulosFrances[clave]) return;
-            const p = posicionesArticulosFrances[clave];
+        Object.keys(posicionesMap).forEach(clave => {
+            if (!visiblesMap[clave]) return;
+            const p = posicionesMap[clave];
             if (p.leftPx >= anchoDisponible || p.topPx >= altoDisponible || p.leftPx < 0 || p.topPx < 0) {
                 p.leftPx = 0;
                 p.topPx = offsetRecuperacion;
-                offsetRecuperacion += 30; // apila las recuperadas, escalonadas
+                offsetRecuperacion += 30;
                 huboFueraDePantalla = true;
             }
         });
@@ -5623,34 +5690,33 @@
         if (huboFueraDePantalla) actualizarPantalla();
     }
 
-    // Arma el menú "Tarjetas": una opción por cada una de las 11, marcando con
-    // ✓ las que ya están visibles. Tocar una alterna su visibilidad y vuelve a
-    // dibujar el lienzo entero (hace falta, porque agregar/quitar una tarjeta
-    // cambia el alto total necesario del lienzo).
+    // Arma el menú "Tarjetas" para el lienzo actualmente en pantalla, marcando
+    // con ✓ las que ya están visibles.
     function inicializarMenuTarjetasLibre() {
+        if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
+        const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
+        const visiblesMap = LIENZOS_VISIBLES[lienzoActualId];
         menu.innerHTML = "";
-        Object.keys(ETIQUETAS_TARJETAS_ARTICULOS).forEach(clave => {
+        Object.keys(etiquetas).forEach(clave => {
             const div = document.createElement('div');
-            const marca = tarjetasVisiblesArticulosFrances[clave] ? "✓ " : "";
-            div.innerText = marca + ETIQUETAS_TARJETAS_ARTICULOS[clave];
+            const marca = visiblesMap[clave] ? "✓ " : "";
+            div.innerText = marca + etiquetas[clave];
             div.onclick = () => {
-                tarjetasVisiblesArticulosFrances[clave] = !tarjetasVisiblesArticulosFrances[clave];
+                visiblesMap[clave] = !visiblesMap[clave];
                 document.getElementById('menuTarjetasLibre').classList.remove("show");
                 actualizarPantalla();
-                // Al reabrir el menú después de togglear, vuelve a armarlo con
-                // las marcas ✓ actualizadas — se hace en el próximo click del
-                // botón, no hace falta reconstruirlo ahora mismo.
             };
             menu.appendChild(div);
         });
     }
 
 
-    // Selector clima/geografía: clona el patrón de Tarjetas/Reglas.
+    // Selector clima/estaciones/geografía: clona el patrón de Tarjetas/Reglas.
     function cambiarModoGeografiaClima(nuevoModo) {
         modoGeografiaClima = nuevoModo;
-        document.getElementById('btnModoGeografiaClima').innerText = nuevoModo === 'geografia' ? 'Geografía' : 'Clima';
+        const etiquetas = { clima: 'Clima', estaciones: 'Estaciones', geografia: 'Geografía' };
+        document.getElementById('btnModoGeografiaClima').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoGeografiaClima').classList.remove("show");
         actualizarPantalla();
     }
@@ -5770,6 +5836,19 @@
                     : "Esta unidad todavía no tiene tarjetas, solo reglas.";
                 return `<div class="tarjeta tarjeta-con-borde tarjeta-vacia-mensaje"><p>${mensaje}</p></div>`;
             }
+
+            // El modo Tarjetas (datos en tabla) usa el lienzo libre — mover por
+            // título, redimensionar altura, mostrar/ocultar desde el selector.
+            // El modo Reglas (texto largo explicativo) se queda fijo, en su
+            // grilla normal de lectura — no tiene sentido arrastrar párrafos.
+            if (modoVistaUnidad === "tarjetas") {
+                const lienzoId = unidadKey + "__" + idioma;
+                registrarLienzoDesdeArray(lienzoId, filtradas);
+                const tarjetasPorClave = {};
+                filtradas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
+                return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
+            }
+
             let html = '<div class="tarjetas-grid">';
             filtradas.forEach(tablaData => {
                 let claseExtra = tablaData.vacia ? " vacia" : " tarjeta-con-borde";
@@ -5783,6 +5862,21 @@
         // Unidad de una sola tarjeta (ej. COLORES llega acá si no tuviera su
         // propio render especial): no aplica el filtro, siempre se muestra.
         return `<div class="tarjeta tarjeta-con-borde">${renderTabla(unidadData, idioma)}</div>`;
+    }
+
+    // Registra (o re-registra) un lienzo genérico a partir de un array de
+    // tarjetas filtradas — usa el título de cada tarjeta como etiqueta visible
+    // en el selector. Las claves son posicionales (t0, t1, t2...) porque el
+    // array ya viene filtrado y puede variar de tamaño entre idiomas.
+    function registrarLienzoDesdeArray(unidadKey, filtradas) {
+        const etiquetas = {};
+        const posicionesIniciales = {};
+        filtradas.forEach((t, i) => {
+            const clave = "t" + i;
+            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
+            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+        });
+        registrarLienzo(unidadKey, etiquetas, posicionesIniciales);
     }
 
     // Devuelve el HTML interno (sin contenedor) para una unidad + idioma dados,
@@ -5851,12 +5945,10 @@
     // y fija ese ancho en el panel para que no "salte" de tamaño al cambiar idioma.
     function fijarAnchoPanel() {
         const panel = document.querySelector('.content-area');
-        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
-        const esLienzoPersonas = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
 
         // Las unidades en modo pantalla completa (o el lienzo libre) fijan su
         // tamaño por CSS, no por contenido.
-        if (unidadesPantallaCompleta.includes(unidadActualKey) || esLienzoPersonas) {
+        if (unidadesPantallaCompleta.includes(unidadActualKey) || esModoLienzoActivo()) {
             panel.style.width = "";
             return;
         }
