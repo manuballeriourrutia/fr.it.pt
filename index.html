@@ -6562,20 +6562,17 @@
         const elVocab = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="vocab"]');
         const eV = vocabularioNuevoEstado.vocab;
 
-        // Si vocabulario todavía no tiene posición/alto fijados (primera vez
-        // que se ve), se mide Colores YA pintado en el DOM y se calcula un
-        // lugar fijo y prolijo al lado — ancho real de Colores + margen, y el
-        // mismo alto — en vez de un valor de spawn arbitrario. Como esta
-        // unidad no tiene caja de "Tarjetas" para reordenar, conviene que
-        // ambas arranquen ya acomodadas, no con una posición rara a corregir.
+        // Si vocabulario todavía no tiene posición fijada (primera vez que se
+        // ve), se mide Colores YA pintado en el DOM y se calcula un lugar fijo
+        // y prolijo al lado — ancho real de Colores + margen. El ALTO se deja
+        // en su tamaño natural completo (no se copia el de Colores), igual que
+        // cualquier otra tarjeta nueva del sistema — así no cambia de tamaño
+        // entre el primer tema visto y los siguientes.
         const MARGEN_VOCAB = 24;
-        if (elColores && elVocab && !eV.alto) {
+        if (elColores && elVocab && eV.left === null) {
             const rectColores = elColores.getBoundingClientRect();
-            eV.alto = rectColores.height;
             eV.left = rectColores.width + MARGEN_VOCAB;
-            elVocab.style.height = rectColores.height + "px";
             elVocab.style.left = eV.left + "px";
-            elVocab.classList.remove("tarjeta-libre-auto");
         }
 
         [elColores, elVocab].forEach(el => {
