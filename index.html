@@ -4823,6 +4823,7 @@
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
     // modo "tarjetas" que no esté en la lista de exclusión.
     function esModoLienzoActivo() {
+        if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
         if (unidadActualKey === "NÚMEROS Y TIEMPO") return modoNumerosYTiempo === "horasyfechas"; // Números queda fijo, Horas y Fechas usa lienzo
@@ -4833,8 +4834,12 @@
 
     function actualizarModoPantalla() {
         const panel = document.querySelector('.content-area');
-        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey));
-        panel.classList.toggle('lienzo-fijo', esModoLienzoActivo());
+        const usaLienzo = esModoLienzoActivo();
+        // Nunca deben coexistir ambas clases en el mismo panel — si usa lienzo,
+        // gana lienzo-fijo (altura FIJA real), no pantalla-completa (que deja
+        // la altura como un máximo ajustado al contenido).
+        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey) && !usaLienzo);
+        panel.classList.toggle('lienzo-fijo', usaLienzo);
     }
 
     // El selector de regularidad y el de verbo solo se muestran dentro de TIEMPOS
@@ -4881,6 +4886,13 @@
         const visibleEditorLibre = esModoLienzoActivo();
         document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
         document.getElementById('btnGuardarLibre').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
+        document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
+        if (!visibleEditorLibre && editorLibreActivo) {
+            // La unidad activa no tiene lienzo — el editor no debería seguir
+            // "prendido" de una unidad anterior.
+            editorLibreActivo = false;
+            document.getElementById('btnEditorLibre').innerText = "Editor: Off";
+        }
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
@@ -5048,7 +5060,7 @@
 
     // Renderiza la unidad COLORES (formato especial: columna de emoji + 4 formas de adjetivo)
     function renderColores(idioma) {
-        let html = "<table class=\"tabla-colores\"><tr><th></th><th>Masc. S</th><th>Masc. P</th><th>Fem. S</th><th>Fem. P</th></tr>";
+        let html = "<table class=\"tabla-colores\"><caption>Colores</caption><tr><th></th><th>Masc. S</th><th>Masc. P</th><th>Fem. S</th><th>Fem. P</th></tr>";
         data[idioma]["COLORES"].forEach(item => {
             const emoji = emojiMap[item.esp] || "";
             html += "<tr>";
@@ -5399,6 +5411,17 @@
     // "modifica o reemplaza" un sustantivo, agrupado en un solo lugar).
     let modoPersonas = "tarjetas";
 
+    function cambiarModoPersonas(nuevoModo) {
+        modoPersonas = nuevoModo;
+        const etiquetas = { tarjetas: 'Personas', reglas: 'Reglas', articulos: 'Artículos' };
+        document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoPersonas').classList.remove("show");
+        actualizarVisibilidadSelectorVerbo();
+        actualizarModoPantalla();
+        fijarAnchoPanel();
+        actualizarPantalla();
+    }
+
     const ETIQUETAS_PERSONAS_ARTICULOS = {
         pos1: "Definidos", pos2: "Indefinidos", pos3: "Partitivos",
         pos4a: "Demostrativos — Singular", pos4b: "Demostrativos — Plural",
@@ -5648,6 +5671,7 @@
     // Prende/apaga el editor de arrastre libre para el lienzo actualmente en
     // pantalla (lienzoActualId).
     function toggleEditorLibre() {
+        if (!esModoLienzoActivo()) return; // protección: no debería poder activarse fuera de un lienzo real
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
@@ -5886,7 +5910,10 @@
         if (!unidadData) return null;
 
         if (unidadKey === "COLORES") {
-            return `<div class="tarjeta tarjeta-con-borde">${renderColores(idioma)}</div>`;
+            const lienzoId = "COLORES__" + idioma;
+            registrarLienzo(lienzoId, { t0: "Colores" }, { t0: { leftPx: 0, topPx: 0 } });
+            const tarjetasPorClave = { t0: { titulo: "Colores", htmlPersonalizado: `<div class="tarjeta tarjeta-con-borde">${renderColores(idioma)}</div>` } };
+            return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
         }
         if (unidadKey === "GEOGRAFÍA Y CLIMA") {
             return renderGeografiaClima(idioma);
