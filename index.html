@@ -187,6 +187,17 @@
             max-height: calc(100vh - 104px);
         }
 
+        /* El lienzo de arrastre libre (Personas → Artículos) necesita un alto
+           FIJO de pantalla completa, no un máximo que se ajuste al contenido —
+           si no, el lienzo termina midiendo menos de lo real y deja un hueco
+           sin cuadriculado abajo, generando overflow invisible. */
+        .content-area.lienzo-fijo {
+            width: calc(100vw - 40px) !important;
+            height: calc(100vh - 104px) !important;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 104px);
+        }
+
         /* El scroll vive acá adentro, no en toda la página. Padding chico para que
            la sombra de color de las tarjetas no quede cortada contra el borde del
            área de scroll. */
@@ -4743,7 +4754,8 @@
         const panel = document.querySelector('.content-area');
         const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
         const esLienzoPersonas = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
-        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey) || esLienzoPersonas);
+        panel.classList.toggle('pantalla-completa', unidadesPantallaCompleta.includes(unidadActualKey));
+        panel.classList.toggle('lienzo-fijo', esLienzoPersonas);
     }
 
     // El selector de regularidad y el de verbo solo se muestran dentro de TIEMPOS
@@ -5843,9 +5855,12 @@
     // y fija ese ancho en el panel para que no "salte" de tamaño al cambiar idioma.
     function fijarAnchoPanel() {
         const panel = document.querySelector('.content-area');
+        const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
+        const esLienzoPersonas = unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idiomaActivo === "FRANCÉS";
 
-        // Las unidades en modo pantalla completa fijan su tamaño por CSS, no por contenido
-        if (unidadesPantallaCompleta.includes(unidadActualKey)) {
+        // Las unidades en modo pantalla completa (o el lienzo libre) fijan su
+        // tamaño por CSS, no por contenido.
+        if (unidadesPantallaCompleta.includes(unidadActualKey) || esLienzoPersonas) {
             panel.style.width = "";
             return;
         }
