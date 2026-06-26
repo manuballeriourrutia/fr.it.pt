@@ -177,7 +177,11 @@
            derecha — si no, el texto largo (white-space: nowrap) los empuja
            fuera del viewport y quedan recortados contra el borde real. */
         .dropdown-derecha .dropdown-content { left: auto; right: 0; max-width: 90vw; }
-        .dropdown-derecha .dropdown-content div { white-space: normal; }
+        .dropdown-derecha .dropdown-content div {
+            white-space: normal;
+            padding: 10px 16px;
+            line-height: 1.3;
+        }
         .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
         /* Excepción: la zona de TIEMPOS VERBALES/VERBOS AUXILIARES mantiene el
            color de bandera del idioma en sus botones y menús — "mundo aparte",
@@ -4886,6 +4890,7 @@
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
     // modo "tarjetas" que no esté en la lista de exclusión.
     function esModoLienzoActivo() {
+        if (unidadActualKey === null) return false; // pantalla inicial, sin unidad elegida todavía
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
@@ -5699,12 +5704,17 @@
                 el.style.zIndex = 50;
                 const inicioX = ev.clientX, inicioY = ev.clientY;
                 const left0 = el.offsetLeft, top0 = el.offsetTop;
-                // Límites reales del lienzo, para que la tarjeta se frene
-                // sólida contra el borde derecho/inferior — nunca se recorta
-                // ni se deforma, simplemente no avanza más allá de ahí.
+                // Límites reales del lienzo, calculados con coordenadas de
+                // pantalla (getBoundingClientRect) en vez de clientWidth/
+                // offsetWidth — elimina cualquier diferencia de redondeo o de
+                // modelo de caja CSS entre cómo se mide el lienzo y cómo se
+                // mide la tarjeta, para que el límite derecho/inferior coincida
+                // exactamente con el visual (igual de sólido que arriba/izq).
                 const lienzoEl = document.getElementById('lienzoActivo');
-                const limiteX = lienzoEl.clientWidth - el.offsetWidth;
-                const limiteY = lienzoEl.clientHeight - el.offsetHeight;
+                const rectLienzo = lienzoEl.getBoundingClientRect();
+                const rectTarjeta = el.getBoundingClientRect();
+                const limiteX = rectLienzo.width - rectTarjeta.width;
+                const limiteY = rectLienzo.height - rectTarjeta.height;
 
                 function mover(e) {
                     const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
@@ -5771,27 +5781,37 @@
     // escalonada si hay varias para recuperar.
     function recuperarTarjetasFueraDePantalla() {
         if (!lienzoActualId) return;
-        const panel = document.getElementById('contentTable');
-        if (!panel) return;
-        const anchoDisponible = panel.clientWidth;
-        const altoDisponible = panel.clientHeight;
+        const lienzoEl = document.getElementById('lienzoActivo');
+        if (!lienzoEl) return;
         const visiblesMap = LIENZOS_VISIBLES[lienzoActualId];
         const posicionesMap = LIENZOS_POSICIONES[lienzoActualId];
-        let huboFueraDePantalla = false;
+        const rectLienzo = lienzoEl.getBoundingClientRect();
+        let huboCambios = false;
         let offsetRecuperacion = 0;
 
         Object.keys(posicionesMap).forEach(clave => {
             if (!visiblesMap[clave]) return;
             const p = posicionesMap[clave];
-            if (p.leftPx >= anchoDisponible || p.topPx >= altoDisponible || p.leftPx < 0 || p.topPx < 0) {
-                p.leftPx = 0;
-                p.topPx = offsetRecuperacion;
+            const elTarjeta = lienzoEl.querySelector(`.tarjeta-libre[data-clave="${clave}"]`);
+            const anchoTarjeta = elTarjeta ? elTarjeta.getBoundingClientRect().width : 0;
+            const altoTarjeta = elTarjeta ? elTarjeta.getBoundingClientRect().height : 0;
+
+            // Fuera de rango si la esquina superior-izquierda está afuera, O
+            // si la esquina inferior-derecha (considerando el tamaño real) se
+            // desborda — este segundo caso es el que antes no se detectaba,
+            // dejando tarjetas "ancladas" en una posición vieja que se veía
+            // recortada contra el borde, sin corregirse nunca sola.
+            const seDesbordaDerecha = p.leftPx + anchoTarjeta > rectLienzo.width;
+            const seDesbordaAbajo = p.topPx + altoTarjeta > rectLienzo.height;
+            if (p.leftPx < 0 || p.topPx < 0 || seDesbordaDerecha || seDesbordaAbajo) {
+                p.leftPx = Math.max(0, Math.min(p.leftPx, rectLienzo.width - anchoTarjeta));
+                p.topPx = Math.max(0, offsetRecuperacion);
                 offsetRecuperacion += 30;
-                huboFueraDePantalla = true;
+                huboCambios = true;
             }
         });
 
-        if (huboFueraDePantalla) actualizarPantalla();
+        if (huboCambios) actualizarPantalla();
     }
 
     // Arma el menú "Tarjetas" para el lienzo actualmente en pantalla, marcando
