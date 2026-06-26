@@ -658,19 +658,6 @@
            decena elegida (mismo ancho, mitad y mitad); fila de abajo con
            días/meses a la izquierda (angosta, apiladas) y HORA a la derecha
            (ocupando el resto). Reemplaza la vieja grilla de 10 tarjetas. */
-        /* NÚMEROS Y TIEMPO: pantalla dividida 50/50. Izquierda: grid 2x2 con las
-           HORAS Y FECHAS ahora vive en su propio sub-modo, con lienzo libre. */
-        .numeros-tiempo-layout { display: flex; gap: 20px; height: 100%; align-items: flex-start; }
-        .numeros-tiempo-fila { display: flex; gap: 20px; height: 100%; }
-        /* Las tarjetas de número (0-9 y decena) tienen el mismo tamaño "molde"
-           que una celda de tiempos verbales (grid 4x2 → 1/4 ancho, 1/2 alto del
-           panel) — no es una posición fija, es el tamaño del contenedor; el
-           contenido interno se acomoda ahí, con scroll si no entra. */
-        .numeros-tiempo-fila .tarjeta-numero {
-            width: calc((100% - 20px) / 4);
-            height: calc((100% - 20px) / 2);
-            overflow-y: auto;
-        }
         /* Relojes visuales: grilla de 6 esferas SVG chicas con su frase debajo. */
         .tarjeta-relojes { padding: 14px 16px; }
         .relojes-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; text-align: center; margin-bottom: 8px; }
@@ -702,8 +689,6 @@
         }
         .numero-tabla-wrap { width: 100%; }
         .numeros-tarjeta-unica-titulo { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; letter-spacing: 0.5px; padding-bottom: 8px; }
-        .numeros-tarjeta-unica { display: flex; gap: 20px; }
-        .numeros-tarjeta-unica .numero-tabla-wrap { width: auto; }
         .tarjeta-numero table { width: 100%; font-size: 15px; table-layout: fixed; }
         .tarjeta-numero td { padding: 3px 4px; white-space: nowrap; }
         .tarjeta-numero td:first-child { text-align: left; width: 32px; font-weight: 700; color: var(--color-idioma); }
@@ -747,17 +732,6 @@
     <div class="dropdown" id="selectorAuxiliarWrap" style="display: none;">
         <button class="dropbtn" id="btnAuxiliar" onclick="toggleDropdown('menuAuxiliar')">Reglas</button>
         <div id="menuAuxiliar" class="dropdown-content"></div>
-    </div>
-    <div class="dropdown" id="selectorModoNumerosYTiempoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoNumerosYTiempo" onclick="toggleDropdown('menuModoNumerosYTiempo')">Números</button>
-        <div id="menuModoNumerosYTiempo" class="dropdown-content">
-            <div onclick="cambiarModoNumerosYTiempo('numeros')">Números</div>
-            <div onclick="cambiarModoNumerosYTiempo('horasyfechas')">Horas y Fechas</div>
-        </div>
-    </div>
-    <div class="dropdown" id="selectorDecenasWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnDecenas" onclick="toggleDropdown('menuDecenas')">10 – 19</button>
-        <div id="menuDecenas" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorModoVistaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoVista" onclick="toggleDropdown('menuModoVista')">Tarjetas</button>
@@ -857,7 +831,6 @@
         "PERSONAS": { "FRANCÉS": "PERSONNES", "ITALIANO": "PERSONE", "PORTUGUÉS": "PESSOAS" },
         "GEOGRAFÍA Y CLIMA": { "FRANCÉS": "GÉOGRAPHIE ET MÉTÉO", "ITALIANO": "GEOGRAFIA E METEO", "PORTUGUÉS": "GEOGRAFIA E TEMPO" },
         "FRASES DE RECEPCIÓN": { "FRANCÉS": "PHRASES DE RÉCEPTION", "ITALIANO": "FRASI DI RECEPTION", "PORTUGUÉS": "FRASES DE RECEÇÃO" },
-        "NÚMEROS Y TIEMPO": { "FRANCÉS": "NOMBRES ET TEMPS", "ITALIANO": "NUMERI E TEMPO", "PORTUGUÉS": "NÚMEROS E TEMPO" },
         "ADVERBIOS DE CANTIDAD Y MODO": { "FRANCÉS": "ADVERBES DE QUANTITÉ ET DE MANIÈRE", "ITALIANO": "AVVERBI DI QUANTITÀ E MODO", "PORTUGUÉS": "ADVÉRBIOS DE QUANTIDADE E MODO" },
         "CONECTORES LÓGICOS": { "FRANCÉS": "CONNECTEURS LOGIQUES", "ITALIANO": "CONNETTIVI LOGICI", "PORTUGUÉS": "CONECTORES LÓGICOS" },
         "FANTASMA": { "FRANCÉS": "FANTASMA", "ITALIANO": "FANTASMA", "PORTUGUÉS": "FANTASMA" },
@@ -924,163 +897,12 @@
     let unidadActualKey = null;
     let modoVistaUnidad = "tarjetas"; // "tarjetas" o "reglas" — selector nuevo dentro de cada unidad genérica
     let modoGeografiaClima = "clima"; // "clima" o "geografia" — selector dentro de GEOGRAFÍA Y CLIMA
-    let decenaActualIndex = 1; // índice 1-9 dentro de data[idioma]["NÚMEROS Y TIEMPO"].numeros (0 queda fijo aparte)
 
     const tarjetaReferencia = { vacia: true, titulo: "Espacio disponible" };
 
-    const numerosFrances = [
-        { titulo: "0 – 9", headers: ["N°", "Francés"], rows: [
-            [0, "Zéro"], [1, "Un"], [2, "Deux"], [3, "Trois"], [4, "Quatre"],
-            [5, "Cinq"], [6, "Six"], [7, "Sept"], [8, "Huit"], [9, "Neuf"]
-        ]},
-        { titulo: "10 – 19", headers: ["N°", "Francés"], rows: [
-            [10, "Dix"], [11, "Onze"], [12, "Douze"], [13, "Treize"], [14, "Quatorze"], [15, "Quinze"],
-            [16, "Seize"], [17, "Dix-sept"], [18, "Dix-huit"], [19, "Dix-neuf"]
-        ]},
-        { titulo: "20 – 29", headers: ["N°", "Francés"], rows: [
-            [20, "Vingt"], [21, "Vingt-et-un"], [22, "Vingt-deux"], [23, "Vingt-trois"], [24, "Vingt-quatre"],
-            [25, "Vingt-cinq"], [26, "Vingt-six"], [27, "Vingt-sept"], [28, "Vingt-huit"], [29, "Vingt-neuf"]
-        ]},
-        { titulo: "30 – 39", headers: ["N°", "Francés"], rows: [
-            [30, "Trente"], [31, "Trente-et-un"], [32, "Trente-deux"], [33, "Trente-trois"], [34, "Trente-quatre"],
-            [35, "Trente-cinq"], [36, "Trente-six"], [37, "Trente-sept"], [38, "Trente-huit"], [39, "Trente-neuf"]
-        ]},
-        { titulo: "40 – 49", headers: ["N°", "Francés"], rows: [
-            [40, "Quarante"], [41, "Quarante-et-un"], [42, "Quarante-deux"], [43, "Quarante-trois"], [44, "Quarante-quatre"],
-            [45, "Quarante-cinq"], [46, "Quarante-six"], [47, "Quarante-sept"], [48, "Quarante-huit"], [49, "Quarante-neuf"]
-        ]},
-        { titulo: "50 – 59", headers: ["N°", "Francés"], rows: [
-            [50, "Cinquante"], [51, "Cinquante-et-un"], [52, "Cinquante-deux"], [53, "Cinquante-trois"], [54, "Cinquante-quatre"],
-            [55, "Cinquante-cinq"], [56, "Cinquante-six"], [57, "Cinquante-sept"], [58, "Cinquante-huit"], [59, "Cinquante-neuf"]
-        ]},
-        { titulo: "60 – 69", headers: ["N°", "Francés"], rows: [
-            [60, "Soixante"], [61, "Soixante-et-un"], [62, "Soixante-deux"], [63, "Soixante-trois"], [64, "Soixante-quatre"],
-            [65, "Soixante-cinq"], [66, "Soixante-six"], [67, "Soixante-sept"], [68, "Soixante-huit"], [69, "Soixante-neuf"]
-        ]},
-        { titulo: "70 – 79", headers: ["N°", "Francés"], rows: [
-            [70, "Soixante-dix"], [71, "Soixante-et-onze"], [72, "Soixante-douze"], [73, "Soixante-treize"], [74, "Soixante-quatorze"],
-            [75, "Soixante-quinze"], [76, "Soixante-seize"], [77, "Soixante-dix-sept"], [78, "Soixante-dix-huit"], [79, "Soixante-dix-neuf"]
-        ]},
-        { titulo: "80 – 89", headers: ["N°", "Francés"], rows: [
-            [80, "Quatre-vingts"], [81, "Quatre-vingt-un"], [82, "Quatre-vingt-deux"], [83, "Quatre-vingt-trois"], [84, "Quatre-vingt-quatre"],
-            [85, "Quatre-vingt-cinq"], [86, "Quatre-vingt-six"], [87, "Quatre-vingt-sept"], [88, "Quatre-vingt-huit"], [89, "Quatre-vingt-neuf"]
-        ]},
-        { titulo: "90 – 99", headers: ["N°", "Francés"], rows: [
-            [90, "Quatre-vingt-dix"], [91, "Quatre-vingt-onze"], [92, "Quatre-vingt-douze"], [93, "Quatre-vingt-treize"], [94, "Quatre-vingt-quatorze"],
-            [95, "Quatre-vingt-quinze"], [96, "Quatre-vingt-seize"], [97, "Quatre-vingt-dix-sept"], [98, "Quatre-vingt-dix-huit"], [99, "Quatre-vingt-dix-neuf"]
-        ]},
-        { titulo: "Cientos", headers: ["N°", "Francés"], rows: [
-            [100, "Cent"], [200, "Deux cents"], [300, "Trois cents"], [400, "Quatre cents"], [500, "Cinq cents"],
-            [600, "Six cents"], [700, "Sept cents"], [800, "Huit cents"], [900, "Neuf cents"], [101, "Cent un"]
-        ]},
-        { titulo: "Miles", headers: ["N°", "Francés"], rows: [
-            [1000, "Mille"], [2000, "Deux mille"], [3000, "Trois mille"], [5000, "Cinq mille"], [10000, "Dix mille"],
-            [50000, "Cinquante mille"], [100000, "Cent mille"], [500000, "Cinq cent mille"], [1000000, "Un million"], [1789, "Mille sept cent quatre-vingt-neuf"]
-        ]}
-    ];
-
-    const numerosItaliano = [
-        { titulo: "0 – 9", headers: ["N°", "Italiano"], rows: [
-            [0, "Zero"], [1, "Uno"], [2, "Due"], [3, "Tre"], [4, "Quattro"],
-            [5, "Cinque"], [6, "Sei"], [7, "Sette"], [8, "Otto"], [9, "Nove"]
-        ]},
-        { titulo: "10 – 19", headers: ["N°", "Italiano"], rows: [
-            [10, "Dieci"], [11, "Undici"], [12, "Dodici"], [13, "Tredici"], [14, "Quattordici"], [15, "Quindici"],
-            [16, "Sedici"], [17, "Diciassette"], [18, "Diciotto"], [19, "Diciannove"]
-        ]},
-        { titulo: "20 – 29", headers: ["N°", "Italiano"], rows: [
-            [20, "Venti"], [21, "Ventuno"], [22, "Ventidue"], [23, "Ventitré"], [24, "Ventiquattro"],
-            [25, "Venticinque"], [26, "Ventisei"], [27, "Ventisette"], [28, "Ventotto"], [29, "Ventinove"]
-        ]},
-        { titulo: "30 – 39", headers: ["N°", "Italiano"], rows: [
-            [30, "Trenta"], [31, "Trentuno"], [32, "Trentadue"], [33, "Trentatré"], [34, "Trentaquattro"],
-            [35, "Trentacinque"], [36, "Trentasei"], [37, "Trentasette"], [38, "Trentotto"], [39, "Trentanove"]
-        ]},
-        { titulo: "40 – 49", headers: ["N°", "Italiano"], rows: [
-            [40, "Quaranta"], [41, "Quarantuno"], [42, "Quarantadue"], [43, "Quarantatré"], [44, "Quarantaquattro"],
-            [45, "Quarantacinque"], [46, "Quarantasei"], [47, "Quarantasette"], [48, "Quarantotto"], [49, "Quarantanove"]
-        ]},
-        { titulo: "50 – 59", headers: ["N°", "Italiano"], rows: [
-            [50, "Cinquanta"], [51, "Cinquantuno"], [52, "Cinquantadue"], [53, "Cinquantatré"], [54, "Cinquantaquattro"],
-            [55, "Cinquantacinque"], [56, "Cinquantasei"], [57, "Cinquantasette"], [58, "Cinquantotto"], [59, "Cinquantanove"]
-        ]},
-        { titulo: "60 – 69", headers: ["N°", "Italiano"], rows: [
-            [60, "Sessanta"], [61, "Sessantuno"], [62, "Sessantadue"], [63, "Sessantatré"], [64, "Sessantaquattro"],
-            [65, "Sessantacinque"], [66, "Sessantasei"], [67, "Sessantasette"], [68, "Sessantotto"], [69, "Sessantanove"]
-        ]},
-        { titulo: "70 – 79", headers: ["N°", "Italiano"], rows: [
-            [70, "Settanta"], [71, "Settantuno"], [72, "Settantadue"], [73, "Settantatré"], [74, "Settantaquattro"],
-            [75, "Settantacinque"], [76, "Settantasei"], [77, "Settantasette"], [78, "Settantotto"], [79, "Settantanove"]
-        ]},
-        { titulo: "80 – 89", headers: ["N°", "Italiano"], rows: [
-            [80, "Ottanta"], [81, "Ottantuno"], [82, "Ottantadue"], [83, "Ottantatré"], [84, "Ottantaquattro"],
-            [85, "Ottantacinque"], [86, "Ottantasei"], [87, "Ottantasette"], [88, "Ottantotto"], [89, "Ottantanove"]
-        ]},
-        { titulo: "90 – 99", headers: ["N°", "Italiano"], rows: [
-            [90, "Novanta"], [91, "Novantuno"], [92, "Novantadue"], [93, "Novantatré"], [94, "Novantaquattro"],
-            [95, "Novantacinque"], [96, "Novantasei"], [97, "Novantasette"], [98, "Novantotto"], [99, "Novantanove"]
-        ]},
-        { titulo: "Cientos", headers: ["N°", "Italiano"], rows: [
-            [100, "Cento"], [200, "Duecento"], [300, "Trecento"], [400, "Quattrocento"], [500, "Cinquecento"],
-            [600, "Seicento"], [700, "Settecento"], [800, "Ottocento"], [900, "Novecento"], [101, "Centouno"]
-        ]},
-        { titulo: "Miles", headers: ["N°", "Italiano"], rows: [
-            [1000, "Mille"], [2000, "Duemila"], [3000, "Tremila"], [5000, "Cinquemila"], [10000, "Diecimila"],
-            [50000, "Cinquantamila"], [100000, "Centomila"], [500000, "Cinquecentomila"], [1000000, "Un milione"], [1789, "Millesettecentottantanove"]
-        ]}
-    ];
-
-    const numerosPortugues = [
-        { titulo: "0 – 9", headers: ["N°", "Portugués"], rows: [
-            [0, "Zero"], [1, "Um"], [2, "Dois"], [3, "Três"], [4, "Quatro"],
-            [5, "Cinco"], [6, "Seis"], [7, "Sete"], [8, "Oito"], [9, "Nove"]
-        ]},
-        { titulo: "10 – 19", headers: ["N°", "Portugués"], rows: [
-            [10, "Dez"], [11, "Onze"], [12, "Doze"], [13, "Treze"], [14, "Catorze"], [15, "Quinze"],
-            [16, "Dezesseis"], [17, "Dezessete"], [18, "Dezoito"], [19, "Dezenove"]
-        ]},
-        { titulo: "20 – 29", headers: ["N°", "Portugués"], rows: [
-            [20, "Vinte"], [21, "Vinte e um"], [22, "Vinte e dois"], [23, "Vinte e três"], [24, "Vinte e quatro"],
-            [25, "Vinte e cinco"], [26, "Vinte e seis"], [27, "Vinte e sete"], [28, "Vinte e oito"], [29, "Vinte e nove"]
-        ]},
-        { titulo: "30 – 39", headers: ["N°", "Portugués"], rows: [
-            [30, "Trinta"], [31, "Trinta e um"], [32, "Trinta e dois"], [33, "Trinta e três"], [34, "Trinta e quatro"],
-            [35, "Trinta e cinco"], [36, "Trinta e seis"], [37, "Trinta e sete"], [38, "Trinta e oito"], [39, "Trinta e nove"]
-        ]},
-        { titulo: "40 – 49", headers: ["N°", "Portugués"], rows: [
-            [40, "Quarenta"], [41, "Quarenta e um"], [42, "Quarenta e dois"], [43, "Quarenta e três"], [44, "Quarenta e quatro"],
-            [45, "Quarenta e cinco"], [46, "Quarenta e seis"], [47, "Quarenta e sete"], [48, "Quarenta e oito"], [49, "Quarenta e nove"]
-        ]},
-        { titulo: "50 – 59", headers: ["N°", "Portugués"], rows: [
-            [50, "Cinquenta"], [51, "Cinquenta e um"], [52, "Cinquenta e dois"], [53, "Cinquenta e três"], [54, "Cinquenta e quatro"],
-            [55, "Cinquenta e cinco"], [56, "Cinquenta e seis"], [57, "Cinquenta e sete"], [58, "Cinquenta e oito"], [59, "Cinquenta e nove"]
-        ]},
-        { titulo: "60 – 69", headers: ["N°", "Portugués"], rows: [
-            [60, "Sessenta"], [61, "Sessenta e um"], [62, "Sessenta e dois"], [63, "Sessenta e três"], [64, "Sessenta e quatro"],
-            [65, "Sessenta e cinco"], [66, "Sessenta e seis"], [67, "Sessenta e sete"], [68, "Sessenta e oito"], [69, "Sessenta e nove"]
-        ]},
-        { titulo: "70 – 79", headers: ["N°", "Portugués"], rows: [
-            [70, "Setenta"], [71, "Setenta e um"], [72, "Setenta e dois"], [73, "Setenta e três"], [74, "Setenta e quatro"],
-            [75, "Setenta e cinco"], [76, "Setenta e seis"], [77, "Setenta e sete"], [78, "Setenta e oito"], [79, "Setenta e nove"]
-        ]},
-        { titulo: "80 – 89", headers: ["N°", "Portugués"], rows: [
-            [80, "Oitenta"], [81, "Oitenta e um"], [82, "Oitenta e dois"], [83, "Oitenta e três"], [84, "Oitenta e quatro"],
-            [85, "Oitenta e cinco"], [86, "Oitenta e seis"], [87, "Oitenta e sete"], [88, "Oitenta e oito"], [89, "Oitenta e nove"]
-        ]},
-        { titulo: "90 – 99", headers: ["N°", "Portugués"], rows: [
-            [90, "Noventa"], [91, "Noventa e um"], [92, "Noventa e dois"], [93, "Noventa e três"], [94, "Noventa e quatro"],
-            [95, "Noventa e cinco"], [96, "Noventa e seis"], [97, "Noventa e sete"], [98, "Noventa e oito"], [99, "Noventa e nove"]
-        ]},
-        { titulo: "Cientos", headers: ["N°", "Portugués"], rows: [
-            [100, "Cem"], [200, "Duzentos"], [300, "Trezentos"], [400, "Quatrocentos"], [500, "Quinhentos"],
-            [600, "Seiscentos"], [700, "Setecentos"], [800, "Oitocentos"], [900, "Novecentos"], [101, "Cento e um"]
-        ]},
-        { titulo: "Miles", headers: ["N°", "Portugués"], rows: [
-            [1000, "Mil"], [2000, "Dois mil"], [3000, "Três mil"], [5000, "Cinco mil"], [10000, "Dez mil"],
-            [50000, "Cinquenta mil"], [100000, "Cem mil"], [500000, "Quinhentos mil"], [1000000, "Um milhão"], [1789, "Mil setecentos e oitenta e nove"]
-        ]}
-    ];
-
+    
+    
+    
     // Metadatos de cada verbo: nombre real en cada idioma (para mostrar en el desplegable)
     // y si es regular o irregular EN ESE IDIOMA específicamente (puede variar entre idiomas:
     // ej. DEVOIR es irregular en francés/italiano pero "dever" es regular en portugués).
@@ -3412,168 +3234,23 @@
     //   Para minutos pasados de la media hora, PT-PT prefiere contar hacia la
     //   hora siguiente con "para as" (igual lógica que el "moins"/"meno" de FR/IT),
     //   a diferencia del PT-BR que prefiere decir el número de minutos directo.
-    const horaFrances = [
-        { titulo: "Regla básica: \"il est\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para preguntar la hora: \"Quelle heure est-il?\". Para responder, siempre \"il est\" + número + heure(s) — sin artículo antes del número, a diferencia de italiano y portugués."],
-            ["", "\"Heure\" va en singular solo con la 1: \"il est une heure\". Con el resto, siempre en plural: \"il est trois heures\"."]
-        ]},
-        { titulo: "Mediodía y medianoche", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Il est midi.", "Es mediodía."],
-            ["Il est minuit.", "Es medianoche."]
-        ]},
-        { titulo: "Sistema informal (reloj de 12 horas)", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Il est trois heures et quart.", "Son las tres y cuarto."],
-            ["Il est trois heures et demie.", "Son las tres y media."],
-            ["Il est quatre heures moins le quart.", "Son las cuatro menos cuarto."],
-            ["Il est quatre heures moins dix.", "Son las cuatro menos diez."]
-        ]},
-        { titulo: "Sistema formal (reloj de 24 horas)", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "En horarios oficiales (trenes, check-in, recepción) se usan siempre los números directos del 0 al 23, nunca \"et quart\" ni \"moins le quart\": \"il est dix-sept heures trente\" (no \"cinq heures et demie\")."]
-        ]},
-        { titulo: "\"A qué hora\": la preposición \"à\"", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["à trois heures", "a las tres"],
-            ["à midi", "al mediodía"],
-            ["à minuit", "a medianoche"]
-        ]}
-    ];
-
-    const horaItaliano = [
-        { titulo: "Regla básica: artículo \"le\" obligatorio", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para preguntar la hora: \"Che ora è?\" o \"Che ore sono?\" (ambas correctas y equivalentes). Para responder, \"sono le\" + número — el artículo femenino plural \"le\" es obligatorio antes del número."],
-            ["", "La 1, el mediodía y la medianoche son la excepción: van en singular, sin \"le\": \"è l'una\", \"è mezzogiorno\", \"è mezzanotte\"."]
-        ]},
-        { titulo: "Mediodía y medianoche", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["È mezzogiorno.", "Es mediodía."],
-            ["È mezzanotte.", "Es medianoche."]
-        ]},
-        { titulo: "Sistema informal (reloj de 12 horas)", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Sono le tre e un quarto.", "Son las tres y cuarto."],
-            ["Sono le tre e mezza.", "Son las tres y media."],
-            ["Sono le quattro meno un quarto.", "Son las cuatro menos cuarto."],
-            ["Sono le quattro meno dieci.", "Son las cuatro menos diez."]
-        ]},
-        { titulo: "Sistema formal (reloj de 24 horas)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "En horarios oficiales se usan los números directos del 0 al 23, igual que en francés: \"sono le diciassette e trenta\" (no \"le cinque e mezza\")."]
-        ]},
-        { titulo: "\"A qué hora\": la preposición \"a/alle\"", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["alle tre", "a las tres"],
-            ["a mezzogiorno", "al mediodía"],
-            ["a mezzanotte", "a medianoche"]
-        ]}
-    ];
-
-    const horaPortugues = [
-        { titulo: "Regla básica: \"é\" / \"são\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para preguntar la hora: \"Que horas são?\". Para responder: \"é\" solo con la 1/mediodía/medianoche; \"são\" con el resto: \"é uma hora\", \"são três horas\"."],
-            ["", "El verbo concuerda con el número, no con la palabra \"horas\" — por eso \"é uma hora\" (singular) pero \"são duas horas\" (plural)."]
-        ]},
-        { titulo: "Mediodía y medianoche", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["É meio-dia.", "Es mediodía."],
-            ["É meia-noite.", "Es medianoche."]
-        ]},
-        { titulo: "Sistema informal (reloj de 12 horas, PT-PT)", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["São três e um quarto.", "Son las tres y cuarto."],
-            ["São três e meia.", "Son las tres y media."],
-            ["É um quarto para as quatro.", "Son las cuatro menos cuarto."],
-            ["São dez para as quatro.", "Son las cuatro menos diez."]
-        ]},
-        { titulo: "PT-PT cuenta hacia la hora siguiente", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del portugués de Brasil (que prefiere el número directo de minutos), en PT-PT lo natural después de la media hora es contar los minutos que faltan para la hora siguiente con \"para as\" — misma lógica que el \"moins\" francés o el \"meno\" italiano."]
-        ]},
-        { titulo: "\"A qué hora\": la preposición \"a/às\"", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["às três horas", "a las tres"],
-            ["ao meio-dia", "al mediodía"],
-            ["à meia-noite", "a medianoche"]
-        ]}
-    ];
-
+    
+    
+    
     // EXPRESIONES RELATIVAS DE TIEMPO: verificado con fuentes gramaticales de
     // cada idioma. Dos grupos bien distintos: días concretos respecto a hoy
     // (ayer/anteayer/hoy/mañana/pasado mañana — patrón simétrico en los 3
     // idiomas), y momentos imprecisos (en un rato/hace un rato/ahora mismo).
-    const tiempoRelativoFrances = [
-        { titulo: "Días concretos respecto a hoy", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["avant-hier", "anteayer"],
-            ["hier", "ayer"],
-            ["aujourd'hui", "hoy"],
-            ["demain", "mañana"],
-            ["après-demain", "pasado mañana"]
-        ]},
-        { titulo: "Momentos imprecisos", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["maintenant", "ahora"],
-            ["tout à l'heure", "en un rato / hace un rato (según contexto)"],
-            ["dans un instant", "en un instante"],
-            ["il y a peu de temps", "hace poco"],
-            ["plus tard", "más tarde"],
-            ["bientôt", "pronto"]
-        ]},
-        { titulo: "\"Tout à l'heure\": pasado o futuro según el contexto", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Tout à l'heure\" sirve para pasado reciente y futuro próximo dentro del mismo día: \"Je l'ai vu tout à l'heure\" (lo vi hace un rato) vs. \"Je t'appelle tout à l'heure\" (te llamo en un rato) — el tiempo verbal de la frase es lo que marca la diferencia, no la expresión en sí."]
-        ]}
-    ];
-
-    const tiempoRelativoItaliano = [
-        { titulo: "Días concretos respecto a hoy", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["l'altro ieri", "anteayer"],
-            ["ieri", "ayer"],
-            ["oggi", "hoy"],
-            ["domani", "mañana"],
-            ["dopodomani", "pasado mañana"]
-        ]},
-        { titulo: "Momentos imprecisos", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["adesso", "ahora"],
-            ["tra poco", "en un rato"],
-            ["poco fa", "hace poco"],
-            ["più tardi", "más tarde"],
-            ["presto", "pronto"],
-            ["subito", "en seguida"]
-        ]},
-        { titulo: "A diferencia del francés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El italiano separa con claridad pasado y futuro próximo: \"poco fa\" siempre es pasado (hace poco), \"tra poco\" siempre es futuro (en un rato) — no hay ambigüedad como con el francés \"tout à l'heure\"."]
-        ]}
-    ];
-
-    const tiempoRelativoPortugues = [
-        { titulo: "Días concretos respecto a hoy", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["anteontem", "anteayer"],
-            ["ontem", "ayer"],
-            ["hoje", "hoy"],
-            ["amanhã", "mañana"],
-            ["depois de amanhã", "pasado mañana"]
-        ]},
-        { titulo: "Momentos imprecisos", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["agora", "ahora"],
-            ["agora mesmo", "ahora mismo"],
-            ["dentro de pouco", "en un rato"],
-            ["há pouco", "hace poco"],
-            ["mais tarde", "más tarde"],
-            ["em breve", "pronto"]
-        ]},
-        { titulo: "\"Anteontem\" vs. \"antes de ontem\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Ambas formas son correctas y significan lo mismo (anteayer) — \"anteontem\" es la forma más precisa y formal, mientras que \"antes de ontem\" es más coloquial, típica del habla cotidiana."]
-        ]}
-    ];
-
+    
+    
+    
     // DÍAS Y MESES: verificado con fuentes gramaticales — confirma lo ya visto en
     // GÉNERO Y NÚMERO. FR e IT: días masculinos (IT excepto domenica, femenino).
     // PT: días femeninos de segunda a sexta, sábado/domingo masculinos — y la
     // curiosidad de que "segunda-feira" significa literalmente "segundo día"
     // porque la semana se cuenta a partir del domingo. Meses: todos masculinos
     // en los 3 idiomas, sin plural.
-    const diasFrances = [
-        { titulo: "Días de la semana", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["lundi", "lunes"], ["mardi", "martes"], ["mercredi", "miércoles"], ["jeudi", "jueves"],
-            ["vendredi", "viernes"], ["samedi", "sábado"], ["dimanche", "domingo"]
-        ]}
-    ];
-    const mesesFrances = [
-        { titulo: "Meses del año", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["janvier", "enero"], ["février", "febrero"], ["mars", "marzo"], ["avril", "abril"],
-            ["mai", "mayo"], ["juin", "junio"], ["juillet", "julio"], ["août", "agosto"],
-            ["septembre", "septiembre"], ["octobre", "octubre"], ["novembre", "noviembre"], ["décembre", "diciembre"]
-        ]}
-    ];
-    const estacionesFrances = [
+            const estacionesFrances = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Francés", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -3584,20 +3261,7 @@
         ]}
     ];
 
-    const diasItaliano = [
-        { titulo: "Días de la semana", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["lunedì", "lunes"], ["martedì", "martes"], ["mercoledì", "miércoles"], ["giovedì", "jueves"],
-            ["venerdì", "viernes"], ["sabato", "sábado"], ["domenica", "domingo"]
-        ]}
-    ];
-    const mesesItaliano = [
-        { titulo: "Meses del año", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["gennaio", "enero"], ["febbraio", "febrero"], ["marzo", "marzo"], ["aprile", "abril"],
-            ["maggio", "mayo"], ["giugno", "junio"], ["luglio", "julio"], ["agosto", "agosto"],
-            ["settembre", "septiembre"], ["ottobre", "octubre"], ["novembre", "noviembre"], ["dicembre", "diciembre"]
-        ]}
-    ];
-    const estacionesItaliano = [
+            const estacionesItaliano = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Italiano", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -3608,20 +3272,7 @@
         ]}
     ];
 
-    const diasPortugues = [
-        { titulo: "Días de la semana", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["segunda-feira", "lunes"], ["terça-feira", "martes"], ["quarta-feira", "miércoles"], ["quinta-feira", "jueves"],
-            ["sexta-feira", "viernes"], ["sábado", "sábado"], ["domingo", "domingo"]
-        ]}
-    ];
-    const mesesPortugues = [
-        { titulo: "Meses del año", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["janeiro", "enero"], ["fevereiro", "febrero"], ["março", "marzo"], ["abril", "abril"],
-            ["maio", "mayo"], ["junho", "junio"], ["julho", "julio"], ["agosto", "agosto"],
-            ["setembro", "septiembre"], ["outubro", "octubre"], ["novembro", "noviembre"], ["dezembro", "diciembre"]
-        ]}
-    ];
-    const estacionesPortugues = [
+            const estacionesPortugues = [
         { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Português", "Meses"], columnasConSonido: [0],
           colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
           rows: [
@@ -4131,9 +3782,9 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances, tiempoRelativo: tiempoRelativoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano, tiempoRelativo: tiempoRelativoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues, tiempoRelativo: tiempoRelativoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -4176,8 +3827,6 @@
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoPersonas = "tarjetas";
                 document.getElementById('btnModoPersonas').innerText = "Personas";
-                modoNumerosYTiempo = "numeros";
-                document.getElementById('btnModoNumerosYTiempo').innerText = "Números";
                 modoFantasma = "temaA";
                 document.getElementById('btnModoFantasma').innerText = "Tema A";
                 modoNumerosTiempoNuevo = "numeros";
@@ -4201,11 +3850,11 @@
 
     // Algunas unidades (ej. NÚMEROS) necesitan ocupar toda la pantalla en vez de
     // ajustarse al contenido, para que el texto se vea grande y sin scroll.
-    const unidadesPantallaCompleta = ["NÚMEROS Y TIEMPO", "TIEMPOS VERBALES", "VERBOS AUXILIARES", "VOCABULARIO"];
+    const unidadesPantallaCompleta = ["TIEMPOS VERBALES", "VERBOS AUXILIARES"];
 
     // Unidades genéricas excluidas del sistema de lienzo (verbos tienen su
     // grilla propia de 8 tiempos; vocabulario se revisa aparte más adelante).
-    const UNIDADES_SIN_LIENZO = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "VOCABULARIO"];
+    const UNIDADES_SIN_LIENZO = ["TIEMPOS VERBALES", "VERBOS AUXILIARES"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -4218,7 +3867,6 @@
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
-        if (unidadActualKey === "NÚMEROS Y TIEMPO") return modoNumerosYTiempo === "horasyfechas"; // Números queda fijo, Horas y Fechas usa lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "CULTURA TÍPICA") return false; // texto fijo
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
@@ -4247,15 +3895,6 @@
         document.getElementById('selectorAuxiliarWrap').style.display = visibleAuxiliar ? "inline-block" : "none";
         if (visibleAuxiliar) {
             inicializarMenuAuxiliares();
-        }
-
-        const visibleModoNumerosYTiempo = unidadActualKey === "NÚMEROS Y TIEMPO";
-        document.getElementById('selectorModoNumerosYTiempoWrap').style.display = visibleModoNumerosYTiempo ? "inline-block" : "none";
-
-        const visibleDecenas = unidadActualKey === "NÚMEROS Y TIEMPO" && modoNumerosYTiempo === "numeros";
-        document.getElementById('selectorDecenasWrap').style.display = visibleDecenas ? "inline-block" : "none";
-        if (visibleDecenas) {
-            inicializarMenuDecenas();
         }
 
         const visibleGeografiaClima = unidadActualKey === "GEOGRAFÍA Y CLIMA";
@@ -4304,7 +3943,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "NÚMEROS Y TIEMPO", "VOCABULARIO", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -4688,68 +4327,6 @@
         });
         html += "</table></div>";
         return html;
-    }
-
-    // NÚMEROS Y TIEMPO: layout de 4 zonas (no es la grilla genérica de 10 tarjetas
-    // que había antes). Arriba: 0-9 fija a la izquierda + la decena elegida en el
-    // selector a la derecha (10-19 ... 90-99, vía decenaActualIndex). Abajo: días
-    // y meses apilados a la izquierda, HORA fija ocupando toda la derecha.
-    // NÚMEROS Y TIEMPO: 2 sub-modos — "Números" (0-9 fija + decena que se elige
-    // con el selector de arriba) y "Horas y Fechas" (relojes + hora + tiempo
-    // relativo + días/meses). Las estaciones se mudaron a GEOGRAFÍA Y CLIMA.
-    let modoNumerosYTiempo = "numeros";
-
-    function cambiarModoNumerosYTiempo(nuevoModo) {
-        modoNumerosYTiempo = nuevoModo;
-        const etiquetas = { numeros: 'Números', horasyfechas: 'Horas y Fechas' };
-        document.getElementById('btnModoNumerosYTiempo').innerText = etiquetas[nuevoModo];
-        document.getElementById('menuModoNumerosYTiempo').classList.remove("show");
-        actualizarVisibilidadSelectorVerbo();
-        actualizarModoPantalla();
-        fijarAnchoPanel();
-        // El cambio de clase CSS (pantalla-completa <-> lienzo-fijo) puede no
-        // estar repintado todavía en el instante exacto de este código — se
-        // fuerza un frame de respiro antes de medir el panel y renderizar el
-        // lienzo, para que el tamaño que se mida sea siempre el real.
-        requestAnimationFrame(() => actualizarPantalla());
-    }
-
-    function renderNumerosYTiempo(idioma) {
-        if (modoNumerosYTiempo === "horasyfechas") {
-            return renderHorasYFechas(idioma);
-        }
-        const datos = data[idioma]["NÚMEROS Y TIEMPO"];
-        const decenaElegida = datos.numeros[decenaActualIndex];
-        let html = '<div class="numeros-tiempo-layout">';
-        html += '<div class="numeros-tiempo-fila">';
-        html += `<div class="tarjeta-numero tarjeta-con-borde">${renderTablaNumero(datos.numeros[0], idioma)}</div>`;
-        html += `<div class="tarjeta-numero tarjeta-con-borde">${renderTablaNumero(decenaElegida, idioma)}</div>`;
-        html += '</div>';
-        html += '</div>';
-        return html;
-    }
-
-    // Horas y Fechas: usa el lienzo libre genérico. El reloj entra como una
-    // tarjeta más, con htmlPersonalizado en vez de {titulo, headers, rows} —
-    // el motor ya sabe usar ese HTML tal cual, sin pasar por renderTabla.
-    function renderHorasYFechas(idioma) {
-        const datos = data[idioma]["NÚMEROS Y TIEMPO"];
-        const lienzoId = "HORAS Y FECHAS__" + idioma;
-        const piezas = [
-            { titulo: "Relojes", htmlPersonalizado: renderTarjetaRelojes(idioma) },
-            ...datos.hora, ...datos.tiempoRelativo, ...datos.dias, ...datos.meses
-        ];
-        const etiquetas = {};
-        const posicionesIniciales = {};
-        piezas.forEach((t, i) => {
-            const clave = "t" + i;
-            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
-        });
-        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
-        const tarjetasPorClave = {};
-        piezas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
-        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
     }
 
     // VOCABULARIO: 9 temas, pero ahora se ven de UNO por vez en una sola tarjeta
@@ -6161,11 +5738,12 @@
         "PORTUGUÉS": numerosNuevoPortugues
     };
 
-    // "Los números" (tema de LOS NÚMEROS Y EL TIEMPO): 1 sola tarjeta con 0-9 +
-    // el grupo elegido (decenas/cientos/miles), lado a lado dentro del mismo
-    // marco. El selector de grupo vive en la barra de herramientas, al lado
+    // "Los números" (tema de LOS NÚMEROS Y EL TIEMPO): 1 sola tarjeta, con el
+    // grupo elegido (0-9, 10-19, 20-29... Cientos, Miles) en una tabla simple
+    // de 2 columnas — 0-9 es una opción más del mismo selector, no algo fijo
+    // aparte. El selector de grupo vive en la barra de herramientas, al lado
     // del selector de tema — visible solo con el editor apagado.
-    let grupoNumerosNuevoIndex = 1; // 0 queda fijo aparte (0-9); 1..N son el resto de grupos
+    let grupoNumerosNuevoIndex = 0; // 0 = "0-9", el resto son los demás grupos
     const numerosNuevoEstado = { left: 0, top: 0, alto: null, tamanoManual: false };
 
     function cambiarGrupoNumerosNuevo(i) {
@@ -6181,7 +5759,7 @@
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const numeros = NUMEROS_NUEVO_POR_IDIOMA[idioma];
         menu.innerHTML = "";
-        for (let i = 1; i < numeros.length; i++) {
+        for (let i = 0; i < numeros.length; i++) {
             const div = document.createElement('div');
             div.innerText = numeros[i].titulo;
             div.onclick = () => cambiarGrupoNumerosNuevo(i);
@@ -6194,11 +5772,8 @@
         const numeros = NUMEROS_NUEVO_POR_IDIOMA[idioma];
         const grupoElegido = numeros[grupoNumerosNuevoIndex];
         return `<div class="numeros-tarjeta-unica-wrap">
-            <div class="numeros-tarjeta-unica-titulo">Números</div>
-            <div class="numeros-tarjeta-unica">
-                ${renderTablaNumero(numeros[0], idioma)}
-                ${renderTablaNumero(grupoElegido, idioma)}
-            </div>
+            <div class="numeros-tarjeta-unica-titulo">${grupoElegido.titulo}</div>
+            ${renderTablaNumero(grupoElegido, idioma)}
         </div>`;
     }
 
@@ -7321,27 +6896,6 @@
     // actualiza el botón con el tema actualmente elegido.
     // Selector de decenas (10-19 ... 90-99) para NÚMEROS Y TIEMPO: arma el menú
     // y actualiza el botón con el título de la decena actualmente elegida.
-    function inicializarMenuDecenas() {
-        const menu = document.getElementById('menuDecenas');
-        const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        menu.innerHTML = "";
-        const numeros = data[idioma]["NÚMEROS Y TIEMPO"].numeros;
-        // i=1..9 son las decenas (10-19 ... 90-99); i=10 y 11 son las tarjetas
-        // nuevas de Cientos y Miles, agregadas al final de cada array de números.
-        for (let i = 1; i < numeros.length; i++) {
-            const div = document.createElement('div');
-            div.innerText = numeros[i].titulo;
-            div.onclick = () => {
-                decenaActualIndex = i;
-                document.getElementById('btnDecenas').innerText = numeros[i].titulo;
-                document.getElementById('menuDecenas').classList.remove("show");
-                actualizarPantalla();
-            };
-            menu.appendChild(div);
-        }
-        document.getElementById('btnDecenas').innerText = numeros[decenaActualIndex].titulo;
-    }
-
 
 
     // Layout especial para REGLAS de VERBOS AUXILIARES (no es el genérico de
@@ -7467,9 +7021,6 @@
             // tiempos); si no, es contenido de REGLAS (layout especial en 2 columnas).
             const esConjugacion = Array.isArray(unidadData) && unidadData.length > 0 && unidadData[0].filas;
             return esConjugacion ? renderTiemposAuxiliar(idioma) : renderReglasAuxiliares(idioma);
-        }
-        if (unidadKey === "NÚMEROS Y TIEMPO") {
-            return renderNumerosYTiempo(idioma);
         }
         return renderGenerico(idioma, unidadKey);
     }
