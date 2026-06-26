@@ -797,6 +797,20 @@
             <div onclick="cambiarModoNumerosTiempoNuevo('horaytiempo')">La hora y el tiempo</div>
         </div>
     </div>
+    <div class="dropdown" id="selectorModoVocabularioNuevoWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoVocabularioNuevo" onclick="toggleDropdown('menuModoVocabularioNuevo')">Lugares del hotel</button>
+        <div id="menuModoVocabularioNuevo" class="dropdown-content">
+            <div onclick="cambiarModoVocabularioNuevo('Lugares del hotel')">Lugares del hotel</div>
+            <div onclick="cambiarModoVocabularioNuevo('Objetos y equipaje')">Objetos y equipaje</div>
+            <div onclick="cambiarModoVocabularioNuevo('Partes del cuerpo')">Partes del cuerpo</div>
+            <div onclick="cambiarModoVocabularioNuevo('Salud y emergencias')">Salud y emergencias</div>
+            <div onclick="cambiarModoVocabularioNuevo('Alimentos y bebidas')">Alimentos y bebidas</div>
+            <div onclick="cambiarModoVocabularioNuevo('Verbos de acción de recepción')">Verbos de acción de recepción</div>
+            <div onclick="cambiarModoVocabularioNuevo('Incidentes de habitación')">Incidentes de habitación</div>
+            <div onclick="cambiarModoVocabularioNuevo('Ropa y accesorios')">Ropa y accesorios</div>
+            <div onclick="cambiarModoVocabularioNuevo('Tiempo libre y servicios del hotel')">Tiempo libre y servicios del hotel</div>
+        </div>
+    </div>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -847,6 +861,7 @@
         "FANTASMA": { "FRANCÉS": "FANTASMA", "ITALIANO": "FANTASMA", "PORTUGUÉS": "FANTASMA" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
+        "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📚", "ITALIANO": "VOCABULARIO 📚", "PORTUGUÉS": "VOCABULARIO 📚" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
@@ -3388,7 +3403,7 @@
         { titulo: "Lugares del hotel", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
             ["la réception", "la recepción"],
             ["le hall", "el lobby"],
-            ["l'étage", "el piso"],
+            ["l'étage#masc", "el piso"],
             ["la chambre", "la habitación"],
             ["l'ascenseur#masc", "el ascensor"],
             ["l'escalier#masc", "la escalera"],
@@ -3447,7 +3462,7 @@
             ["la bouche", "la boca"],
             ["l'oreille#fem", "la oreja"],
             ["le cou", "el cuello"],
-            ["l'épaule", "el hombro"],
+            ["l'épaule#fem", "el hombro"],
             ["le bras", "el brazo"],
             ["la main", "la mano"],
             ["le doigt", "el dedo"],
@@ -3587,7 +3602,7 @@
             ["les chaussettes", "las medias"],
             ["la ceinture", "el cinturón"],
             ["le chapeau", "el sombrero"],
-            ["l'écharpe", "la bufanda"],
+            ["l'écharpe#fem", "la bufanda"],
             ["les gants", "los guantes"],
             ["le maillot de bain", "la malla (de baño)"],
             ["le pyjama", "el pijama"],
@@ -4940,6 +4955,8 @@
                 document.getElementById('btnModoFantasma').innerText = "Tema A";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
+                modoVocabularioNuevo = "Lugares del hotel";
+                document.getElementById('btnModoVocabularioNuevo').innerText = "Lugares del hotel";
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -4970,6 +4987,7 @@
         if (unidadActualKey === null) return false; // pantalla inicial, sin unidad elegida todavía
         if (unidadActualKey === "FANTASMA") return true; // unidad de prueba del sistema de mesa
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return true; // unidad nueva, sistema de mesa
+        if (unidadActualKey === "VOCABULARIO NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
@@ -5031,6 +5049,9 @@
         const visibleNumerosTiempoNuevo = unidadActualKey === "LOS NÚMEROS Y EL TIEMPO";
         document.getElementById('selectorModoNumerosTiempoNuevoWrap').style.display = visibleNumerosTiempoNuevo ? "inline-block" : "none";
 
+        const visibleVocabularioNuevo = unidadActualKey === "VOCABULARIO NUEVO";
+        document.getElementById('selectorModoVocabularioNuevoWrap').style.display = visibleVocabularioNuevo ? "inline-block" : "none";
+
         const visiblePersonas = unidadActualKey === "PERSONAS";
         document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
 
@@ -5040,7 +5061,10 @@
         const visibleEditorLibre = esModoLienzoActivo();
         document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
         document.getElementById('btnGuardarLibre').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
-        document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
+        // VOCABULARIO NUEVO no tiene caja de "Tarjetas" — sus 2 tarjetas
+        // (colores + vocabulario) están siempre visibles, sin selector.
+        const sinCajaDeTarjetas = unidadActualKey === "VOCABULARIO NUEVO";
+        document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo && !sinCajaDeTarjetas) ? "inline-block" : "none";
         // Botones rápidos (placeholder): solo en FANTASMA por ahora, visibles
         // cuando el editor está apagado — lo opuesto a Tarjetas/Guardar.
         const visibleRapidos = (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") && !editorLibreActivo;
@@ -5056,7 +5080,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "NÚMEROS Y TIEMPO", "VOCABULARIO", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "NÚMEROS Y TIEMPO", "VOCABULARIO", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -5978,6 +6002,184 @@
     };
     const numerosTiempoNuevoEstado = {};
 
+    // VOCABULARIO NUEVO: 2 tarjetas fijas, sin caja de "Tarjetas" (siempre
+    // visibles ambas) — Colores (migrada, mismo formato que ya existía) y
+    // Vocabulario por tema (selector de 9 temas al lado del botón de unidad,
+    // como en LOS NÚMEROS Y EL TIEMPO). La tarjeta de vocabulario es la única
+    // excepción al "tamaño completo natural": arranca con la MISMA altura que
+    // mide la tarjeta de Colores en ese momento (no su propio alto natural,
+    // que sería gigante con 25 palabras) — de ahí para abajo es scrolleable
+    // como cualquier tarjeta redimensionada a mano.
+    let modoVocabularioNuevo = "Lugares del hotel";
+    function cambiarModoVocabularioNuevo(nuevoTema) {
+        modoVocabularioNuevo = nuevoTema;
+        document.getElementById('btnModoVocabularioNuevo').innerText = nuevoTema;
+        document.getElementById('menuModoVocabularioNuevo').classList.remove("show");
+        actualizarPantalla();
+    }
+
+    const vocabularioNuevoEstado = {
+        colores: { left: 0, top: 0, alto: null, tamanoManual: false },
+        vocab: { left: 310, top: 0, alto: null, tamanoManual: false }
+    };
+
+    // Calcula el color real de género de una palabra de vocabulario, y si hace
+    // falta, la aclaración chica "f"/"m" para los casos de l' (donde el
+    // artículo en sí no deja ver el género, pero la palabra SÍ tiene uno real
+    // — por eso no es "indistinto", es violeta + aclaración del género real).
+    function colorYAclaracionVocabulario(palabraConMarca, idioma) {
+        const tieneMarcaFem = /#fem$/.test(palabraConMarca);
+        const tieneMarcaMasc = /#masc$/.test(palabraConMarca);
+        const palabraLimpia = palabraConMarca.replace(/#(masc|fem)$/, "");
+        const matchLApostrofe = palabraLimpia.match(/^(l['’])(.+)$/i);
+
+        if (matchLApostrofe && (tieneMarcaFem || tieneMarcaMasc)) {
+            // El "l'" en sí queda violeta (no muestra género a simple vista),
+            // pero el RESTO de la palabra se pinta directo con su color real
+            // de género — todo dentro de la misma celda/palabra clickeable.
+            const [, articulo, resto] = matchLApostrofe;
+            const colorResto = tieneMarcaFem ? "genero-fem" : "genero-masc";
+            return {
+                texto: palabraLimpia,
+                html: `<span class="genero-indistinto">${articulo}</span><span class="${colorResto}">${resto}</span>`
+            };
+        }
+        // Resto de casos: el artículo real (le/la/les) ya muestra el género,
+        // se usa el sistema de color normal sobre la palabra entera.
+        const colorClase = colorGeneroPorArticulo(palabraLimpia, idioma);
+        return {
+            texto: palabraLimpia,
+            html: colorClase ? `<span class="${colorClase}">${palabraLimpia}</span>` : palabraLimpia
+        };
+    }
+
+    function renderVocabularioNuevo(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+
+        const temaActual = (ordenarVocabularioPorEspanol(data[idioma]["VOCABULARIO"]) || [])
+            .find(t => t.titulo === modoVocabularioNuevo);
+        const filasVocab = temaActual ? temaActual.rows.map(([palabraConMarca, trad]) => {
+            const { texto, html } = colorYAclaracionVocabulario(palabraConMarca, idioma);
+            const textoEscapado = texto.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return `<tr><td class="celda-sonido" onclick="reproducirSonido('${textoEscapado}', '${idioma}')">${html}</td><td>${trad}</td></tr>`;
+        }).join("") : "";
+        const tablaVocabHtml = `<table><caption>${modoVocabularioNuevo}</caption><tr><th>${idioma === "FRANCÉS" ? "Francés" : idioma === "ITALIANO" ? "Italiano" : "Português"}</th><th>Español</th></tr>${filasVocab}</table>`;
+
+        const eC = vocabularioNuevoEstado.colores;
+        const eV = vocabularioNuevoEstado.vocab;
+        const estiloAltoColores = eC.tamanoManual ? `height:${eC.alto}px;` : `height:auto;`;
+        const claseAutoColores = eC.tamanoManual ? "" : " tarjeta-libre-auto";
+        // Vocabulario: si ya se redimensionó a mano, usa ese alto; si no,
+        // arranca igual al alto YA MEDIDO de colores (puesto por JS después
+        // del primer render, ver inicializarArrastreVocabularioNuevo).
+        const estiloAltoVocab = eV.alto ? `height:${eV.alto}px;` : `height:auto;`;
+        const claseAutoVocab = eV.tamanoManual ? "" : " tarjeta-libre-auto";
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        html += `<div class="tarjeta-libre${claseAutoColores}" data-clave="colores" style="left:${eC.left}px; top:${eC.top}px; width:auto; ${estiloAltoColores}">
+            <div class="tarjeta-libre-contenido">
+                <div class="tarjeta tarjeta-con-borde">${renderColores(idioma)}</div>
+            </div>
+            <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+        </div>`;
+        html += `<div class="tarjeta-libre${claseAutoVocab}" data-clave="vocab" style="left:${eV.left}px; top:${eV.top}px; width:auto; ${estiloAltoVocab}">
+            <div class="tarjeta-libre-contenido">
+                <div class="tarjeta tarjeta-con-borde">${tablaVocabHtml}</div>
+            </div>
+            <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+        </div>`;
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreVocabularioNuevo());
+        return null;
+    }
+
+    function inicializarArrastreVocabularioNuevo() {
+        const elColores = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="colores"]');
+        const elVocab = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="vocab"]');
+        const eV = vocabularioNuevoEstado.vocab;
+
+        // Si vocabulario todavía no tiene un alto fijado (primera vez que se
+        // ve, o se acaba de cambiar de tema), se mide el alto REAL de colores
+        // ya pintado en el DOM y se lo copia — recién ahí se vuelve a pintar
+        // con ese valor (sin este paso, "vocab" se vería en su tamaño natural
+        // gigante un instante antes de ajustarse).
+        if (elColores && elVocab && !eV.alto) {
+            const altoColores = elColores.getBoundingClientRect().height;
+            eV.alto = altoColores;
+            elVocab.style.height = altoColores + "px";
+            elVocab.classList.remove("tarjeta-libre-auto");
+        }
+
+        [elColores, elVocab].forEach(el => {
+            if (!el) return;
+            const clave = el.dataset.clave;
+            const e = vocabularioNuevoEstado[clave];
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const tabla = el.querySelector('table');
+                    const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                    const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
     function renderNumerosTiempoNuevo() {
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
@@ -6380,7 +6582,7 @@
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').classList.toggle("activo", editorLibreActivo);
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
-        document.getElementById('selectorTarjetasLibreWrap').style.display = editorLibreActivo ? "inline-block" : "none";
+        document.getElementById('selectorTarjetasLibreWrap').style.display = (editorLibreActivo && unidadActualKey !== "VOCABULARIO NUEVO") ? "inline-block" : "none";
         if (editorLibreActivo) {
             inicializarMenuTarjetasLibre();
             recuperarTarjetasFueraDePantalla();
@@ -6702,6 +6904,9 @@
         }
         if (unidadKey === "REGLAS") {
             return renderReglas(idioma);
+        }
+        if (unidadKey === "VOCABULARIO NUEVO") {
+            return renderVocabularioNuevo(idioma);
         }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
