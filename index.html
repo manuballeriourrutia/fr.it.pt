@@ -356,6 +356,22 @@
         /* EXPERIMENTO: lienzo de arrastre libre (solo PERSONAS → Artículos →
            francés). Sin overflow en el lienzo en sí — el que scrollea es el
            panel contenedor general (.content-area), nunca esta capa. */
+        /* MESA DE TARJETAS: rectángulo fijo (position: fixed, no depende de
+           ningún panel/flex padre), con las medidas exactas que calcula
+           obtenerMesaDeTarjetas() en JS. Es puramente pasiva — solo limita,
+           nunca reacciona ni se ajusta a su contenido. */
+        #mesaDeTarjetas {
+            position: fixed;
+            overflow: hidden;
+            touch-action: none;
+            z-index: 1;
+        }
+        #mesaDeTarjetas.editor-activo {
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
         .personas-lienzo {
             position: relative;
             overflow: hidden;
@@ -740,6 +756,13 @@
             <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
         </div>
     </div>
+    <div class="dropdown" id="selectorModoFantasmaWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoFantasma" onclick="toggleDropdown('menuModoFantasma')">Tema A</button>
+        <div id="menuModoFantasma" class="dropdown-content">
+            <div onclick="cambiarModoFantasma('temaA')">Tema A</div>
+            <div onclick="cambiarModoFantasma('temaB')">Tema B</div>
+        </div>
+    </div>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -764,6 +787,8 @@
     <div id="contentTable"></div>
 </main>
 
+<div id="mesaDeTarjetas" style="display: none;"></div>
+
 <!-- Medidor invisible: mismo formato que #contentTable, usado solo para calcular anchos -->
 <div id="medidorOculto" aria-hidden="true" style="position: absolute; top: -9999px; left: -9999px; visibility: hidden; white-space: nowrap;"></div>
 
@@ -776,6 +801,7 @@
         "NÚMEROS Y TIEMPO": { "FRANCÉS": "NOMBRES ET TEMPS", "ITALIANO": "NUMERI E TEMPO", "PORTUGUÉS": "NÚMEROS E TEMPO" },
         "ADVERBIOS DE CANTIDAD Y MODO": { "FRANCÉS": "ADVERBES DE QUANTITÉ ET DE MANIÈRE", "ITALIANO": "AVVERBI DI QUANTITÀ E MODO", "PORTUGUÉS": "ADVÉRBIOS DE QUANTIDADE E MODO" },
         "CONECTORES LÓGICOS": { "FRANCÉS": "CONNECTEURS LOGIQUES", "ITALIANO": "CONNETTIVI LOGICI", "PORTUGUÉS": "CONECTORES LÓGICOS" },
+        "FANTASMA": { "FRANCÉS": "FANTASMA", "ITALIANO": "FANTASMA", "PORTUGUÉS": "FANTASMA" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
@@ -4865,6 +4891,10 @@
                 document.getElementById('btnModoPersonas').innerText = "Personas";
                 modoNumerosYTiempo = "numeros";
                 document.getElementById('btnModoNumerosYTiempo').innerText = "Números";
+                modoFantasma = "temaA";
+                document.getElementById('btnModoFantasma').innerText = "Tema A";
+                document.getElementById('mesaDeTarjetas').style.display = "none";
+                document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
                 document.getElementById('btnEditorLibre').classList.remove("activo");
                 document.getElementById('btnUnidad').innerText = unidades[u][idioma];
@@ -4891,6 +4921,7 @@
     // modo "tarjetas" que no esté en la lista de exclusión.
     function esModoLienzoActivo() {
         if (unidadActualKey === null) return false; // pantalla inicial, sin unidad elegida todavía
+        if (unidadActualKey === "FANTASMA") return true; // unidad de prueba del sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
@@ -4944,6 +4975,9 @@
 
         const visibleCulturaTipica = unidadActualKey === "CULTURA TÍPICA";
         document.getElementById('selectorModoCulturaTipicaWrap').style.display = visibleCulturaTipica ? "inline-block" : "none";
+
+        const visibleFantasma = unidadActualKey === "FANTASMA";
+        document.getElementById('selectorModoFantasmaWrap').style.display = visibleFantasma ? "inline-block" : "none";
 
         const visiblePersonas = unidadActualKey === "PERSONAS";
         document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
@@ -5560,6 +5594,153 @@
     // clave de LocalStorage. El editor (mover/redimensionar/mostrar-ocultar) es
     // uno solo, compartido — actúa sobre "el lienzo actualmente en pantalla".
     let editorLibreActivo = false;
+
+    // ===== FUENTE ÚNICA DE VERDAD del tamaño del "espacio de juego" del lienzo
+    // (analogía: la pantalla de un televisor — nada puede existir fuera del
+    // marco, porque ahí "no hay píxeles"). Se calcula UNA sola vez, a partir
+    // del viewport real, con los mismos márgenes fijos que usa el CSS de
+    // .content-area.lienzo-fijo — así el cuadriculado visual, el límite del
+    // drag, y la recuperación de tarjetas perdidas usan siempre el mismo
+    // número exacto, sin volver a medir el DOM cada uno por su cuenta (que es
+    // lo que generaba los pequeños desajustes anteriores). =====
+    // MESA DE TARJETAS: rectángulo fijo, calculado una sola vez, que define el
+    // único espacio donde pueden existir tarjetas — analogía: la pantalla de
+    // un televisor, nada existe fuera del marco porque ahí "no hay píxeles".
+    // Se mide la barra de herramientas REAL (no un número fijo adivinado) y
+    // se centra la mesa en el espacio sobrante, con el mismo margen en los 4
+    // lados. Todo el sistema (cuadriculado visual, límite del drag,
+    // recuperación de tarjetas perdidas, tamaño al renderizar) consulta esta
+    // única función — nadie vuelve a medir el DOM por su cuenta.
+    const MARGEN_MESA = 16;
+    function obtenerMesaDeTarjetas() {
+        const barra = document.querySelector('.header-izquierda');
+        const altoBarra = barra ? barra.getBoundingClientRect().bottom : 84;
+        const altoDisponible = window.innerHeight - altoBarra;
+        const anchoDisponible = window.innerWidth;
+        return {
+            ancho: anchoDisponible - MARGEN_MESA * 2,
+            alto: altoDisponible - MARGEN_MESA * 2,
+            top: altoBarra + MARGEN_MESA,
+            left: MARGEN_MESA
+        };
+    }
+
+    // Aplica las medidas reales al elemento DOM de la mesa — se llama cada vez
+    // que se muestra o se necesita re-posicionar (ej. cambio de unidad).
+    function posicionarMesaDeTarjetas() {
+        const mesa = document.getElementById('mesaDeTarjetas');
+        if (!mesa) return null;
+        const m = obtenerMesaDeTarjetas();
+        mesa.style.top = m.top + "px";
+        mesa.style.left = m.left + "px";
+        mesa.style.width = m.ancho + "px";
+        mesa.style.height = m.alto + "px";
+        return m;
+    }
+
+    // ===== UNIDAD FANTASMA: prueba aislada del sistema de mesa de tarjetas.
+    // Una sola tarjeta de prueba (8 renglones de texto fijo, ancho natural,
+    // alto con tirador) — arranca en la esquina superior izquierda de la
+    // mesa, se puede arrastrar y redimensionar en alto, y nunca puede salir
+    // de los 4 bordes de la mesa (igual que un televisor: no hay píxeles
+    // fuera del marco). Cada tema (A/B) tiene su propia posición/tamaño
+    // independiente, sin persistencia en LocalStorage (es solo de prueba). =====
+    const fantasmaEstado = {
+        temaA: { left: 0, top: 0, alto: null, tamanoManual: false, visible: true },
+        temaB: { left: 0, top: 0, alto: null, tamanoManual: false, visible: true }
+    };
+
+    function renderFantasma() {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        const m = posicionarMesaDeTarjetas();
+        const e = fantasmaEstado[modoFantasma];
+
+        const filas = Array(8).fill("Manu Ballerio Urrutia").map(t => `<tr><td>${t}</td></tr>`).join("");
+        const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+        const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        if (e.visible) {
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="fantasma" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde"><table><caption>Tarjeta de prueba</caption>${filas}</table></div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        }
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreFantasma());
+        return null; // ya insertó su propio HTML directamente en mesaDeTarjetas, no en contentTable
+    }
+
+    function inicializarArrastreFantasma() {
+        const el = document.querySelector('#mesaDeTarjetas .tarjeta-libre');
+        if (!el) return;
+        const e = fantasmaEstado[modoFantasma];
+        const zonaMover = el.querySelector('caption');
+        const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+        if (zonaMover) {
+            zonaMover.addEventListener('pointerdown', (ev) => {
+                ev.preventDefault();
+                el.style.zIndex = 50;
+                const inicioX = ev.clientX, inicioY = ev.clientY;
+                const left0 = el.offsetLeft, top0 = el.offsetTop;
+                const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                const rectTarjeta = el.getBoundingClientRect();
+                const limiteX = rectMesa.width - rectTarjeta.width;
+                const limiteY = rectMesa.height - rectTarjeta.height;
+
+                function mover(ev2) {
+                    const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                    el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                    el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                }
+                function soltar() {
+                    document.removeEventListener('pointermove', mover);
+                    document.removeEventListener('pointerup', soltar);
+                    e.left = el.offsetLeft;
+                    e.top = el.offsetTop;
+                }
+                document.addEventListener('pointermove', mover);
+                document.addEventListener('pointerup', soltar);
+            });
+        }
+
+        if (manijaResize) {
+            manijaResize.addEventListener('pointerdown', (ev) => {
+                ev.preventDefault();
+                el.style.zIndex = 50;
+                const tabla = el.querySelector('table');
+                const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                const inicioY = ev.clientY;
+                const h0 = el.offsetHeight;
+                const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                function mover(ev2) {
+                    const dy = ev2.clientY - inicioY;
+                    const maxAlto = rectMesa.height - el.offsetTop;
+                    const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                    el.style.height = nuevoAlto + "px";
+                }
+                function soltar() {
+                    document.removeEventListener('pointermove', mover);
+                    document.removeEventListener('pointerup', soltar);
+                    e.alto = el.offsetHeight;
+                    e.tamanoManual = true;
+                    el.classList.remove("tarjeta-libre-auto");
+                }
+                document.addEventListener('pointermove', mover);
+                document.addEventListener('pointerup', soltar);
+            });
+        }
+    }
+
     let lienzoActualId = null; // qué lienzo está activo ahora mismo en pantalla
 
     // Registro central: lienzoId -> { etiquetas: {clave: "Nombre visible"} }.
@@ -5764,15 +5945,19 @@
         if (!esModoLienzoActivo()) return; // protección: no debería poder activarse fuera de un lienzo real
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').classList.toggle("activo", editorLibreActivo);
-        document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
-        document.getElementById('selectorTarjetasLibreWrap').style.display = editorLibreActivo ? "inline-block" : "none";
-        if (editorLibreActivo) {
+        document.getElementById('btnGuardarLibre').style.display = (editorLibreActivo && unidadActualKey !== "FANTASMA") ? "inline-block" : "none";
+        document.getElementById('selectorTarjetasLibreWrap').style.display = (editorLibreActivo && unidadActualKey !== "FANTASMA") ? "inline-block" : "none";
+        if (editorLibreActivo && unidadActualKey !== "FANTASMA") {
             inicializarMenuTarjetasLibre();
             recuperarTarjetasFueraDePantalla();
         }
         const lienzo = document.getElementById('lienzoActivo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
+        }
+        const mesa = document.getElementById('mesaDeTarjetas');
+        if (mesa) {
+            mesa.classList.toggle("editor-activo", editorLibreActivo);
         }
     }
 
@@ -5851,6 +6036,18 @@
     // (Chamonix/la zona) y "Comportamiento" (hacer/no hacer, verificado con
     // fuentes reales de etiqueta de cada país).
     let modoCulturaTipica = "local";
+
+    // FANTASMA: unidad de prueba, vacía de contenido real, solo para validar
+    // el comportamiento del sistema de mesa de tarjetas (límites, drag,
+    // tirador de altura) antes de migrar las unidades reales.
+    let modoFantasma = "temaA";
+    function cambiarModoFantasma(nuevoModo) {
+        modoFantasma = nuevoModo;
+        const etiquetas = { temaA: 'Tema A', temaB: 'Tema B' };
+        document.getElementById('btnModoFantasma').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoFantasma').classList.remove("show");
+        actualizarPantalla();
+    }
 
     function renderCulturaTipica(idioma) {
         const datos = data[idioma]["CULTURA TÍPICA"];
@@ -6008,6 +6205,9 @@
     // Devuelve el HTML interno (sin contenedor) para una unidad + idioma dados,
     // o null si no hay contenido para esa combinación.
     function renderUnidad(idioma, unidadKey) {
+        if (unidadKey === "FANTASMA") {
+            return renderFantasma();
+        }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
 
@@ -6048,6 +6248,8 @@
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const contentTable = document.getElementById('contentTable');
         if (unidadActualKey === null) {
+            document.getElementById('mesaDeTarjetas').style.display = "none";
+            contentTable.style.display = "";
             contentTable.innerHTML = "<p>Seleccione una unidad para empezar</p>";
             return;
         }
