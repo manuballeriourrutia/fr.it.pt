@@ -299,6 +299,15 @@
             position: relative;
             overflow: hidden;
         }
+        /* Grilla visual decorativa (tipo hoja cuadriculada) — solo de ayuda
+           para acomodar a ojo, NO fuerza ningún snap real de posición. Visible
+           solo con el editor prendido. */
+        .personas-lienzo.editor-activo {
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
         .tarjeta-libre {
             position: absolute;
             z-index: 1;
@@ -334,7 +343,6 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
-        .tarjeta-libre-manija-mover,
         .tarjeta-libre-manija-resize {
             position: absolute;
             width: 22px;
@@ -350,16 +358,24 @@
             z-index: 5;
             touch-action: none;
         }
-        /* Las manijas solo se ven (y solo entonces se pueden tocar) cuando el
-           editor está prendido — apagado, las tarjetas quedan limpias. */
-        .personas-lienzo.editor-activo .tarjeta-libre-manija-mover,
+        /* La manija de altura solo se ve (y solo entonces se puede tocar)
+           cuando el editor está prendido — apagado, las tarjetas quedan
+           limpias. El título (caption) es la zona de arrastre para mover, sin
+           necesitar un ícono aparte. */
         .personas-lienzo.editor-activo .tarjeta-libre-manija-resize {
             display: flex;
         }
-        .tarjeta-libre-manija-mover { top: -8px; left: -8px; cursor: move; }
-        .tarjeta-libre-manija-resize { bottom: -8px; right: -8px; cursor: nwse-resize; }
-        .tarjeta-libre-manija-mover:hover,
+        .tarjeta-libre-manija-resize { bottom: -8px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
         .tarjeta-libre-manija-resize:hover { color: var(--color-idioma); border-color: var(--color-idioma); }
+        .personas-lienzo.editor-activo .tarjeta-libre caption {
+            cursor: move;
+            touch-action: none;
+            border-radius: 6px;
+            transition: background-color 0.15s ease;
+        }
+        .personas-lienzo.editor-activo .tarjeta-libre caption:hover {
+            background-color: rgba(0,0,0,0.04);
+        }
         /* Mapa de posiciones: tiene varias filas (devant/derrière/sur/sous/etc.)
            y ocupaba mucho espacio vertical sin necesidad — se limita su alto y
            se hace scrolleable para que no estire toda la fila. */
@@ -5336,17 +5352,17 @@
     };
 
     let posicionesArticulosFrances = {
-        pos1:  { col: 0, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
-        pos2:  { col: 1, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
-        pos3:  { col: 2, fila: 0, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false },
-        pos4a: { col: 0, fila: 5, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        pos4b: { col: 0, fila: 8, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        pos5:  { col: 1, fila: 5, anchoCeldas: 1, altoCeldas: 7, tamanoManual: false },
-        pos6a: { col: 2, fila: 5, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        pos6b: { col: 2, fila: 8, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        pos7:  { col: 0, fila: 13, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        pos8:  { col: 1, fila: 13, anchoCeldas: 1, altoCeldas: 2, tamanoManual: false },
-        abajo: { col: 0, fila: 16, anchoCeldas: 1, altoCeldas: 4, tamanoManual: false }
+        pos1:  { leftPx: 0,   topPx: 0,   altoPx: null, tamanoManual: false },
+        pos2:  { leftPx: 310, topPx: 0,   altoPx: null, tamanoManual: false },
+        pos3:  { leftPx: 620, topPx: 0,   altoPx: null, tamanoManual: false },
+        pos4a: { leftPx: 0,   topPx: 160, altoPx: null, tamanoManual: false },
+        pos4b: { leftPx: 0,   topPx: 280, altoPx: null, tamanoManual: false },
+        pos5:  { leftPx: 310, topPx: 160, altoPx: null, tamanoManual: false },
+        pos6a: { leftPx: 620, topPx: 160, altoPx: null, tamanoManual: false },
+        pos6b: { leftPx: 620, topPx: 280, altoPx: null, tamanoManual: false },
+        pos7:  { leftPx: 0,   topPx: 420, altoPx: null, tamanoManual: false },
+        pos8:  { leftPx: 310, topPx: 420, altoPx: null, tamanoManual: false },
+        abajo: { leftPx: 0,   topPx: 560, altoPx: null, tamanoManual: false }
     };
 
     // Persistencia del editor libre en LocalStorage: si hay algo guardado de
@@ -5354,7 +5370,7 @@
     // cargar la página. Falla en silencio (try/catch) si LocalStorage no está
     // disponible (Safari en modo privado, por ejemplo) — en ese caso, sigue
     // funcionando con las posiciones por defecto, simplemente no persiste.
-    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v2";
+    const CLAVE_LOCALSTORAGE_PERSONAS = "idiomasRomances_personasArticulosFrances_v3";
     (function cargarPosicionesGuardadas() {
         try {
             const guardado = localStorage.getItem(CLAVE_LOCALSTORAGE_PERSONAS);
@@ -5447,21 +5463,19 @@
             const tabla = clave === "abajo" ? (a.abajo && a.abajo[0]) : a[clave];
             if (!tabla) return;
             const p = posicionesArticulosFrances[clave];
-            const left = p.col * (GRILLA_CELDA_W + GRILLA_GAP);
-            const top = p.fila * (GRILLA_CELDA_H + GRILLA_GAP);
-            // Tamaño automático (natural del contenido) hasta que se redimensione
-            // a mano una vez — recién ahí se fija al tamaño elegido en celdas.
+            // Ancho SIEMPRE automático (al contenido) — ya no es redimensionable.
+            // Alto: automático hasta que se redimensione a mano una vez; a partir
+            // de ahí, queda fijo en el valor libre (en píxeles) que se le dio.
             const estiloTamano = p.tamanoManual
-                ? `width:${p.anchoCeldas * GRILLA_CELDA_W + (p.anchoCeldas - 1) * GRILLA_GAP}px; height:${p.altoCeldas * GRILLA_CELDA_H + (p.altoCeldas - 1) * GRILLA_GAP}px;`
+                ? `width:auto; height:${p.altoPx}px;`
                 : `width:auto; height:auto;`;
             const final = tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma);
             const claseExtra = clave === "pos5" ? " tarjeta-mapa-posiciones" : "";
-            html += `<div class="tarjeta-libre${p.tamanoManual ? "" : " tarjeta-libre-auto"}" data-clave="${clave}" style="left:${left}px; top:${top}px; ${estiloTamano}">
-                <div class="tarjeta-libre-manija-mover" title="Mover"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2L9 5h2v5H6V8L3 11l3 3v-2h5v5H9l3 3 3-3h-2v-5h5v2l3-3-3-3v2h-5V7h2L12 2z" fill="currentColor"/></svg></div>
+            html += `<div class="tarjeta-libre${p.tamanoManual ? "" : " tarjeta-libre-auto"}" data-clave="${clave}" style="left:${p.leftPx}px; top:${p.topPx}px; ${estiloTamano}">
                 <div class="tarjeta-libre-contenido${claseExtra}">
                     <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
                 </div>
-                <div class="tarjeta-libre-manija-resize" title="Redimensionar"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M22 22H16V20H20V16H22V22ZM22 12H20V10H22V12ZM14 22H12V20H14V22Z" fill="currentColor"/></svg></div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
             </div>`;
         });
         html += '</div>';
@@ -5489,10 +5503,13 @@
 
         tarjetas.forEach(el => {
             const clave = el.dataset.clave;
-            const manijaMover = el.querySelector('.tarjeta-libre-manija-mover');
+            // La zona de arrastre es el título de la tarjeta (caption de la
+            // tabla), no un ícono aparte — más limpio visualmente.
+            const zonaMover = el.querySelector('caption');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+            if (!zonaMover) return;
 
-            manijaMover.addEventListener('pointerdown', (ev) => {
+            zonaMover.addEventListener('pointerdown', (ev) => {
                 ev.preventDefault();
                 el.style.zIndex = 50;
                 const inicioX = ev.clientX, inicioY = ev.clientY;
@@ -5500,20 +5517,17 @@
 
                 function mover(e) {
                     const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
-                    el.style.left = (left0 + dx) + "px";
-                    el.style.top = (top0 + dy) + "px";
+                    el.style.left = Math.max(0, left0 + dx) + "px";
+                    el.style.top = Math.max(0, top0 + dy) + "px";
                 }
                 function soltar() {
                     document.removeEventListener('pointermove', mover);
                     document.removeEventListener('pointerup', soltar);
-                    // Snap a la celda más cercana de la grilla invisible.
-                    const colNueva = Math.round(el.offsetLeft / (GRILLA_CELDA_W + GRILLA_GAP));
-                    const filaNueva = Math.round(el.offsetTop / (GRILLA_CELDA_H + GRILLA_GAP));
+                    // Sin snap — la posición queda libre, en el píxel exacto
+                    // donde se soltó.
                     const p = posicionesArticulosFrances[clave];
-                    p.col = Math.max(0, colNueva);
-                    p.fila = Math.max(0, filaNueva);
-                    el.style.left = (p.col * (GRILLA_CELDA_W + GRILLA_GAP)) + "px";
-                    el.style.top = (p.fila * (GRILLA_CELDA_H + GRILLA_GAP)) + "px";
+                    p.leftPx = el.offsetLeft;
+                    p.topPx = el.offsetTop;
                 }
                 document.addEventListener('pointermove', mover);
                 document.addEventListener('pointerup', soltar);
@@ -5522,34 +5536,24 @@
             manijaResize.addEventListener('pointerdown', (ev) => {
                 ev.preventDefault();
                 el.style.zIndex = 50;
-                const { anchoMinimo, altoMinimo } = medirMinimosTarjetaLibre(el);
-                const inicioX = ev.clientX, inicioY = ev.clientY;
-                const w0 = el.offsetWidth, h0 = el.offsetHeight;
+                const { altoMinimo } = medirMinimosTarjetaLibre(el);
+                const inicioY = ev.clientY;
+                const h0 = el.offsetHeight;
 
                 function mover(e) {
-                    const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
-                    const nuevoAncho = Math.max(anchoMinimo, w0 + dx);
+                    const dy = e.clientY - inicioY;
                     const nuevoAlto = Math.max(altoMinimo, h0 + dy);
-                    el.style.width = nuevoAncho + "px";
                     el.style.height = nuevoAlto + "px";
                 }
                 function soltar() {
                     document.removeEventListener('pointermove', mover);
                     document.removeEventListener('pointerup', soltar);
-                    // Snap del tamaño a un número entero de celdas (nunca por
-                    // debajo del mínimo real del contenido). A partir de este
-                    // punto, la tarjeta deja de tener tamaño automático.
+                    // Sin snap — la altura queda libre, en el píxel exacto donde
+                    // se soltó (nunca por debajo del mínimo real del contenido).
                     const p = posicionesArticulosFrances[clave];
-                    const celdasAncho = Math.max(1, Math.round(el.offsetWidth / (GRILLA_CELDA_W + GRILLA_GAP)));
-                    const celdasAlto = Math.max(1, Math.round(el.offsetHeight / (GRILLA_CELDA_H + GRILLA_GAP)));
-                    const anchoFinal = Math.max(anchoMinimo, celdasAncho * GRILLA_CELDA_W + (celdasAncho - 1) * GRILLA_GAP);
-                    const altoFinal = Math.max(altoMinimo, celdasAlto * GRILLA_CELDA_H + (celdasAlto - 1) * GRILLA_GAP);
-                    p.anchoCeldas = celdasAncho;
-                    p.altoCeldas = celdasAlto;
+                    p.altoPx = el.offsetHeight;
                     p.tamanoManual = true;
                     el.classList.remove("tarjeta-libre-auto");
-                    el.style.width = anchoFinal + "px";
-                    el.style.height = altoFinal + "px";
                 }
                 document.addEventListener('pointermove', mover);
                 document.addEventListener('pointerup', soltar);
@@ -5600,11 +5604,9 @@
         Object.keys(posicionesArticulosFrances).forEach(clave => {
             if (!tarjetasVisiblesArticulosFrances[clave]) return;
             const p = posicionesArticulosFrances[clave];
-            const left = p.col * (GRILLA_CELDA_W + GRILLA_GAP);
-            const top = p.fila * (GRILLA_CELDA_H + GRILLA_GAP);
-            if (left >= anchoDisponible || top >= altoDisponible || left < 0 || top < 0) {
-                p.col = 0;
-                p.fila = Math.round(offsetRecuperacion / (GRILLA_CELDA_H + GRILLA_GAP));
+            if (p.leftPx >= anchoDisponible || p.topPx >= altoDisponible || p.leftPx < 0 || p.topPx < 0) {
+                p.leftPx = 0;
+                p.topPx = offsetRecuperacion;
                 offsetRecuperacion += 30; // apila las recuperadas, escalonadas
                 huboFueraDePantalla = true;
             }
