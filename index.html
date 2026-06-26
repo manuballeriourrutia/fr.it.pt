@@ -407,13 +407,15 @@
         }
         .tarjeta-libre-manija-resize { bottom: -8px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
         .tarjeta-libre-manija-resize:hover { color: var(--color-idioma); border-color: var(--color-idioma); }
-        .personas-lienzo.editor-activo .tarjeta-libre caption {
+        .personas-lienzo.editor-activo .tarjeta-libre caption,
+        .personas-lienzo.editor-activo .tarjeta-libre .relojes-titulo {
             cursor: move;
             touch-action: none;
             border-radius: 6px;
             transition: background-color 0.15s ease;
         }
-        .personas-lienzo.editor-activo .tarjeta-libre caption:hover {
+        .personas-lienzo.editor-activo .tarjeta-libre caption:hover,
+        .personas-lienzo.editor-activo .tarjeta-libre .relojes-titulo:hover {
             background-color: rgba(0,0,0,0.04);
         }
         /* Mapa de posiciones: tiene varias filas (devant/derrière/sur/sous/etc.)
@@ -597,7 +599,16 @@
         /* NÚMEROS Y TIEMPO: pantalla dividida 50/50. Izquierda: grid 2x2 con las
            HORAS Y FECHAS ahora vive en su propio sub-modo, con lienzo libre. */
         .numeros-tiempo-layout { display: flex; gap: 20px; height: 100%; align-items: flex-start; }
-        .numeros-tiempo-fila { display: flex; gap: 20px; }
+        .numeros-tiempo-fila { display: flex; gap: 20px; height: 100%; }
+        /* Las tarjetas de número (0-9 y decena) tienen el mismo tamaño "molde"
+           que una celda de tiempos verbales (grid 4x2 → 1/4 ancho, 1/2 alto del
+           panel) — no es una posición fija, es el tamaño del contenedor; el
+           contenido interno se acomoda ahí, con scroll si no entra. */
+        .numeros-tiempo-fila .tarjeta-numero {
+            width: calc((100% - 20px) / 4);
+            height: calc((100% - 20px) / 2);
+            overflow-y: auto;
+        }
         /* Relojes visuales: grilla de 6 esferas SVG chicas con su frase debajo. */
         .tarjeta-relojes { padding: 14px 16px; }
         .relojes-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; text-align: center; margin-bottom: 8px; }
@@ -5334,7 +5345,13 @@
         document.getElementById('btnModoNumerosYTiempo').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoNumerosYTiempo').classList.remove("show");
         actualizarVisibilidadSelectorVerbo();
-        actualizarPantalla();
+        actualizarModoPantalla();
+        fijarAnchoPanel();
+        // El cambio de clase CSS (pantalla-completa <-> lienzo-fijo) puede no
+        // estar repintado todavía en el instante exacto de este código — se
+        // fuerza un frame de respiro antes de medir el panel y renderizar el
+        // lienzo, para que el tamaño que se mida sea siempre el real.
+        requestAnimationFrame(() => actualizarPantalla());
     }
 
     function renderNumerosYTiempo(idioma) {
@@ -5367,7 +5384,7 @@
         piezas.forEach((t, i) => {
             const clave = "t" + i;
             etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
         });
         registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
         const tarjetasPorClave = {};
@@ -5433,7 +5450,7 @@
         tarjetas.forEach((t, i) => {
             const clave = "t" + i;
             etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
         });
         registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
         const tarjetasPorClave = {};
@@ -5503,15 +5520,9 @@
         tarjetas.forEach((t, i) => {
             const clave = "t" + i;
             etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            // En modo "tarjetas", la 1ª tarjeta (Sujeto/Tónico/Reflexivo) arranca
-            // sola arriba, y el resto (terminaciones de género) abajo en fila —
-            // mismo acomodo inicial que ya teníamos, ahora como punto de partida
-            // libre en vez de layout fijo.
-            if (modoPersonas === "tarjetas") {
-                posicionesIniciales[clave] = i === 0 ? { leftPx: 0, topPx: 0 } : { leftPx: (i - 1) * 310, topPx: 160 };
-            } else {
-                posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
-            }
+            // Todas las tarjetas nuevas arrancan en la esquina superior
+            // izquierda — desde ahí se arrastran a mano a donde se prefiera.
+            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
         });
         registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
         const tarjetasPorClave = {};
@@ -5547,7 +5558,7 @@
         LIENZOS_POSICIONES[lienzoId] = {};
         Object.keys(etiquetas).forEach((clave, i) => {
             LIENZOS_VISIBLES[lienzoId][clave] = false;
-            const pos = posicionesIniciales[clave] || { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+            const pos = posicionesIniciales[clave] || { leftPx: 0, topPx: 0 };
             LIENZOS_POSICIONES[lienzoId][clave] = { leftPx: pos.leftPx, topPx: pos.topPx, altoPx: null, tamanoManual: false };
         });
         cargarLienzoGuardado(lienzoId);
@@ -5653,7 +5664,7 @@
 
         tarjetas.forEach(el => {
             const clave = el.dataset.clave;
-            const zonaMover = el.querySelector('caption');
+            const zonaMover = el.querySelector('caption, .relojes-titulo');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
             if (!zonaMover) return;
 
@@ -5779,6 +5790,8 @@
         const etiquetas = { clima: 'Clima', estaciones: 'Estaciones', geografia: 'Geografía' };
         document.getElementById('btnModoGeografiaClima').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoGeografiaClima').classList.remove("show");
+        actualizarModoPantalla();
+        fijarAnchoPanel();
         actualizarPantalla();
     }
 
@@ -5935,7 +5948,7 @@
         filtradas.forEach((t, i) => {
             const clave = "t" + i;
             etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: (i % 3) * 310, topPx: Math.floor(i / 3) * 160 };
+            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
         });
         registrarLienzo(unidadKey, etiquetas, posicionesIniciales);
     }
@@ -5989,9 +6002,12 @@
         const html = renderUnidad(idioma, unidadActualKey);
         if (html !== null) {
             contentTable.innerHTML = html;
-            // El lienzo de arrastre libre (PERSONAS → Artículos → francés) necesita
-            // engancharse a los eventos recién creados, después de insertar el HTML.
-            if (unidadActualKey === "PERSONAS" && modoPersonas === "articulos" && idioma === "FRANCÉS") {
+            // El lienzo de arrastre libre necesita engancharse a los eventos
+            // recién creados, después de insertar el HTML — aplica a CUALQUIER
+            // unidad que esté usando el sistema de lienzo en este momento, no
+            // solo a Personas (bug viejo: esto quedó hardcodeado a una sola
+            // unidad cuando el sistema todavía era un experimento).
+            if (esModoLienzoActivo()) {
                 inicializarArrastreLibre();
             }
             return;
