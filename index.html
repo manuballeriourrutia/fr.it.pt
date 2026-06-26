@@ -83,6 +83,38 @@
             gap: 15px; 
             z-index: 1000;
         }
+        .header-derecha {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+        /* Botón de editor: círculo discreto (mismo tamaño que la bandera de
+           idioma) en vez de un botón con texto — gris cuando está apagado,
+           borde verde neón cuando el modo edición está activo. */
+        .editorbtn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid #ccc;
+            background: var(--panel-bg);
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+        }
+        .editorbtn.activo {
+            border-color: #39ff14;
+            color: #2ecc40;
+            box-shadow: 0 0 10px #39ff14, 0 0 4px #39ff14;
+        }
         
         .dropdown { position: relative; display: inline-block; }
         .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
@@ -678,12 +710,6 @@
             <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
         </div>
     </div>
-    <button class="dropbtn dropbtn-chico" id="btnEditorLibre" style="display: none;" onclick="toggleEditorLibre()">Editor: Off</button>
-    <div class="dropdown" id="selectorTarjetasLibreWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnTarjetasLibre" onclick="inicializarMenuTarjetasLibre(); toggleDropdown('menuTarjetasLibre')">Tarjetas</button>
-        <div id="menuTarjetasLibre" class="dropdown-content"></div>
-    </div>
-    <button class="dropbtn dropbtn-chico" id="btnGuardarLibre" style="display: none;" onclick="guardarPosicionesLibres()">Guardar</button>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -691,6 +717,17 @@
             <div onclick="cambiarModoCulturaTipica('comportamiento')">Comportamiento</div>
         </div>
     </div>
+</header>
+
+<header class="header-derecha">
+    <div class="dropdown" id="selectorTarjetasLibreWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnTarjetasLibre" onclick="inicializarMenuTarjetasLibre(); toggleDropdown('menuTarjetasLibre')">Tarjetas</button>
+        <div id="menuTarjetasLibre" class="dropdown-content"></div>
+    </div>
+    <button class="dropbtn dropbtn-chico" id="btnGuardarLibre" style="display: none;" onclick="guardarPosicionesLibres()">Guardar</button>
+    <button class="editorbtn" id="btnEditorLibre" style="display: none;" onclick="toggleEditorLibre()" title="Editar">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+    </button>
 </header>
 
 <main class="content-area">
@@ -4799,7 +4836,7 @@
                 modoNumerosYTiempo = "numeros";
                 document.getElementById('btnModoNumerosYTiempo').innerText = "Números";
                 editorLibreActivo = false;
-                document.getElementById('btnEditorLibre').innerText = "Editor: Off";
+                document.getElementById('btnEditorLibre').classList.remove("activo");
                 document.getElementById('btnUnidad').innerText = unidades[u][idioma];
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
@@ -4891,7 +4928,7 @@
             // La unidad activa no tiene lienzo — el editor no debería seguir
             // "prendido" de una unidad anterior.
             editorLibreActivo = false;
-            document.getElementById('btnEditorLibre').innerText = "Editor: Off";
+            document.getElementById('btnEditorLibre').classList.remove("activo");
         }
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
@@ -5673,7 +5710,7 @@
     function toggleEditorLibre() {
         if (!esModoLienzoActivo()) return; // protección: no debería poder activarse fuera de un lienzo real
         editorLibreActivo = !editorLibreActivo;
-        document.getElementById('btnEditorLibre').innerText = editorLibreActivo ? "Editor: On" : "Editor: Off";
+        document.getElementById('btnEditorLibre').classList.toggle("activo", editorLibreActivo);
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
         document.getElementById('selectorTarjetasLibreWrap').style.display = editorLibreActivo ? "inline-block" : "none";
         if (editorLibreActivo) {
