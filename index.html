@@ -5682,11 +5682,17 @@
                 el.style.zIndex = 50;
                 const inicioX = ev.clientX, inicioY = ev.clientY;
                 const left0 = el.offsetLeft, top0 = el.offsetTop;
+                // Límites reales del lienzo, para que la tarjeta se frene
+                // sólida contra el borde derecho/inferior — nunca se recorta
+                // ni se deforma, simplemente no avanza más allá de ahí.
+                const lienzoEl = document.getElementById('lienzoActivo');
+                const limiteX = lienzoEl.clientWidth - el.offsetWidth;
+                const limiteY = lienzoEl.clientHeight - el.offsetHeight;
 
                 function mover(e) {
                     const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
-                    el.style.left = Math.max(0, left0 + dx) + "px";
-                    el.style.top = Math.max(0, top0 + dy) + "px";
+                    el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                    el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
                 }
                 function soltar() {
                     document.removeEventListener('pointermove', mover);
