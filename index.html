@@ -5622,7 +5622,7 @@
         const posicionesMap = LIENZOS_POSICIONES[lienzoId];
         const claves = Object.keys(tarjetasPorClave).filter(c => visiblesMap[c]);
 
-        const panel = document.querySelector('.content-area');
+        const panel = document.getElementById('contentTable');
         const anchoLienzo = panel ? panel.clientWidth : 900;
         const altoLienzo = panel ? panel.clientHeight : 600;
 
@@ -5754,7 +5754,7 @@
     // escalonada si hay varias para recuperar.
     function recuperarTarjetasFueraDePantalla() {
         if (!lienzoActualId) return;
-        const panel = document.querySelector('.content-area');
+        const panel = document.getElementById('contentTable');
         if (!panel) return;
         const anchoDisponible = panel.clientWidth;
         const altoDisponible = panel.clientHeight;
