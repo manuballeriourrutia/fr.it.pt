@@ -763,10 +763,6 @@
             <div onclick="cambiarModoVista('reglas')">Reglas</div>
         </div>
     </div>
-    <div class="dropdown" id="selectorTemaVocabularioWrap" style="display: none;">
-        <button class="dropbtn" id="btnTemaVocabulario" onclick="toggleDropdown('menuTemaVocabulario')">Lugares del hotel</button>
-        <div id="menuTemaVocabulario" class="dropdown-content"></div>
-    </div>
     <div class="dropdown" id="selectorModoGeografiaClimaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClima" onclick="toggleDropdown('menuModoGeografiaClima')">Clima</button>
         <div id="menuModoGeografiaClima" class="dropdown-content">
@@ -853,7 +849,6 @@
     const unidades = {
         "PERSONAS": { "FRANCÉS": "PERSONNES", "ITALIANO": "PERSONE", "PORTUGUÉS": "PESSOAS" },
         "GEOGRAFÍA Y CLIMA": { "FRANCÉS": "GÉOGRAPHIE ET MÉTÉO", "ITALIANO": "GEOGRAFIA E METEO", "PORTUGUÉS": "GEOGRAFIA E TEMPO" },
-        "COLORES": { "FRANCÉS": "COULEURS", "ITALIANO": "COLORI", "PORTUGUÉS": "CORES" },
         "FRASES DE RECEPCIÓN": { "FRANCÉS": "PHRASES DE RÉCEPTION", "ITALIANO": "FRASI DI RECEPTION", "PORTUGUÉS": "FRASES DE RECEÇÃO" },
         "NÚMEROS Y TIEMPO": { "FRANCÉS": "NOMBRES ET TEMPS", "ITALIANO": "NUMERI E TEMPO", "PORTUGUÉS": "NÚMEROS E TEMPO" },
         "ADVERBIOS DE CANTIDAD Y MODO": { "FRANCÉS": "ADVERBES DE QUANTITÉ ET DE MANIÈRE", "ITALIANO": "AVVERBI DI QUANTITÀ E MODO", "PORTUGUÉS": "ADVÉRBIOS DE QUANTIDADE E MODO" },
@@ -866,8 +861,7 @@
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX", "ITALIANO": "TEMPI VERBALI", "PORTUGUÉS": "TEMPOS VERBAIS" },
-        "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES", "ITALIANO": "VERBI AUSILIARI", "PORTUGUÉS": "VERBOS AUXILIARES" },
-        "VOCABULARIO": { "FRANCÉS": "VOCABULAIRE", "ITALIANO": "VOCABOLARIO", "PORTUGUÉS": "VOCABULÁRIO" }
+        "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES", "ITALIANO": "VERBI AUSILIARI", "PORTUGUÉS": "VERBOS AUXILIARES" }
     };
 
 
@@ -3399,742 +3393,7 @@
     // VOCABULARIO HOTEL: vocabulario técnico de incidentes de habitación (quejas
     // más comunes en recepción) — vocabulario puntual, no gramática. Verificado
     // con fuentes reales de cada idioma.
-    const vocabularioFrances = [
-        { titulo: "Lugares del hotel", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["la réception", "la recepción"],
-            ["le hall", "el lobby"],
-            ["l'étage#masc", "el piso"],
-            ["la chambre", "la habitación"],
-            ["l'ascenseur#masc", "el ascensor"],
-            ["l'escalier#masc", "la escalera"],
-            ["le parking", "el estacionamiento"],
-            ["la salle de petit-déjeuner", "el salón de desayuno"],
-            ["le restaurant", "el restaurante"],
-            ["le bar", "el bar"],
-            ["la terrasse", "la terraza"],
-            ["le jardin", "el jardín"],
-            ["la cour", "el patio"],
-            ["le couloir", "el pasillo"],
-            ["la sortie", "la salida"],
-            ["l'entrée#fem", "la entrada"],
-            ["la salle de bain", "el baño (de la habitación)"],
-            ["les toilettes", "el baño (público)"],
-            ["la buanderie", "la lavandería"],
-            ["la salle de réunion", "la sala de reuniones"],
-            ["le comptoir d'accueil", "el mostrador"],
-            ["le sous-sol", "el subsuelo"],
-            ["le rez-de-chaussée", "la planta baja"],
-            ["la cave à vin", "la bodega"],
-            ["la cuisine", "la cocina"]
-        ]},
-        { titulo: "Objetos y equipaje", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["le passeport", "el pasaporte"],
-            ["la carte d'identité", "el documento de identidad"],
-            ["la clé", "la llave"],
-            ["la carte magnétique", "la tarjeta magnética"],
-            ["la valise", "la valija"],
-            ["le bagage", "el equipaje"],
-            ["le sac à dos", "la mochila"],
-            ["la serviette", "la toalla"],
-            ["le drap", "la sábana"],
-            ["l'oreiller#masc", "la almohada"],
-            ["la couverture", "la frazada"],
-            ["le savon", "el jabón"],
-            ["le shampooing", "el champú"],
-            ["le sèche-cheveux", "el secador de pelo"],
-            ["le coffre-fort", "la caja fuerte"],
-            ["le minibar", "el minibar"],
-            ["la télécommande", "el control remoto"],
-            ["le cintre", "el perchero (de ropa)"],
-            ["la prise électrique", "el enchufe"],
-            ["le chargeur", "el cargador"],
-            ["le parapluie", "el paraguas"],
-            ["les lunettes", "los anteojos"],
-            ["le portefeuille", "la billetera"],
-            ["le téléphone", "el teléfono"],
-            ["la carte de crédit", "la tarjeta de crédito"]
-        ]},
-        { titulo: "Partes del cuerpo", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["la tête", "la cabeza"],
-            ["le visage", "la cara"],
-            ["les yeux", "los ojos"],
-            ["le nez", "la nariz"],
-            ["la bouche", "la boca"],
-            ["l'oreille#fem", "la oreja"],
-            ["le cou", "el cuello"],
-            ["l'épaule#fem", "el hombro"],
-            ["le bras", "el brazo"],
-            ["la main", "la mano"],
-            ["le doigt", "el dedo"],
-            ["la poitrine", "el pecho"],
-            ["le dos", "la espalda"],
-            ["le ventre", "la panza"],
-            ["la jambe", "la pierna"],
-            ["le genou", "la rodilla"],
-            ["le pied", "el pie"],
-            ["la peau", "la piel"],
-            ["le cœur", "el corazón"],
-            ["l'estomac#masc", "el estómago"],
-            ["la gorge", "la garganta"],
-            ["la dent", "el diente"],
-            ["la cheville", "el tobillo"],
-            ["le poignet", "la muñeca (parte del cuerpo)"],
-            ["la hanche", "la cadera"]
-        ]},
-        { titulo: "Salud y emergencias", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["J'ai mal à la tête.", "Me duele la cabeza."],
-            ["J'ai mal au ventre.", "Me duele la panza."],
-            ["Je suis malade.", "Estoy enfermo/a."],
-            ["J'ai de la fièvre.", "Tengo fiebre."],
-            ["J'ai besoin d'un médecin.", "Necesito un médico."],
-            ["Appelez une ambulance!", "¡Llamen una ambulancia!"],
-            ["C'est urgent.", "Es urgente."],
-            ["Je me suis blessé(e).", "Me lastimé."],
-            ["Je suis allergique à...", "Soy alérgico/a a..."],
-            ["Où est la pharmacie?", "¿Dónde está la farmacia?"],
-            ["J'ai besoin de médicaments.", "Necesito medicamentos."],
-            ["Appelez les pompiers!", "¡Llamen a los bomberos!"],
-            ["Appelez la police!", "¡Llamen a la policía!"],
-            ["Au secours!", "¡Socorro!"],
-            ["Je ne me sens pas bien.", "No me siento bien."],
-            ["J'ai des vertiges.", "Tengo mareos."],
-            ["Je me suis cassé le bras.", "Me rompí el brazo."],
-            ["l'hôpital le plus proche#masc", "el hospital más cercano"],
-            ["l'assurance voyage#fem", "el seguro de viaje"],
-            ["Je dois prendre mes médicaments.", "Tengo que tomar mis medicamentos."],
-            ["J'ai une douleur à la poitrine.", "Tengo un dolor en el pecho."],
-            ["C'est une réaction allergique.", "Es una reacción alérgica."],
-            ["le numéro d'urgence", "el número de emergencia"],
-            ["Restez calme.", "Mantenga la calma."],
-            ["l'infirmerie#fem", "la enfermería"]
-        ]},
-        { titulo: "Alimentos y bebidas", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["le café", "el café"],
-            ["le thé", "el té"],
-            ["le jus d'orange", "el jugo de naranja"],
-            ["l'eau#fem", "el agua"],
-            ["le pain", "el pan"],
-            ["le beurre", "la manteca"],
-            ["la confiture", "la mermelada"],
-            ["le fromage", "el queso"],
-            ["les céréales", "los cereales"],
-            ["le lait", "la leche"],
-            ["le sucre", "el azúcar"],
-            ["le sel", "la sal"],
-            ["la viande", "la carne"],
-            ["le poisson", "el pescado"],
-            ["les légumes", "las verduras"],
-            ["les fruits", "las frutas"],
-            ["la soupe", "la sopa"],
-            ["la salade", "la ensalada"],
-            ["le dessert", "el postre"],
-            ["le vin", "el vino"],
-            ["la bière", "la cerveza"],
-            ["les œufs", "los huevos"],
-            ["le yaourt", "el yogur"],
-            ["le jambon", "el jamón"],
-            ["le gâteau", "la torta"]
-        ]},
-        { titulo: "Verbos de acción de recepción", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["faire le check-in", "hacer el check-in"],
-            ["faire le check-out", "hacer el check-out"],
-            ["réserver", "reservar"],
-            ["annuler", "cancelar"],
-            ["confirmer", "confirmar"],
-            ["payer", "pagar"],
-            ["signer", "firmar"],
-            ["monter les bagages", "subir el equipaje"],
-            ["nettoyer", "limpiar"],
-            ["réparer", "reparar"],
-            ["aider", "ayudar"],
-            ["attendre", "esperar"],
-            ["expliquer", "explicar"],
-            ["recommander", "recomendar"],
-            ["accompagner", "acompañar"],
-            ["facturer", "facturar"],
-            ["remplir (un formulaire)", "completar (un formulario)"],
-            ["vérifier", "verificar"],
-            ["changer (de chambre)", "cambiar (de habitación)"],
-            ["se plaindre", "quejarse"],
-            ["s'excuser", "disculparse"],
-            ["répondre", "responder"],
-            ["appeler", "llamar"],
-            ["informer", "informar"],
-            ["organiser", "organizar"]
-        ]},
-        { titulo: "Incidentes de habitación", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Le chauffage ne fonctionne pas.", "La calefacción no funciona."],
-            ["La climatisation ne fonctionne pas.", "El aire acondicionado no funciona."],
-            ["Les serviettes manquent.", "Faltan las toallas."],
-            ["L'accès Wi-Fi ne fonctionne pas.", "El Wi-Fi no funciona."],
-            ["L'ascenseur est en panne.", "El ascensor está fuera de servicio."],
-            ["La douche ne fonctionne pas.", "La ducha no funciona."],
-            ["Il n'y a pas d'eau chaude.", "No hay agua caliente."],
-            ["La télévision ne fonctionne pas.", "El televisor no funciona."],
-            ["La lumière ne s'allume pas.", "La luz no se enciende."],
-            ["La porte est coincée.", "La puerta está atascada."],
-            ["La fenêtre ne se ferme pas.", "La ventana no cierra."],
-            ["Il y a une fuite d'eau.", "Hay una pérdida de agua."],
-            ["Le lit n'est pas fait.", "La cama no está hecha."],
-            ["La chambre n'est pas propre.", "La habitación no está limpia."],
-            ["Il y a du bruit à côté.", "Hay ruido al lado."],
-            ["Le coffre-fort ne s'ouvre pas.", "La caja fuerte no abre."],
-            ["Il manque des cintres.", "Faltan perchas."],
-            ["La poubelle n'a pas été vidée.", "El cesto no fue vaciado."],
-            ["Le robinet fuit.", "La canilla pierde agua."],
-            ["Les toilettes sont bouchées.", "El inodoro está tapado."],
-            ["Il y a une odeur étrange.", "Hay un olor extraño."],
-            ["Le minibar est vide.", "El minibar está vacío."],
-            ["La carte magnétique ne fonctionne pas.", "La tarjeta magnética no funciona."],
-            ["Le réveil ne fonctionne pas.", "El despertador no funciona."],
-            ["Il n'y a pas assez d'oreillers.", "No hay suficientes almohadas."]
-        ]},
-        { titulo: "Ropa y accesorios", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["la chemise", "la camisa"],
-            ["le pantalon", "el pantalón"],
-            ["la robe", "el vestido"],
-            ["la jupe", "la falda"],
-            ["le manteau", "el abrigo"],
-            ["la veste", "la campera"],
-            ["le pull", "el suéter"],
-            ["le t-shirt", "la remera"],
-            ["les chaussures", "los zapatos"],
-            ["les chaussettes", "las medias"],
-            ["la ceinture", "el cinturón"],
-            ["le chapeau", "el sombrero"],
-            ["l'écharpe#fem", "la bufanda"],
-            ["les gants", "los guantes"],
-            ["le maillot de bain", "la malla (de baño)"],
-            ["le pyjama", "el pijama"],
-            ["les sous-vêtements", "la ropa interior"],
-            ["la cravate", "la corbata"],
-            ["le costume", "el traje"],
-            ["les bottes", "las botas"],
-            ["les sandales", "las sandalias"],
-            ["le sac à main", "la cartera"],
-            ["la montre", "el reloj (de pulsera)"],
-            ["les bijoux", "las joyas"],
-            ["le foulard", "el pañuelo"]
-        ]},
-        { titulo: "Tiempo libre y servicios del hotel", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["la piscine", "la pileta"],
-            ["le spa", "el spa"],
-            ["la salle de sport", "el gimnasio"],
-            ["le sauna", "el sauna"],
-            ["le massage", "el masaje"],
-            ["l'excursion#fem", "la excursión"],
-            ["la randonnée", "la caminata"],
-            ["le téléphérique", "el teleférico"],
-            ["la location de skis", "el alquiler de esquís"],
-            ["la station de ski", "la estación de esquí"],
-            ["le moniteur de ski", "el instructor de esquí"],
-            ["la navette", "el transporte (shuttle)"],
-            ["la réservation", "la reserva"],
-            ["le service en chambre", "el servicio a la habitación"],
-            ["le ménage", "la limpieza (de habitación)"],
-            ["la blanchisserie", "el lavado de ropa"],
-            ["la connexion Wi-Fi", "la conexión Wi-Fi"],
-            ["la carte touristique", "el mapa turístico"],
-            ["le guide touristique", "la guía turística"],
-            ["la location de voiture", "el alquiler de auto"],
-            ["le bar de l'hôtel", "el bar del hotel"],
-            ["la salle de jeux", "la sala de juegos"],
-            ["le concierge", "el conserje"],
-            ["la navette aéroport", "el traslado al aeropuerto"],
-            ["la salle de cinéma", "la sala de cine"]
-        ]}
-    ];
-    const vocabularioItaliano = [
-        { titulo: "Lugares del hotel", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["la reception", "la recepción"],
-            ["la hall", "el lobby"],
-            ["il piano", "el piso"],
-            ["la camera", "la habitación"],
-            ["l'ascensore#masc", "el ascensor"],
-            ["la scala", "la escalera"],
-            ["il parcheggio", "el estacionamiento"],
-            ["la sala colazione", "el salón de desayuno"],
-            ["il ristorante", "el restaurante"],
-            ["il bar", "el bar"],
-            ["la terrazza", "la terraza"],
-            ["il giardino", "el jardín"],
-            ["il cortile", "el patio"],
-            ["il corridoio", "el pasillo"],
-            ["l'uscita#fem", "la salida"],
-            ["l'entrata#fem", "la entrada"],
-            ["il bagno (della camera)", "el baño (de la habitación)"],
-            ["la toilette", "el baño (público)"],
-            ["la lavanderia", "la lavandería"],
-            ["la sala riunioni", "la sala de reuniones"],
-            ["il bancone", "el mostrador"],
-            ["il sottosuolo", "el subsuelo"],
-            ["il piano terra", "la planta baja"],
-            ["la cantina", "la bodega"],
-            ["la cucina", "la cocina"]
-        ]},
-        { titulo: "Objetos y equipaje", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["il passaporto", "el pasaporte"],
-            ["la carta d'identità", "el documento de identidad"],
-            ["la chiave", "la llave"],
-            ["la chiave magnetica", "la tarjeta magnética"],
-            ["la valigia", "la valija"],
-            ["il bagaglio", "el equipaje"],
-            ["lo zaino", "la mochila"],
-            ["l'asciugamano#masc", "la toalla"],
-            ["il lenzuolo", "la sábana"],
-            ["il cuscino", "la almohada"],
-            ["la coperta", "la frazada"],
-            ["il sapone", "el jabón"],
-            ["lo shampoo", "el champú"],
-            ["l'asciugacapelli#masc", "el secador de pelo"],
-            ["la cassaforte", "la caja fuerte"],
-            ["il minibar", "el minibar"],
-            ["il telecomando", "el control remoto"],
-            ["la grucca", "el perchero (de ropa)"],
-            ["la presa elettrica", "el enchufe"],
-            ["il caricabatterie", "el cargador"],
-            ["l'ombrello#masc", "el paraguas"],
-            ["gli occhiali", "los anteojos"],
-            ["il portafoglio", "la billetera"],
-            ["il telefono", "el teléfono"],
-            ["la carta di credito", "la tarjeta de crédito"]
-        ]},
-        { titulo: "Partes del cuerpo", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["la testa", "la cabeza"],
-            ["il viso", "la cara"],
-            ["gli occhi", "los ojos"],
-            ["il naso", "la nariz"],
-            ["la bocca", "la boca"],
-            ["l'orecchio#masc", "la oreja"],
-            ["il collo", "el cuello"],
-            ["la spalla", "el hombro"],
-            ["il braccio", "el brazo"],
-            ["la mano", "la mano"],
-            ["il dito", "el dedo"],
-            ["il petto", "el pecho"],
-            ["la schiena", "la espalda"],
-            ["la pancia", "la panza"],
-            ["la gamba", "la pierna"],
-            ["il ginocchio", "la rodilla"],
-            ["il piede", "el pie"],
-            ["la pelle", "la piel"],
-            ["il cuore", "el corazón"],
-            ["lo stomaco", "el estómago"],
-            ["la gola", "la garganta"],
-            ["il dente", "el diente"],
-            ["la caviglia", "el tobillo"],
-            ["il polso", "la muñeca (parte del cuerpo)"],
-            ["il fianco", "la cadera"]
-        ]},
-        { titulo: "Salud y emergencias", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Mi fa male la testa.", "Me duele la cabeza."],
-            ["Mi fa male la pancia.", "Me duele la panza."],
-            ["Sono malato/a.", "Estoy enfermo/a."],
-            ["Ho la febbre.", "Tengo fiebre."],
-            ["Ho bisogno di un medico.", "Necesito un médico."],
-            ["Chiamate un'ambulanza!", "¡Llamen una ambulancia!"],
-            ["È urgente.", "Es urgente."],
-            ["Mi sono fatto/a male.", "Me lastimé."],
-            ["Sono allergico/a a...", "Soy alérgico/a a..."],
-            ["Dov'è la farmacia?", "¿Dónde está la farmacia?"],
-            ["Ho bisogno di medicine.", "Necesito medicamentos."],
-            ["Chiamate i pompieri!", "¡Llamen a los bomberos!"],
-            ["Chiamate la polizia!", "¡Llamen a la policía!"],
-            ["Aiuto!", "¡Socorro!"],
-            ["Non mi sento bene.", "No me siento bien."],
-            ["Ho le vertigini.", "Tengo mareos."],
-            ["Mi sono rotto/a il braccio.", "Me rompí el brazo."],
-            ["l'ospedale più vicino#masc", "el hospital más cercano"],
-            ["l'assicurazione di viaggio#fem", "el seguro de viaje"],
-            ["Devo prendere le mie medicine.", "Tengo que tomar mis medicamentos."],
-            ["Ho un dolore al petto.", "Tengo un dolor en el pecho."],
-            ["È una reazione allergica.", "Es una reacción alérgica."],
-            ["il numero di emergenza", "el número de emergencia"],
-            ["Stia calmo/a.", "Mantenga la calma."],
-            ["l'infermeria#fem", "la enfermería"]
-        ]},
-        { titulo: "Alimentos y bebidas", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["il caffè", "el café"],
-            ["il tè", "el té"],
-            ["il succo d'arancia", "el jugo de naranja"],
-            ["l'acqua#fem", "el agua"],
-            ["il pane", "el pan"],
-            ["il burro", "la manteca"],
-            ["la marmellata", "la mermelada"],
-            ["il formaggio", "el queso"],
-            ["i cereali", "los cereales"],
-            ["il latte", "la leche"],
-            ["lo zucchero", "el azúcar"],
-            ["il sale", "la sal"],
-            ["la carne", "la carne"],
-            ["il pesce", "el pescado"],
-            ["le verdure", "las verduras"],
-            ["la frutta", "las frutas"],
-            ["la zuppa", "la sopa"],
-            ["l'insalata#fem", "la ensalada"],
-            ["il dolce", "el postre"],
-            ["il vino", "el vino"],
-            ["la birra", "la cerveza"],
-            ["le uova", "los huevos"],
-            ["lo yogurt", "el yogur"],
-            ["il prosciutto", "el jamón"],
-            ["la torta", "la torta"]
-        ]},
-        { titulo: "Verbos de acción de recepción", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["fare il check-in", "hacer el check-in"],
-            ["fare il check-out", "hacer el check-out"],
-            ["prenotare", "reservar"],
-            ["annullare", "cancelar"],
-            ["confermare", "confirmar"],
-            ["pagare", "pagar"],
-            ["firmare", "firmar"],
-            ["portare su i bagagli", "subir el equipaje"],
-            ["pulire", "limpiar"],
-            ["riparare", "reparar"],
-            ["aiutare", "ayudar"],
-            ["aspettare", "esperar"],
-            ["spiegare", "explicar"],
-            ["raccomandare", "recomendar"],
-            ["accompagnare", "acompañar"],
-            ["fatturare", "facturar"],
-            ["compilare (un modulo)", "completar (un formulario)"],
-            ["verificare", "verificar"],
-            ["cambiare (camera)", "cambiar (de habitación)"],
-            ["lamentarsi", "quejarse"],
-            ["scusarsi", "disculparse"],
-            ["rispondere", "responder"],
-            ["chiamare", "llamar"],
-            ["informare", "informar"],
-            ["organizzare", "organizar"]
-        ]},
-        { titulo: "Incidentes de habitación", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Il riscaldamento non funziona.", "La calefacción no funciona."],
-            ["L'aria condizionata non funziona.", "El aire acondicionado no funciona."],
-            ["Mancano gli asciugamani.", "Faltan las toallas."],
-            ["Il Wi-Fi non funziona.", "El Wi-Fi no funciona."],
-            ["L'ascensore è guasto.", "El ascensor está averiado."],
-            ["La doccia non funziona.", "La ducha no funciona."],
-            ["Non c'è acqua calda.", "No hay agua caliente."],
-            ["La televisione non funziona.", "El televisor no funciona."],
-            ["La luce non si accende.", "La luz no se enciende."],
-            ["La porta è bloccata.", "La puerta está atascada."],
-            ["La finestra non si chiude.", "La ventana no cierra."],
-            ["C'è una perdita d'acqua.", "Hay una pérdida de agua."],
-            ["Il letto non è fatto.", "La cama no está hecha."],
-            ["La camera non è pulita.", "La habitación no está limpia."],
-            ["C'è rumore di fianco.", "Hay ruido al lado."],
-            ["La cassaforte non si apre.", "La caja fuerte no abre."],
-            ["Mancano le grucce.", "Faltan perchas."],
-            ["Il cestino non è stato svuotato.", "El cesto no fue vaciado."],
-            ["Il rubinetto perde acqua.", "La canilla pierde agua."],
-            ["Il water è intasato.", "El inodoro está tapado."],
-            ["C'è un odore strano.", "Hay un olor extraño."],
-            ["Il minibar è vuoto.", "El minibar está vacío."],
-            ["La chiave magnetica non funziona.", "La tarjeta magnética no funciona."],
-            ["La sveglia non funziona.", "El despertador no funciona."],
-            ["Non ci sono abbastanza cuscini.", "No hay suficientes almohadas."]
-        ]},
-        { titulo: "Ropa y accesorios", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["la camicia", "la camisa"],
-            ["i pantaloni", "el pantalón"],
-            ["il vestito", "el vestido"],
-            ["la gonna", "la falda"],
-            ["il cappotto", "el abrigo"],
-            ["la giacca", "la campera"],
-            ["il maglione", "el suéter"],
-            ["la maglietta", "la remera"],
-            ["le scarpe", "los zapatos"],
-            ["i calzini", "las medias"],
-            ["la cintura", "el cinturón"],
-            ["il cappello", "el sombrero"],
-            ["la sciarpa", "la bufanda"],
-            ["i guanti", "los guantes"],
-            ["il costume da bagno", "la malla (de baño)"],
-            ["il pigiama", "el pijama"],
-            ["la biancheria intima", "la ropa interior"],
-            ["la cravatta", "la corbata"],
-            ["l'abito#masc", "el traje"],
-            ["gli stivali", "las botas"],
-            ["i sandali", "las sandalias"],
-            ["la borsa", "la cartera"],
-            ["l'orologio#masc", "el reloj (de pulsera)"],
-            ["i gioielli", "las joyas"],
-            ["il foulard", "el pañuelo"]
-        ]},
-        { titulo: "Tiempo libre y servicios del hotel", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["la piscina", "la pileta"],
-            ["la spa", "el spa"],
-            ["la palestra", "el gimnasio"],
-            ["la sauna", "el sauna"],
-            ["il massaggio", "el masaje"],
-            ["l'escursione#fem", "la excursión"],
-            ["l'escursionismo#masc", "la caminata"],
-            ["la funivia", "el teleférico"],
-            ["il noleggio sci", "el alquiler de esquís"],
-            ["la stazione sciistica", "la estación de esquí"],
-            ["il maestro di sci", "el instructor de esquí"],
-            ["la navetta", "el transporte (shuttle)"],
-            ["la prenotazione", "la reserva"],
-            ["il servizio in camera", "el servicio a la habitación"],
-            ["le pulizie", "la limpieza (de habitación)"],
-            ["la lavanderia", "el lavado de ropa"],
-            ["la connessione Wi-Fi", "la conexión Wi-Fi"],
-            ["la mappa turistica", "el mapa turístico"],
-            ["la guida turistica", "la guía turística"],
-            ["il noleggio auto", "el alquiler de auto"],
-            ["il bar dell'hotel", "el bar del hotel"],
-            ["la sala giochi", "la sala de juegos"],
-            ["il concierge", "el conserje"],
-            ["la navetta aeroporto", "el traslado al aeropuerto"],
-            ["la sala cinema", "la sala de cine"]
-        ]}
-    ];
-    const vocabularioPortugues = [
-        { titulo: "Lugares del hotel", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["a receção", "la recepción"],
-            ["o átrio", "el lobby"],
-            ["o piso", "el piso"],
-            ["o quarto", "la habitación"],
-            ["o elevador", "el ascensor"],
-            ["a escada", "la escalera"],
-            ["o parque de estacionamento", "el estacionamiento"],
-            ["a sala do pequeno-almoço", "el salón de desayuno"],
-            ["o restaurante", "el restaurante"],
-            ["o bar", "el bar"],
-            ["o terraço", "la terraza"],
-            ["o jardim", "el jardín"],
-            ["o pátio", "el patio"],
-            ["o corredor", "el pasillo"],
-            ["a saída", "la salida"],
-            ["a entrada", "la entrada"],
-            ["a casa de banho (do quarto)", "el baño (de la habitación)"],
-            ["a casa de banho (pública)", "el baño (público)"],
-            ["a lavandaria", "la lavandería"],
-            ["a sala de reuniões", "la sala de reuniones"],
-            ["o balcão", "el mostrador"],
-            ["o subsolo", "el subsuelo"],
-            ["o rés-do-chão", "la planta baja"],
-            ["a adega", "la bodega"],
-            ["a cozinha", "la cocina"]
-        ]},
-        { titulo: "Objetos y equipaje", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["o passaporte", "el pasaporte"],
-            ["o cartão de cidadão", "el documento de identidad"],
-            ["a chave", "la llave"],
-            ["o cartão magnético", "la tarjeta magnética"],
-            ["a mala", "la valija"],
-            ["a bagagem", "el equipaje"],
-            ["a mochila", "la mochila"],
-            ["a toalha", "la toalla"],
-            ["o lençol", "la sábana"],
-            ["a almofada", "la almohada"],
-            ["o cobertor", "la frazada"],
-            ["o sabonete", "el jabón"],
-            ["o champô", "el champú"],
-            ["o secador de cabelo", "el secador de pelo"],
-            ["o cofre", "la caja fuerte"],
-            ["o minibar", "el minibar"],
-            ["o telecomando", "el control remoto"],
-            ["o cabide", "el perchero (de ropa)"],
-            ["a tomada", "el enchufe"],
-            ["o carregador", "el cargador"],
-            ["o guarda-chuva", "el paraguas"],
-            ["os óculos", "los anteojos"],
-            ["a carteira", "la billetera"],
-            ["o telefone", "el teléfono"],
-            ["o cartão de crédito", "la tarjeta de crédito"]
-        ]},
-        { titulo: "Partes del cuerpo", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["a cabeça", "la cabeza"],
-            ["a cara", "la cara"],
-            ["os olhos", "los ojos"],
-            ["o nariz", "la nariz"],
-            ["a boca", "la boca"],
-            ["a orelha", "la oreja"],
-            ["o pescoço", "el cuello"],
-            ["o ombro", "el hombro"],
-            ["o braço", "el brazo"],
-            ["a mão", "la mano"],
-            ["o dedo", "el dedo"],
-            ["o peito", "el pecho"],
-            ["as costas", "la espalda"],
-            ["a barriga", "la panza"],
-            ["a perna", "la pierna"],
-            ["o joelho", "la rodilla"],
-            ["o pé", "el pie"],
-            ["a pele", "la piel"],
-            ["o coração", "el corazón"],
-            ["o estômago", "el estómago"],
-            ["a garganta", "la garganta"],
-            ["o dente", "el diente"],
-            ["o tornozelo", "el tobillo"],
-            ["o pulso", "la muñeca (parte del cuerpo)"],
-            ["a anca", "la cadera"]
-        ]},
-        { titulo: "Salud y emergencias", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["Dói-me a cabeça.", "Me duele la cabeza."],
-            ["Dói-me a barriga.", "Me duele la panza."],
-            ["Estou doente.", "Estoy enfermo/a."],
-            ["Tenho febre.", "Tengo fiebre."],
-            ["Preciso de um médico.", "Necesito un médico."],
-            ["Chamem uma ambulância!", "¡Llamen una ambulancia!"],
-            ["É urgente.", "Es urgente."],
-            ["Magoei-me.", "Me lastimé."],
-            ["Sou alérgico/a a...", "Soy alérgico/a a..."],
-            ["Onde está a farmácia?", "¿Dónde está la farmacia?"],
-            ["Preciso de medicamentos.", "Necesito medicamentos."],
-            ["Chamem os bombeiros!", "¡Llamen a los bomberos!"],
-            ["Chamem a polícia!", "¡Llamen a la policía!"],
-            ["Socorro!", "¡Socorro!"],
-            ["Não me sinto bem.", "No me siento bien."],
-            ["Tenho tonturas.", "Tengo mareos."],
-            ["Parti o braço.", "Me rompí el brazo."],
-            ["o hospital mais próximo", "el hospital más cercano"],
-            ["o seguro de viagem", "el seguro de viaje"],
-            ["Tenho de tomar os meus medicamentos.", "Tengo que tomar mis medicamentos."],
-            ["Tenho uma dor no peito.", "Tengo un dolor en el pecho."],
-            ["É uma reação alérgica.", "Es una reacción alérgica."],
-            ["o número de emergência", "el número de emergencia"],
-            ["Mantenha a calma.", "Mantenga la calma."],
-            ["a enfermaria", "la enfermería"]
-        ]},
-        { titulo: "Alimentos y bebidas", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["o café", "el café"],
-            ["o chá", "el té"],
-            ["o sumo de laranja", "el jugo de naranja"],
-            ["a água", "el agua"],
-            ["o pão", "el pan"],
-            ["a manteiga", "la manteca"],
-            ["a compota", "la mermelada"],
-            ["o queijo", "el queso"],
-            ["os cereais", "los cereales"],
-            ["o leite", "la leche"],
-            ["o açúcar", "el azúcar"],
-            ["o sal", "la sal"],
-            ["a carne", "la carne"],
-            ["o peixe", "el pescado"],
-            ["os legumes", "las verduras"],
-            ["a fruta", "las frutas"],
-            ["a sopa", "la sopa"],
-            ["a salada", "la ensalada"],
-            ["a sobremesa", "el postre"],
-            ["o vinho", "el vino"],
-            ["a cerveja", "la cerveza"],
-            ["os ovos", "los huevos"],
-            ["o iogurte", "el yogur"],
-            ["o fiambre", "el jamón"],
-            ["o bolo", "la torta"]
-        ]},
-        { titulo: "Verbos de acción de recepción", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["fazer o check-in", "hacer el check-in"],
-            ["fazer o check-out", "hacer el check-out"],
-            ["reservar", "reservar"],
-            ["cancelar", "cancelar"],
-            ["confirmar", "confirmar"],
-            ["pagar", "pagar"],
-            ["assinar", "firmar"],
-            ["subir a bagagem", "subir el equipaje"],
-            ["limpar", "limpiar"],
-            ["reparar", "reparar"],
-            ["ajudar", "ayudar"],
-            ["esperar", "esperar"],
-            ["explicar", "explicar"],
-            ["recomendar", "recomendar"],
-            ["acompanhar", "acompañar"],
-            ["faturar", "facturar"],
-            ["preencher (um formulário)", "completar (un formulario)"],
-            ["verificar", "verificar"],
-            ["mudar (de quarto)", "cambiar (de habitación)"],
-            ["reclamar", "quejarse"],
-            ["desculpar-se", "disculparse"],
-            ["responder", "responder"],
-            ["chamar", "llamar"],
-            ["informar", "informar"],
-            ["organizar", "organizar"]
-        ]},
-        { titulo: "Incidentes de habitación", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["O aquecimento não funciona.", "La calefacción no funciona."],
-            ["O ar condicionado não funciona.", "El aire acondicionado no funciona."],
-            ["Faltam toalhas.", "Faltan las toallas."],
-            ["O Wi-Fi não funciona.", "El Wi-Fi no funciona."],
-            ["O elevador está avariado.", "El ascensor está averiado."],
-            ["O chuveiro não funciona.", "La ducha no funciona."],
-            ["Não há água quente.", "No hay agua caliente."],
-            ["A televisão não funciona.", "El televisor no funciona."],
-            ["A luz não se liga.", "La luz no se enciende."],
-            ["A porta está encravada.", "La puerta está atascada."],
-            ["A janela não fecha.", "La ventana no cierra."],
-            ["Há uma fuga de água.", "Hay una pérdida de agua."],
-            ["A cama não está feita.", "La cama no está hecha."],
-            ["O quarto não está limpo.", "La habitación no está limpia."],
-            ["Há ruído ao lado.", "Hay ruido al lado."],
-            ["O cofre não abre.", "La caja fuerte no abre."],
-            ["Faltam cabides.", "Faltan perchas."],
-            ["O lixo não foi esvaziado.", "El cesto no fue vaciado."],
-            ["A torneira está a pingar.", "La canilla pierde agua."],
-            ["A sanita está entupida.", "El inodoro está tapado."],
-            ["Há um odor estranho.", "Hay un olor extraño."],
-            ["O minibar está vazio.", "El minibar está vacío."],
-            ["O cartão magnético não funciona.", "La tarjeta magnética no funciona."],
-            ["O despertador não funciona.", "El despertador no funciona."],
-            ["Não há almofadas suficientes.", "No hay suficientes almohadas."]
-        ]},
-        { titulo: "Ropa y accesorios", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["a camisa", "la camisa"],
-            ["as calças", "el pantalón"],
-            ["o vestido", "el vestido"],
-            ["a saia", "la falda"],
-            ["o casaco", "el abrigo"],
-            ["o blusão", "la campera"],
-            ["a camisola", "el suéter"],
-            ["a t-shirt", "la remera"],
-            ["os sapatos", "los zapatos"],
-            ["as meias", "las medias"],
-            ["o cinto", "el cinturón"],
-            ["o chapéu", "el sombrero"],
-            ["o cachecol", "la bufanda"],
-            ["as luvas", "los guantes"],
-            ["o fato de banho", "la malla (de baño)"],
-            ["o pijama", "el pijama"],
-            ["a roupa interior", "la ropa interior"],
-            ["a gravata", "la corbata"],
-            ["o fato", "el traje"],
-            ["as botas", "las botas"],
-            ["as sandálias", "las sandalias"],
-            ["a carteira de mão", "la cartera"],
-            ["o relógio", "el reloj (de pulsera)"],
-            ["as joias", "las joyas"],
-            ["o lenço", "el pañuelo"]
-        ]},
-        { titulo: "Tiempo libre y servicios del hotel", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["a piscina", "la pileta"],
-            ["o spa", "el spa"],
-            ["o ginásio", "el gimnasio"],
-            ["a sauna", "el sauna"],
-            ["a massagem", "el masaje"],
-            ["a excursão", "la excursión"],
-            ["o passeio a pé", "la caminata"],
-            ["o teleférico", "el teleférico"],
-            ["o aluguer de esquis", "el alquiler de esquís"],
-            ["a estação de esqui", "la estación de esquí"],
-            ["o monitor de esqui", "el instructor de esquí"],
-            ["o transfer", "el transporte (shuttle)"],
-            ["a reserva", "la reserva"],
-            ["o serviço de quartos", "el servicio a la habitación"],
-            ["a limpeza", "la limpieza (de habitación)"],
-            ["a lavandaria", "el lavado de ropa"],
-            ["a ligação Wi-Fi", "la conexión Wi-Fi"],
-            ["o mapa turístico", "el mapa turístico"],
-            ["o guia turístico", "la guía turística"],
-            ["o aluguer de carro", "el alquiler de auto"],
-            ["o bar do hotel", "el bar del hotel"],
-            ["a sala de jogos", "la sala de juegos"],
-            ["o concierge", "el conserje"],
-            ["o transfer para o aeroporto", "el traslado al aeropuerto"],
-            ["a sala de cinema", "la sala de cine"]
-        ]}
-    ];
-
+            
     // HORA: verificado con fuentes gramaticales de cada idioma — PT siempre en
     // variante europea (PT-PT), nunca brasileña. Diferencias reales entre los 3:
     // - Francés: SIN artículo antes del número ("il est trois heures"). Sistema
@@ -4865,48 +4124,9 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioFrances), "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances, tiempoRelativo: tiempoRelativoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), "COLORES": [ 
-            { "esp": "Amarillo", "mSing": "jaune", "mPlur": "jaunes", "fSing": "jaune", "fPlur": "jaunes" },
-            { "esp": "Naranja", "mSing": "orange", "mPlur": "oranges", "fSing": "orange", "fPlur": "oranges" },
-            { "esp": "Rojo", "mSing": "rouge", "mPlur": "rouges", "fSing": "rouge", "fPlur": "rouges" },
-            { "esp": "Rosa", "mSing": "rose", "mPlur": "roses", "fSing": "rose", "fPlur": "roses" },
-            { "esp": "Violeta", "mSing": "violet", "mPlur": "violets", "fSing": "violette", "fPlur": "violettes" },
-            { "esp": "Azul", "mSing": "bleu", "mPlur": "bleus", "fSing": "bleue", "fPlur": "bleues" },
-            { "esp": "Celeste", "mSing": "bleu ciel", "mPlur": "bleus ciel", "fSing": "bleue ciel", "fPlur": "bleues ciel" },
-            { "esp": "Verde", "mSing": "vert", "mPlur": "verts", "fSing": "verte", "fPlur": "vertes" },
-            { "esp": "Castaño", "mSing": "marron", "mPlur": "marrons", "fSing": "marron", "fPlur": "marrons" },
-            { "esp": "Negro", "mSing": "noir", "mPlur": "noirs", "fSing": "noire", "fPlur": "noires" },
-            { "esp": "Gris", "mSing": "gris", "mPlur": "gris", "fSing": "grise", "fPlur": "grises" },
-            { "esp": "Blanco", "mSing": "blanc", "mPlur": "blancs", "fSing": "blanche", "fPlur": "blanches" }
-        ]},
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioItaliano), "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano, tiempoRelativo: tiempoRelativoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), "COLORES": [
-            { "esp": "Amarillo", "mSing": "giallo", "mPlur": "gialli", "fSing": "gialla", "fPlur": "gialle" },
-            { "esp": "Naranja", "mSing": "arancione", "mPlur": "arancioni", "fSing": "arancione", "fPlur": "arancioni" },
-            { "esp": "Rojo", "mSing": "rosso", "mPlur": "rossi", "fSing": "rossa", "fPlur": "rosse" },
-            { "esp": "Rosa", "mSing": "rosa", "mPlur": "rosa", "fSing": "rosa", "fPlur": "rosa" },
-            { "esp": "Violeta", "mSing": "viola", "mPlur": "viola", "fSing": "viola", "fPlur": "viola" },
-            { "esp": "Azul", "mSing": "blu", "mPlur": "blu", "fSing": "blu", "fPlur": "blu" },
-            { "esp": "Celeste", "mSing": "azzurro", "mPlur": "azzurri", "fSing": "azzurra", "fPlur": "azzurre" },
-            { "esp": "Verde", "mSing": "verde", "mPlur": "verdi", "fSing": "verde", "fPlur": "verdi" },
-            { "esp": "Castaño", "mSing": "marrone", "mPlur": "marroni", "fSing": "marrone", "fPlur": "marroni" },
-            { "esp": "Negro", "mSing": "nero", "mPlur": "neri", "fSing": "nera", "fPlur": "nere" },
-            { "esp": "Gris", "mSing": "grigio", "mPlur": "grigi", "fSing": "grigia", "fPlur": "grigie" },
-            { "esp": "Blanco", "mSing": "bianco", "mPlur": "bianchi", "fSing": "bianca", "fPlur": "bianche" }
-        ]},
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "VOCABULARIO": ordenarVocabularioPorEspanol(vocabularioPortugues), "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues, tiempoRelativo: tiempoRelativoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), "COLORES": [
-            { "esp": "Amarillo", "mSing": "amarelo", "mPlur": "amarelos", "fSing": "amarela", "fPlur": "amarelas" },
-            { "esp": "Naranja", "mSing": "laranja", "mPlur": "laranjas", "fSing": "laranja", "fPlur": "laranjas" },
-            { "esp": "Rojo", "mSing": "vermelho", "mPlur": "vermelhos", "fSing": "vermelha", "fPlur": "vermelhas" },
-            { "esp": "Rosa", "mSing": "cor-de-rosa", "mPlur": "cor-de-rosa", "fSing": "cor-de-rosa", "fPlur": "cor-de-rosa" },
-            { "esp": "Violeta", "mSing": "violeta", "mPlur": "violetas", "fSing": "violeta", "fPlur": "violetas" },
-            { "esp": "Azul", "mSing": "azul", "mPlur": "azuis", "fSing": "azul", "fPlur": "azuis" },
-            { "esp": "Celeste", "mSing": "azul-celeste", "mPlur": "azul-celeste", "fSing": "azul-celeste", "fPlur": "azul-celeste" },
-            { "esp": "Verde", "mSing": "verde", "mPlur": "verdes", "fSing": "verde", "fPlur": "verdes" },
-            { "esp": "Castaño", "mSing": "castanho", "mPlur": "castanhos", "fSing": "castanha", "fPlur": "castanhas" },
-            { "esp": "Negro", "mSing": "preto", "mPlur": "pretos", "fSing": "preta", "fPlur": "pretas" },
-            { "esp": "Gris", "mSing": "cinzento", "mPlur": "cinzentos", "fSing": "cinzenta", "fPlur": "cinzentas" },
-            { "esp": "Blanco", "mSing": "branco", "mPlur": "brancos", "fSing": "branca", "fPlur": "brancas" }
-        ]}
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosFrances, dias: diasFrances, meses: mesesFrances, hora: horaFrances, tiempoRelativo: tiempoRelativoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosItaliano, dias: diasItaliano, meses: mesesItaliano, hora: horaItaliano, tiempoRelativo: tiempoRelativoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "NÚMEROS Y TIEMPO": { numeros: numerosPortugues, dias: diasPortugues, meses: mesesPortugues, hora: horaPortugues, tiempoRelativo: tiempoRelativoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -5029,12 +4249,6 @@
         document.getElementById('selectorDecenasWrap').style.display = visibleDecenas ? "inline-block" : "none";
         if (visibleDecenas) {
             inicializarMenuDecenas();
-        }
-
-        const visibleTemaVocabulario = unidadActualKey === "VOCABULARIO";
-        document.getElementById('selectorTemaVocabularioWrap').style.display = visibleTemaVocabulario ? "inline-block" : "none";
-        if (visibleTemaVocabulario) {
-            inicializarMenuTemaVocabulario();
         }
 
         const visibleGeografiaClima = unidadActualKey === "GEOGRAFÍA Y CLIMA";
@@ -5245,7 +4459,7 @@
     // Renderiza la unidad COLORES (formato especial: columna de emoji + 4 formas de adjetivo)
     function renderColores(idioma) {
         let html = "<table class=\"tabla-colores\"><caption>Colores</caption><tr><th></th><th>Masc. S</th><th>Masc. P</th><th>Fem. S</th><th>Fem. P</th></tr>";
-        data[idioma]["COLORES"].forEach(item => {
+        COLORES_NUEVO_POR_IDIOMA[idioma].forEach(item => {
             const emoji = emojiMap[item.esp] || "";
             html += "<tr>";
             html += `<td class="emoji-cell">${emoji}</td>`;
@@ -5535,13 +4749,12 @@
     // artículo real de cada palabra (le/la, il/la/lo, o/a) — cuando el artículo
     // es ambiguo (l' en FR/IT) el dato viene marcado con "#masc"/"#fem" al final
     // (invisible, se limpia antes de mostrar y pronunciar).
-    let temaVocabularioIndex = 0;
 
     // Toma una tarjeta con palabras marcadas "#masc"/"#fem" (o detectables por
     // artículo real) y devuelve una copia lista para renderTabla: colorPorCelda
     // calculado ANTES de limpiar la marca, y las celdas ya limpias para mostrar
-    // y pronunciar. Reusada por VOCABULARIO y GEOGRAFÍA (ambas con palabras
-    // sueltas con artículo, mismo patrón de datos).
+    // y pronunciar. Reusada por GEOGRAFÍA (palabras sueltas con artículo, mismo
+    // patrón de datos).
     // Extrae la parte "real" de una celda para calcular género/limpiar marca:
     // si tiene "||" (traducirDebajo), usa solo lo que está antes del separador.
     function partePrincipal(texto) {
@@ -5562,12 +4775,6 @@
                 return limpiarMarcaGenero(celda);
             }))
         };
-    }
-
-    function renderVocabulario(idioma) {
-        const tarjetas = data[idioma]["VOCABULARIO"];
-        const tarjetaLimpia = tarjetaConColorDeGenero(tarjetas[temaVocabularioIndex], idioma);
-        return `<div class="tarjeta tarjeta-con-borde vocabulario-tarjeta-unica">${renderTabla(tarjetaLimpia, idioma)}</div>`;
     }
 
     // GEOGRAFÍA Y CLIMA: selector interno clima/geografía (botón junto al
@@ -5954,6 +5161,803 @@
         return html;
     }
 
+
+    // ===== Contenido propio e independiente de VOCABULARIO NUEVO — copia
+    // exacta del contenido verificado (con las marcas #masc/#fem ya corregidas
+    // para l'étage, l'épaule, l'écharpe), pero SIN depender de data[][...] del
+    // sistema viejo, para que esta unidad sea autosuficiente. =====
+    const vocabularioNuevoFrances = [
+        { titulo: "Lugares del hotel", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["la réception", "la recepción"],
+            ["le hall", "el lobby"],
+            ["l'étage#masc", "el piso"],
+            ["la chambre", "la habitación"],
+            ["l'ascenseur#masc", "el ascensor"],
+            ["l'escalier#masc", "la escalera"],
+            ["le parking", "el estacionamiento"],
+            ["la salle de petit-déjeuner", "el salón de desayuno"],
+            ["le restaurant", "el restaurante"],
+            ["le bar", "el bar"],
+            ["la terrasse", "la terraza"],
+            ["le jardin", "el jardín"],
+            ["la cour", "el patio"],
+            ["le couloir", "el pasillo"],
+            ["la sortie", "la salida"],
+            ["l'entrée#fem", "la entrada"],
+            ["la salle de bain", "el baño (de la habitación)"],
+            ["les toilettes", "el baño (público)"],
+            ["la buanderie", "la lavandería"],
+            ["la salle de réunion", "la sala de reuniones"],
+            ["le comptoir d'accueil", "el mostrador"],
+            ["le sous-sol", "el subsuelo"],
+            ["le rez-de-chaussée", "la planta baja"],
+            ["la cave à vin", "la bodega"],
+            ["la cuisine", "la cocina"]
+        ]},
+        { titulo: "Objetos y equipaje", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["le passeport", "el pasaporte"],
+            ["la carte d'identité", "el documento de identidad"],
+            ["la clé", "la llave"],
+            ["la carte magnétique", "la tarjeta magnética"],
+            ["la valise", "la valija"],
+            ["le bagage", "el equipaje"],
+            ["le sac à dos", "la mochila"],
+            ["la serviette", "la toalla"],
+            ["le drap", "la sábana"],
+            ["l'oreiller#masc", "la almohada"],
+            ["la couverture", "la frazada"],
+            ["le savon", "el jabón"],
+            ["le shampooing", "el champú"],
+            ["le sèche-cheveux", "el secador de pelo"],
+            ["le coffre-fort", "la caja fuerte"],
+            ["le minibar", "el minibar"],
+            ["la télécommande", "el control remoto"],
+            ["le cintre", "el perchero (de ropa)"],
+            ["la prise électrique", "el enchufe"],
+            ["le chargeur", "el cargador"],
+            ["le parapluie", "el paraguas"],
+            ["les lunettes", "los anteojos"],
+            ["le portefeuille", "la billetera"],
+            ["le téléphone", "el teléfono"],
+            ["la carte de crédit", "la tarjeta de crédito"]
+        ]},
+        { titulo: "Partes del cuerpo", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["la tête", "la cabeza"],
+            ["le visage", "la cara"],
+            ["les yeux", "los ojos"],
+            ["le nez", "la nariz"],
+            ["la bouche", "la boca"],
+            ["l'oreille#fem", "la oreja"],
+            ["le cou", "el cuello"],
+            ["l'épaule#fem", "el hombro"],
+            ["le bras", "el brazo"],
+            ["la main", "la mano"],
+            ["le doigt", "el dedo"],
+            ["la poitrine", "el pecho"],
+            ["le dos", "la espalda"],
+            ["le ventre", "la panza"],
+            ["la jambe", "la pierna"],
+            ["le genou", "la rodilla"],
+            ["le pied", "el pie"],
+            ["la peau", "la piel"],
+            ["le cœur", "el corazón"],
+            ["l'estomac#masc", "el estómago"],
+            ["la gorge", "la garganta"],
+            ["la dent", "el diente"],
+            ["la cheville", "el tobillo"],
+            ["le poignet", "la muñeca (parte del cuerpo)"],
+            ["la hanche", "la cadera"]
+        ]},
+        { titulo: "Salud y emergencias", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["J'ai mal à la tête.", "Me duele la cabeza."],
+            ["J'ai mal au ventre.", "Me duele la panza."],
+            ["Je suis malade.", "Estoy enfermo/a."],
+            ["J'ai de la fièvre.", "Tengo fiebre."],
+            ["J'ai besoin d'un médecin.", "Necesito un médico."],
+            ["Appelez une ambulance!", "¡Llamen una ambulancia!"],
+            ["C'est urgent.", "Es urgente."],
+            ["Je me suis blessé(e).", "Me lastimé."],
+            ["Je suis allergique à...", "Soy alérgico/a a..."],
+            ["Où est la pharmacie?", "¿Dónde está la farmacia?"],
+            ["J'ai besoin de médicaments.", "Necesito medicamentos."],
+            ["Appelez les pompiers!", "¡Llamen a los bomberos!"],
+            ["Appelez la police!", "¡Llamen a la policía!"],
+            ["Au secours!", "¡Socorro!"],
+            ["Je ne me sens pas bien.", "No me siento bien."],
+            ["J'ai des vertiges.", "Tengo mareos."],
+            ["Je me suis cassé le bras.", "Me rompí el brazo."],
+            ["l'hôpital le plus proche#masc", "el hospital más cercano"],
+            ["l'assurance voyage#fem", "el seguro de viaje"],
+            ["Je dois prendre mes médicaments.", "Tengo que tomar mis medicamentos."],
+            ["J'ai une douleur à la poitrine.", "Tengo un dolor en el pecho."],
+            ["C'est une réaction allergique.", "Es una reacción alérgica."],
+            ["le numéro d'urgence", "el número de emergencia"],
+            ["Restez calme.", "Mantenga la calma."],
+            ["l'infirmerie#fem", "la enfermería"]
+        ]},
+        { titulo: "Alimentos y bebidas", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["le café", "el café"],
+            ["le thé", "el té"],
+            ["le jus d'orange", "el jugo de naranja"],
+            ["l'eau#fem", "el agua"],
+            ["le pain", "el pan"],
+            ["le beurre", "la manteca"],
+            ["la confiture", "la mermelada"],
+            ["le fromage", "el queso"],
+            ["les céréales", "los cereales"],
+            ["le lait", "la leche"],
+            ["le sucre", "el azúcar"],
+            ["le sel", "la sal"],
+            ["la viande", "la carne"],
+            ["le poisson", "el pescado"],
+            ["les légumes", "las verduras"],
+            ["les fruits", "las frutas"],
+            ["la soupe", "la sopa"],
+            ["la salade", "la ensalada"],
+            ["le dessert", "el postre"],
+            ["le vin", "el vino"],
+            ["la bière", "la cerveza"],
+            ["les œufs", "los huevos"],
+            ["le yaourt", "el yogur"],
+            ["le jambon", "el jamón"],
+            ["le gâteau", "la torta"]
+        ]},
+        { titulo: "Verbos de acción de recepción", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["faire le check-in", "hacer el check-in"],
+            ["faire le check-out", "hacer el check-out"],
+            ["réserver", "reservar"],
+            ["annuler", "cancelar"],
+            ["confirmer", "confirmar"],
+            ["payer", "pagar"],
+            ["signer", "firmar"],
+            ["monter les bagages", "subir el equipaje"],
+            ["nettoyer", "limpiar"],
+            ["réparer", "reparar"],
+            ["aider", "ayudar"],
+            ["attendre", "esperar"],
+            ["expliquer", "explicar"],
+            ["recommander", "recomendar"],
+            ["accompagner", "acompañar"],
+            ["facturer", "facturar"],
+            ["remplir (un formulaire)", "completar (un formulario)"],
+            ["vérifier", "verificar"],
+            ["changer (de chambre)", "cambiar (de habitación)"],
+            ["se plaindre", "quejarse"],
+            ["s'excuser", "disculparse"],
+            ["répondre", "responder"],
+            ["appeler", "llamar"],
+            ["informer", "informar"],
+            ["organiser", "organizar"]
+        ]},
+        { titulo: "Incidentes de habitación", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["Le chauffage ne fonctionne pas.", "La calefacción no funciona."],
+            ["La climatisation ne fonctionne pas.", "El aire acondicionado no funciona."],
+            ["Les serviettes manquent.", "Faltan las toallas."],
+            ["L'accès Wi-Fi ne fonctionne pas.", "El Wi-Fi no funciona."],
+            ["L'ascenseur est en panne.", "El ascensor está fuera de servicio."],
+            ["La douche ne fonctionne pas.", "La ducha no funciona."],
+            ["Il n'y a pas d'eau chaude.", "No hay agua caliente."],
+            ["La télévision ne fonctionne pas.", "El televisor no funciona."],
+            ["La lumière ne s'allume pas.", "La luz no se enciende."],
+            ["La porte est coincée.", "La puerta está atascada."],
+            ["La fenêtre ne se ferme pas.", "La ventana no cierra."],
+            ["Il y a une fuite d'eau.", "Hay una pérdida de agua."],
+            ["Le lit n'est pas fait.", "La cama no está hecha."],
+            ["La chambre n'est pas propre.", "La habitación no está limpia."],
+            ["Il y a du bruit à côté.", "Hay ruido al lado."],
+            ["Le coffre-fort ne s'ouvre pas.", "La caja fuerte no abre."],
+            ["Il manque des cintres.", "Faltan perchas."],
+            ["La poubelle n'a pas été vidée.", "El cesto no fue vaciado."],
+            ["Le robinet fuit.", "La canilla pierde agua."],
+            ["Les toilettes sont bouchées.", "El inodoro está tapado."],
+            ["Il y a une odeur étrange.", "Hay un olor extraño."],
+            ["Le minibar est vide.", "El minibar está vacío."],
+            ["La carte magnétique ne fonctionne pas.", "La tarjeta magnética no funciona."],
+            ["Le réveil ne fonctionne pas.", "El despertador no funciona."],
+            ["Il n'y a pas assez d'oreillers.", "No hay suficientes almohadas."]
+        ]},
+        { titulo: "Ropa y accesorios", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["la chemise", "la camisa"],
+            ["le pantalon", "el pantalón"],
+            ["la robe", "el vestido"],
+            ["la jupe", "la falda"],
+            ["le manteau", "el abrigo"],
+            ["la veste", "la campera"],
+            ["le pull", "el suéter"],
+            ["le t-shirt", "la remera"],
+            ["les chaussures", "los zapatos"],
+            ["les chaussettes", "las medias"],
+            ["la ceinture", "el cinturón"],
+            ["le chapeau", "el sombrero"],
+            ["l'écharpe#fem", "la bufanda"],
+            ["les gants", "los guantes"],
+            ["le maillot de bain", "la malla (de baño)"],
+            ["le pyjama", "el pijama"],
+            ["les sous-vêtements", "la ropa interior"],
+            ["la cravate", "la corbata"],
+            ["le costume", "el traje"],
+            ["les bottes", "las botas"],
+            ["les sandales", "las sandalias"],
+            ["le sac à main", "la cartera"],
+            ["la montre", "el reloj (de pulsera)"],
+            ["les bijoux", "las joyas"],
+            ["le foulard", "el pañuelo"]
+        ]},
+        { titulo: "Tiempo libre y servicios del hotel", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
+            ["la piscine", "la pileta"],
+            ["le spa", "el spa"],
+            ["la salle de sport", "el gimnasio"],
+            ["le sauna", "el sauna"],
+            ["le massage", "el masaje"],
+            ["l'excursion#fem", "la excursión"],
+            ["la randonnée", "la caminata"],
+            ["le téléphérique", "el teleférico"],
+            ["la location de skis", "el alquiler de esquís"],
+            ["la station de ski", "la estación de esquí"],
+            ["le moniteur de ski", "el instructor de esquí"],
+            ["la navette", "el transporte (shuttle)"],
+            ["la réservation", "la reserva"],
+            ["le service en chambre", "el servicio a la habitación"],
+            ["le ménage", "la limpieza (de habitación)"],
+            ["la blanchisserie", "el lavado de ropa"],
+            ["la connexion Wi-Fi", "la conexión Wi-Fi"],
+            ["la carte touristique", "el mapa turístico"],
+            ["le guide touristique", "la guía turística"],
+            ["la location de voiture", "el alquiler de auto"],
+            ["le bar de l'hôtel", "el bar del hotel"],
+            ["la salle de jeux", "la sala de juegos"],
+            ["le concierge", "el conserje"],
+            ["la navette aéroport", "el traslado al aeropuerto"],
+            ["la salle de cinéma", "la sala de cine"]
+        ]}
+    ];
+
+    const vocabularioNuevoItaliano = [
+        { titulo: "Lugares del hotel", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["la reception", "la recepción"],
+            ["la hall", "el lobby"],
+            ["il piano", "el piso"],
+            ["la camera", "la habitación"],
+            ["l'ascensore#masc", "el ascensor"],
+            ["la scala", "la escalera"],
+            ["il parcheggio", "el estacionamiento"],
+            ["la sala colazione", "el salón de desayuno"],
+            ["il ristorante", "el restaurante"],
+            ["il bar", "el bar"],
+            ["la terrazza", "la terraza"],
+            ["il giardino", "el jardín"],
+            ["il cortile", "el patio"],
+            ["il corridoio", "el pasillo"],
+            ["l'uscita#fem", "la salida"],
+            ["l'entrata#fem", "la entrada"],
+            ["il bagno (della camera)", "el baño (de la habitación)"],
+            ["la toilette", "el baño (público)"],
+            ["la lavanderia", "la lavandería"],
+            ["la sala riunioni", "la sala de reuniones"],
+            ["il bancone", "el mostrador"],
+            ["il sottosuolo", "el subsuelo"],
+            ["il piano terra", "la planta baja"],
+            ["la cantina", "la bodega"],
+            ["la cucina", "la cocina"]
+        ]},
+        { titulo: "Objetos y equipaje", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["il passaporto", "el pasaporte"],
+            ["la carta d'identità", "el documento de identidad"],
+            ["la chiave", "la llave"],
+            ["la chiave magnetica", "la tarjeta magnética"],
+            ["la valigia", "la valija"],
+            ["il bagaglio", "el equipaje"],
+            ["lo zaino", "la mochila"],
+            ["l'asciugamano#masc", "la toalla"],
+            ["il lenzuolo", "la sábana"],
+            ["il cuscino", "la almohada"],
+            ["la coperta", "la frazada"],
+            ["il sapone", "el jabón"],
+            ["lo shampoo", "el champú"],
+            ["l'asciugacapelli#masc", "el secador de pelo"],
+            ["la cassaforte", "la caja fuerte"],
+            ["il minibar", "el minibar"],
+            ["il telecomando", "el control remoto"],
+            ["la grucca", "el perchero (de ropa)"],
+            ["la presa elettrica", "el enchufe"],
+            ["il caricabatterie", "el cargador"],
+            ["l'ombrello#masc", "el paraguas"],
+            ["gli occhiali", "los anteojos"],
+            ["il portafoglio", "la billetera"],
+            ["il telefono", "el teléfono"],
+            ["la carta di credito", "la tarjeta de crédito"]
+        ]},
+        { titulo: "Partes del cuerpo", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["la testa", "la cabeza"],
+            ["il viso", "la cara"],
+            ["gli occhi", "los ojos"],
+            ["il naso", "la nariz"],
+            ["la bocca", "la boca"],
+            ["l'orecchio#masc", "la oreja"],
+            ["il collo", "el cuello"],
+            ["la spalla", "el hombro"],
+            ["il braccio", "el brazo"],
+            ["la mano", "la mano"],
+            ["il dito", "el dedo"],
+            ["il petto", "el pecho"],
+            ["la schiena", "la espalda"],
+            ["la pancia", "la panza"],
+            ["la gamba", "la pierna"],
+            ["il ginocchio", "la rodilla"],
+            ["il piede", "el pie"],
+            ["la pelle", "la piel"],
+            ["il cuore", "el corazón"],
+            ["lo stomaco", "el estómago"],
+            ["la gola", "la garganta"],
+            ["il dente", "el diente"],
+            ["la caviglia", "el tobillo"],
+            ["il polso", "la muñeca (parte del cuerpo)"],
+            ["il fianco", "la cadera"]
+        ]},
+        { titulo: "Salud y emergencias", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["Mi fa male la testa.", "Me duele la cabeza."],
+            ["Mi fa male la pancia.", "Me duele la panza."],
+            ["Sono malato/a.", "Estoy enfermo/a."],
+            ["Ho la febbre.", "Tengo fiebre."],
+            ["Ho bisogno di un medico.", "Necesito un médico."],
+            ["Chiamate un'ambulanza!", "¡Llamen una ambulancia!"],
+            ["È urgente.", "Es urgente."],
+            ["Mi sono fatto/a male.", "Me lastimé."],
+            ["Sono allergico/a a...", "Soy alérgico/a a..."],
+            ["Dov'è la farmacia?", "¿Dónde está la farmacia?"],
+            ["Ho bisogno di medicine.", "Necesito medicamentos."],
+            ["Chiamate i pompieri!", "¡Llamen a los bomberos!"],
+            ["Chiamate la polizia!", "¡Llamen a la policía!"],
+            ["Aiuto!", "¡Socorro!"],
+            ["Non mi sento bene.", "No me siento bien."],
+            ["Ho le vertigini.", "Tengo mareos."],
+            ["Mi sono rotto/a il braccio.", "Me rompí el brazo."],
+            ["l'ospedale più vicino#masc", "el hospital más cercano"],
+            ["l'assicurazione di viaggio#fem", "el seguro de viaje"],
+            ["Devo prendere le mie medicine.", "Tengo que tomar mis medicamentos."],
+            ["Ho un dolore al petto.", "Tengo un dolor en el pecho."],
+            ["È una reazione allergica.", "Es una reacción alérgica."],
+            ["il numero di emergenza", "el número de emergencia"],
+            ["Stia calmo/a.", "Mantenga la calma."],
+            ["l'infermeria#fem", "la enfermería"]
+        ]},
+        { titulo: "Alimentos y bebidas", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["il caffè", "el café"],
+            ["il tè", "el té"],
+            ["il succo d'arancia", "el jugo de naranja"],
+            ["l'acqua#fem", "el agua"],
+            ["il pane", "el pan"],
+            ["il burro", "la manteca"],
+            ["la marmellata", "la mermelada"],
+            ["il formaggio", "el queso"],
+            ["i cereali", "los cereales"],
+            ["il latte", "la leche"],
+            ["lo zucchero", "el azúcar"],
+            ["il sale", "la sal"],
+            ["la carne", "la carne"],
+            ["il pesce", "el pescado"],
+            ["le verdure", "las verduras"],
+            ["la frutta", "las frutas"],
+            ["la zuppa", "la sopa"],
+            ["l'insalata#fem", "la ensalada"],
+            ["il dolce", "el postre"],
+            ["il vino", "el vino"],
+            ["la birra", "la cerveza"],
+            ["le uova", "los huevos"],
+            ["lo yogurt", "el yogur"],
+            ["il prosciutto", "el jamón"],
+            ["la torta", "la torta"]
+        ]},
+        { titulo: "Verbos de acción de recepción", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["fare il check-in", "hacer el check-in"],
+            ["fare il check-out", "hacer el check-out"],
+            ["prenotare", "reservar"],
+            ["annullare", "cancelar"],
+            ["confermare", "confirmar"],
+            ["pagare", "pagar"],
+            ["firmare", "firmar"],
+            ["portare su i bagagli", "subir el equipaje"],
+            ["pulire", "limpiar"],
+            ["riparare", "reparar"],
+            ["aiutare", "ayudar"],
+            ["aspettare", "esperar"],
+            ["spiegare", "explicar"],
+            ["raccomandare", "recomendar"],
+            ["accompagnare", "acompañar"],
+            ["fatturare", "facturar"],
+            ["compilare (un modulo)", "completar (un formulario)"],
+            ["verificare", "verificar"],
+            ["cambiare (camera)", "cambiar (de habitación)"],
+            ["lamentarsi", "quejarse"],
+            ["scusarsi", "disculparse"],
+            ["rispondere", "responder"],
+            ["chiamare", "llamar"],
+            ["informare", "informar"],
+            ["organizzare", "organizar"]
+        ]},
+        { titulo: "Incidentes de habitación", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["Il riscaldamento non funziona.", "La calefacción no funciona."],
+            ["L'aria condizionata non funziona.", "El aire acondicionado no funciona."],
+            ["Mancano gli asciugamani.", "Faltan las toallas."],
+            ["Il Wi-Fi non funziona.", "El Wi-Fi no funciona."],
+            ["L'ascensore è guasto.", "El ascensor está averiado."],
+            ["La doccia non funziona.", "La ducha no funciona."],
+            ["Non c'è acqua calda.", "No hay agua caliente."],
+            ["La televisione non funziona.", "El televisor no funciona."],
+            ["La luce non si accende.", "La luz no se enciende."],
+            ["La porta è bloccata.", "La puerta está atascada."],
+            ["La finestra non si chiude.", "La ventana no cierra."],
+            ["C'è una perdita d'acqua.", "Hay una pérdida de agua."],
+            ["Il letto non è fatto.", "La cama no está hecha."],
+            ["La camera non è pulita.", "La habitación no está limpia."],
+            ["C'è rumore di fianco.", "Hay ruido al lado."],
+            ["La cassaforte non si apre.", "La caja fuerte no abre."],
+            ["Mancano le grucce.", "Faltan perchas."],
+            ["Il cestino non è stato svuotato.", "El cesto no fue vaciado."],
+            ["Il rubinetto perde acqua.", "La canilla pierde agua."],
+            ["Il water è intasato.", "El inodoro está tapado."],
+            ["C'è un odore strano.", "Hay un olor extraño."],
+            ["Il minibar è vuoto.", "El minibar está vacío."],
+            ["La chiave magnetica non funziona.", "La tarjeta magnética no funciona."],
+            ["La sveglia non funziona.", "El despertador no funciona."],
+            ["Non ci sono abbastanza cuscini.", "No hay suficientes almohadas."]
+        ]},
+        { titulo: "Ropa y accesorios", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["la camicia", "la camisa"],
+            ["i pantaloni", "el pantalón"],
+            ["il vestito", "el vestido"],
+            ["la gonna", "la falda"],
+            ["il cappotto", "el abrigo"],
+            ["la giacca", "la campera"],
+            ["il maglione", "el suéter"],
+            ["la maglietta", "la remera"],
+            ["le scarpe", "los zapatos"],
+            ["i calzini", "las medias"],
+            ["la cintura", "el cinturón"],
+            ["il cappello", "el sombrero"],
+            ["la sciarpa", "la bufanda"],
+            ["i guanti", "los guantes"],
+            ["il costume da bagno", "la malla (de baño)"],
+            ["il pigiama", "el pijama"],
+            ["la biancheria intima", "la ropa interior"],
+            ["la cravatta", "la corbata"],
+            ["l'abito#masc", "el traje"],
+            ["gli stivali", "las botas"],
+            ["i sandali", "las sandalias"],
+            ["la borsa", "la cartera"],
+            ["l'orologio#masc", "el reloj (de pulsera)"],
+            ["i gioielli", "las joyas"],
+            ["il foulard", "el pañuelo"]
+        ]},
+        { titulo: "Tiempo libre y servicios del hotel", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
+            ["la piscina", "la pileta"],
+            ["la spa", "el spa"],
+            ["la palestra", "el gimnasio"],
+            ["la sauna", "el sauna"],
+            ["il massaggio", "el masaje"],
+            ["l'escursione#fem", "la excursión"],
+            ["l'escursionismo#masc", "la caminata"],
+            ["la funivia", "el teleférico"],
+            ["il noleggio sci", "el alquiler de esquís"],
+            ["la stazione sciistica", "la estación de esquí"],
+            ["il maestro di sci", "el instructor de esquí"],
+            ["la navetta", "el transporte (shuttle)"],
+            ["la prenotazione", "la reserva"],
+            ["il servizio in camera", "el servicio a la habitación"],
+            ["le pulizie", "la limpieza (de habitación)"],
+            ["la lavanderia", "el lavado de ropa"],
+            ["la connessione Wi-Fi", "la conexión Wi-Fi"],
+            ["la mappa turistica", "el mapa turístico"],
+            ["la guida turistica", "la guía turística"],
+            ["il noleggio auto", "el alquiler de auto"],
+            ["il bar dell'hotel", "el bar del hotel"],
+            ["la sala giochi", "la sala de juegos"],
+            ["il concierge", "el conserje"],
+            ["la navetta aeroporto", "el traslado al aeropuerto"],
+            ["la sala cinema", "la sala de cine"]
+        ]}
+    ];
+
+    const vocabularioNuevoPortugues = [
+        { titulo: "Lugares del hotel", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["a receção", "la recepción"],
+            ["o átrio", "el lobby"],
+            ["o piso", "el piso"],
+            ["o quarto", "la habitación"],
+            ["o elevador", "el ascensor"],
+            ["a escada", "la escalera"],
+            ["o parque de estacionamento", "el estacionamiento"],
+            ["a sala do pequeno-almoço", "el salón de desayuno"],
+            ["o restaurante", "el restaurante"],
+            ["o bar", "el bar"],
+            ["o terraço", "la terraza"],
+            ["o jardim", "el jardín"],
+            ["o pátio", "el patio"],
+            ["o corredor", "el pasillo"],
+            ["a saída", "la salida"],
+            ["a entrada", "la entrada"],
+            ["a casa de banho (do quarto)", "el baño (de la habitación)"],
+            ["a casa de banho (pública)", "el baño (público)"],
+            ["a lavandaria", "la lavandería"],
+            ["a sala de reuniões", "la sala de reuniones"],
+            ["o balcão", "el mostrador"],
+            ["o subsolo", "el subsuelo"],
+            ["o rés-do-chão", "la planta baja"],
+            ["a adega", "la bodega"],
+            ["a cozinha", "la cocina"]
+        ]},
+        { titulo: "Objetos y equipaje", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["o passaporte", "el pasaporte"],
+            ["o cartão de cidadão", "el documento de identidad"],
+            ["a chave", "la llave"],
+            ["o cartão magnético", "la tarjeta magnética"],
+            ["a mala", "la valija"],
+            ["a bagagem", "el equipaje"],
+            ["a mochila", "la mochila"],
+            ["a toalha", "la toalla"],
+            ["o lençol", "la sábana"],
+            ["a almofada", "la almohada"],
+            ["o cobertor", "la frazada"],
+            ["o sabonete", "el jabón"],
+            ["o champô", "el champú"],
+            ["o secador de cabelo", "el secador de pelo"],
+            ["o cofre", "la caja fuerte"],
+            ["o minibar", "el minibar"],
+            ["o telecomando", "el control remoto"],
+            ["o cabide", "el perchero (de ropa)"],
+            ["a tomada", "el enchufe"],
+            ["o carregador", "el cargador"],
+            ["o guarda-chuva", "el paraguas"],
+            ["os óculos", "los anteojos"],
+            ["a carteira", "la billetera"],
+            ["o telefone", "el teléfono"],
+            ["o cartão de crédito", "la tarjeta de crédito"]
+        ]},
+        { titulo: "Partes del cuerpo", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["a cabeça", "la cabeza"],
+            ["a cara", "la cara"],
+            ["os olhos", "los ojos"],
+            ["o nariz", "la nariz"],
+            ["a boca", "la boca"],
+            ["a orelha", "la oreja"],
+            ["o pescoço", "el cuello"],
+            ["o ombro", "el hombro"],
+            ["o braço", "el brazo"],
+            ["a mão", "la mano"],
+            ["o dedo", "el dedo"],
+            ["o peito", "el pecho"],
+            ["as costas", "la espalda"],
+            ["a barriga", "la panza"],
+            ["a perna", "la pierna"],
+            ["o joelho", "la rodilla"],
+            ["o pé", "el pie"],
+            ["a pele", "la piel"],
+            ["o coração", "el corazón"],
+            ["o estômago", "el estómago"],
+            ["a garganta", "la garganta"],
+            ["o dente", "el diente"],
+            ["o tornozelo", "el tobillo"],
+            ["o pulso", "la muñeca (parte del cuerpo)"],
+            ["a anca", "la cadera"]
+        ]},
+        { titulo: "Salud y emergencias", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["Dói-me a cabeça.", "Me duele la cabeza."],
+            ["Dói-me a barriga.", "Me duele la panza."],
+            ["Estou doente.", "Estoy enfermo/a."],
+            ["Tenho febre.", "Tengo fiebre."],
+            ["Preciso de um médico.", "Necesito un médico."],
+            ["Chamem uma ambulância!", "¡Llamen una ambulancia!"],
+            ["É urgente.", "Es urgente."],
+            ["Magoei-me.", "Me lastimé."],
+            ["Sou alérgico/a a...", "Soy alérgico/a a..."],
+            ["Onde está a farmácia?", "¿Dónde está la farmacia?"],
+            ["Preciso de medicamentos.", "Necesito medicamentos."],
+            ["Chamem os bombeiros!", "¡Llamen a los bomberos!"],
+            ["Chamem a polícia!", "¡Llamen a la policía!"],
+            ["Socorro!", "¡Socorro!"],
+            ["Não me sinto bem.", "No me siento bien."],
+            ["Tenho tonturas.", "Tengo mareos."],
+            ["Parti o braço.", "Me rompí el brazo."],
+            ["o hospital mais próximo", "el hospital más cercano"],
+            ["o seguro de viagem", "el seguro de viaje"],
+            ["Tenho de tomar os meus medicamentos.", "Tengo que tomar mis medicamentos."],
+            ["Tenho uma dor no peito.", "Tengo un dolor en el pecho."],
+            ["É uma reação alérgica.", "Es una reacción alérgica."],
+            ["o número de emergência", "el número de emergencia"],
+            ["Mantenha a calma.", "Mantenga la calma."],
+            ["a enfermaria", "la enfermería"]
+        ]},
+        { titulo: "Alimentos y bebidas", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["o café", "el café"],
+            ["o chá", "el té"],
+            ["o sumo de laranja", "el jugo de naranja"],
+            ["a água", "el agua"],
+            ["o pão", "el pan"],
+            ["a manteiga", "la manteca"],
+            ["a compota", "la mermelada"],
+            ["o queijo", "el queso"],
+            ["os cereais", "los cereales"],
+            ["o leite", "la leche"],
+            ["o açúcar", "el azúcar"],
+            ["o sal", "la sal"],
+            ["a carne", "la carne"],
+            ["o peixe", "el pescado"],
+            ["os legumes", "las verduras"],
+            ["a fruta", "las frutas"],
+            ["a sopa", "la sopa"],
+            ["a salada", "la ensalada"],
+            ["a sobremesa", "el postre"],
+            ["o vinho", "el vino"],
+            ["a cerveja", "la cerveza"],
+            ["os ovos", "los huevos"],
+            ["o iogurte", "el yogur"],
+            ["o fiambre", "el jamón"],
+            ["o bolo", "la torta"]
+        ]},
+        { titulo: "Verbos de acción de recepción", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["fazer o check-in", "hacer el check-in"],
+            ["fazer o check-out", "hacer el check-out"],
+            ["reservar", "reservar"],
+            ["cancelar", "cancelar"],
+            ["confirmar", "confirmar"],
+            ["pagar", "pagar"],
+            ["assinar", "firmar"],
+            ["subir a bagagem", "subir el equipaje"],
+            ["limpar", "limpiar"],
+            ["reparar", "reparar"],
+            ["ajudar", "ayudar"],
+            ["esperar", "esperar"],
+            ["explicar", "explicar"],
+            ["recomendar", "recomendar"],
+            ["acompanhar", "acompañar"],
+            ["faturar", "facturar"],
+            ["preencher (um formulário)", "completar (un formulario)"],
+            ["verificar", "verificar"],
+            ["mudar (de quarto)", "cambiar (de habitación)"],
+            ["reclamar", "quejarse"],
+            ["desculpar-se", "disculparse"],
+            ["responder", "responder"],
+            ["chamar", "llamar"],
+            ["informar", "informar"],
+            ["organizar", "organizar"]
+        ]},
+        { titulo: "Incidentes de habitación", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["O aquecimento não funciona.", "La calefacción no funciona."],
+            ["O ar condicionado não funciona.", "El aire acondicionado no funciona."],
+            ["Faltam toalhas.", "Faltan las toallas."],
+            ["O Wi-Fi não funciona.", "El Wi-Fi no funciona."],
+            ["O elevador está avariado.", "El ascensor está averiado."],
+            ["O chuveiro não funciona.", "La ducha no funciona."],
+            ["Não há água quente.", "No hay agua caliente."],
+            ["A televisão não funciona.", "El televisor no funciona."],
+            ["A luz não se liga.", "La luz no se enciende."],
+            ["A porta está encravada.", "La puerta está atascada."],
+            ["A janela não fecha.", "La ventana no cierra."],
+            ["Há uma fuga de água.", "Hay una pérdida de agua."],
+            ["A cama não está feita.", "La cama no está hecha."],
+            ["O quarto não está limpo.", "La habitación no está limpia."],
+            ["Há ruído ao lado.", "Hay ruido al lado."],
+            ["O cofre não abre.", "La caja fuerte no abre."],
+            ["Faltam cabides.", "Faltan perchas."],
+            ["O lixo não foi esvaziado.", "El cesto no fue vaciado."],
+            ["A torneira está a pingar.", "La canilla pierde agua."],
+            ["A sanita está entupida.", "El inodoro está tapado."],
+            ["Há um odor estranho.", "Hay un olor extraño."],
+            ["O minibar está vazio.", "El minibar está vacío."],
+            ["O cartão magnético não funciona.", "La tarjeta magnética no funciona."],
+            ["O despertador não funciona.", "El despertador no funciona."],
+            ["Não há almofadas suficientes.", "No hay suficientes almohadas."]
+        ]},
+        { titulo: "Ropa y accesorios", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["a camisa", "la camisa"],
+            ["as calças", "el pantalón"],
+            ["o vestido", "el vestido"],
+            ["a saia", "la falda"],
+            ["o casaco", "el abrigo"],
+            ["o blusão", "la campera"],
+            ["a camisola", "el suéter"],
+            ["a t-shirt", "la remera"],
+            ["os sapatos", "los zapatos"],
+            ["as meias", "las medias"],
+            ["o cinto", "el cinturón"],
+            ["o chapéu", "el sombrero"],
+            ["o cachecol", "la bufanda"],
+            ["as luvas", "los guantes"],
+            ["o fato de banho", "la malla (de baño)"],
+            ["o pijama", "el pijama"],
+            ["a roupa interior", "la ropa interior"],
+            ["a gravata", "la corbata"],
+            ["o fato", "el traje"],
+            ["as botas", "las botas"],
+            ["as sandálias", "las sandalias"],
+            ["a carteira de mão", "la cartera"],
+            ["o relógio", "el reloj (de pulsera)"],
+            ["as joias", "las joyas"],
+            ["o lenço", "el pañuelo"]
+        ]},
+        { titulo: "Tiempo libre y servicios del hotel", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
+            ["a piscina", "la pileta"],
+            ["o spa", "el spa"],
+            ["o ginásio", "el gimnasio"],
+            ["a sauna", "el sauna"],
+            ["a massagem", "el masaje"],
+            ["a excursão", "la excursión"],
+            ["o passeio a pé", "la caminata"],
+            ["o teleférico", "el teleférico"],
+            ["o aluguer de esquis", "el alquiler de esquís"],
+            ["a estação de esqui", "la estación de esquí"],
+            ["o monitor de esqui", "el instructor de esquí"],
+            ["o transfer", "el transporte (shuttle)"],
+            ["a reserva", "la reserva"],
+            ["o serviço de quartos", "el servicio a la habitación"],
+            ["a limpeza", "la limpieza (de habitación)"],
+            ["a lavandaria", "el lavado de ropa"],
+            ["a ligação Wi-Fi", "la conexión Wi-Fi"],
+            ["o mapa turístico", "el mapa turístico"],
+            ["o guia turístico", "la guía turística"],
+            ["o aluguer de carro", "el alquiler de auto"],
+            ["o bar do hotel", "el bar del hotel"],
+            ["a sala de jogos", "la sala de juegos"],
+            ["o concierge", "el conserje"],
+            ["o transfer para o aeroporto", "el traslado al aeropuerto"],
+            ["a sala de cinema", "la sala de cine"]
+        ]}
+    ];
+
+    const VOCABULARIO_NUEVO_POR_IDIOMA = {
+        "FRANCÉS": vocabularioNuevoFrances,
+        "ITALIANO": vocabularioNuevoItaliano,
+        "PORTUGUÉS": vocabularioNuevoPortugues
+    };
+
+    const coloresNuevoFrances = [ 
+            { "esp": "Amarillo", "mSing": "jaune", "mPlur": "jaunes", "fSing": "jaune", "fPlur": "jaunes" },
+            { "esp": "Naranja", "mSing": "orange", "mPlur": "oranges", "fSing": "orange", "fPlur": "oranges" },
+            { "esp": "Rojo", "mSing": "rouge", "mPlur": "rouges", "fSing": "rouge", "fPlur": "rouges" },
+            { "esp": "Rosa", "mSing": "rose", "mPlur": "roses", "fSing": "rose", "fPlur": "roses" },
+            { "esp": "Violeta", "mSing": "violet", "mPlur": "violets", "fSing": "violette", "fPlur": "violettes" },
+            { "esp": "Azul", "mSing": "bleu", "mPlur": "bleus", "fSing": "bleue", "fPlur": "bleues" },
+            { "esp": "Celeste", "mSing": "bleu ciel", "mPlur": "bleus ciel", "fSing": "bleue ciel", "fPlur": "bleues ciel" },
+            { "esp": "Verde", "mSing": "vert", "mPlur": "verts", "fSing": "verte", "fPlur": "vertes" },
+            { "esp": "Castaño", "mSing": "marron", "mPlur": "marrons", "fSing": "marron", "fPlur": "marrons" },
+            { "esp": "Negro", "mSing": "noir", "mPlur": "noirs", "fSing": "noire", "fPlur": "noires" },
+            { "esp": "Gris", "mSing": "gris", "mPlur": "gris", "fSing": "grise", "fPlur": "grises" },
+            { "esp": "Blanco", "mSing": "blanc", "mPlur": "blancs", "fSing": "blanche", "fPlur": "blanches" }
+        ];
+    const coloresNuevoItaliano = [
+            { "esp": "Amarillo", "mSing": "giallo", "mPlur": "gialli", "fSing": "gialla", "fPlur": "gialle" },
+            { "esp": "Naranja", "mSing": "arancione", "mPlur": "arancioni", "fSing": "arancione", "fPlur": "arancioni" },
+            { "esp": "Rojo", "mSing": "rosso", "mPlur": "rossi", "fSing": "rossa", "fPlur": "rosse" },
+            { "esp": "Rosa", "mSing": "rosa", "mPlur": "rosa", "fSing": "rosa", "fPlur": "rosa" },
+            { "esp": "Violeta", "mSing": "viola", "mPlur": "viola", "fSing": "viola", "fPlur": "viola" },
+            { "esp": "Azul", "mSing": "blu", "mPlur": "blu", "fSing": "blu", "fPlur": "blu" },
+            { "esp": "Celeste", "mSing": "azzurro", "mPlur": "azzurri", "fSing": "azzurra", "fPlur": "azzurre" },
+            { "esp": "Verde", "mSing": "verde", "mPlur": "verdi", "fSing": "verde", "fPlur": "verdi" },
+            { "esp": "Castaño", "mSing": "marrone", "mPlur": "marroni", "fSing": "marrone", "fPlur": "marroni" },
+            { "esp": "Negro", "mSing": "nero", "mPlur": "neri", "fSing": "nera", "fPlur": "nere" },
+            { "esp": "Gris", "mSing": "grigio", "mPlur": "grigi", "fSing": "grigia", "fPlur": "grigie" },
+            { "esp": "Blanco", "mSing": "bianco", "mPlur": "bianchi", "fSing": "bianca", "fPlur": "bianche" }
+        ];
+    const coloresNuevoPortugues = [
+            { "esp": "Amarillo", "mSing": "amarelo", "mPlur": "amarelos", "fSing": "amarela", "fPlur": "amarelas" },
+            { "esp": "Naranja", "mSing": "laranja", "mPlur": "laranjas", "fSing": "laranja", "fPlur": "laranjas" },
+            { "esp": "Rojo", "mSing": "vermelho", "mPlur": "vermelhos", "fSing": "vermelha", "fPlur": "vermelhas" },
+            { "esp": "Rosa", "mSing": "cor-de-rosa", "mPlur": "cor-de-rosa", "fSing": "cor-de-rosa", "fPlur": "cor-de-rosa" },
+            { "esp": "Violeta", "mSing": "violeta", "mPlur": "violetas", "fSing": "violeta", "fPlur": "violetas" },
+            { "esp": "Azul", "mSing": "azul", "mPlur": "azuis", "fSing": "azul", "fPlur": "azuis" },
+            { "esp": "Celeste", "mSing": "azul-celeste", "mPlur": "azul-celeste", "fSing": "azul-celeste", "fPlur": "azul-celeste" },
+            { "esp": "Verde", "mSing": "verde", "mPlur": "verdes", "fSing": "verde", "fPlur": "verdes" },
+            { "esp": "Castaño", "mSing": "castanho", "mPlur": "castanhos", "fSing": "castanha", "fPlur": "castanhas" },
+            { "esp": "Negro", "mSing": "preto", "mPlur": "pretos", "fSing": "preta", "fPlur": "pretas" },
+            { "esp": "Gris", "mSing": "cinzento", "mPlur": "cinzentos", "fSing": "cinzenta", "fPlur": "cinzentas" },
+            { "esp": "Blanco", "mSing": "branco", "mPlur": "brancos", "fSing": "branca", "fPlur": "brancas" }
+        ];
+    const COLORES_NUEVO_POR_IDIOMA = {
+        "FRANCÉS": coloresNuevoFrances,
+        "ITALIANO": coloresNuevoItaliano,
+        "PORTUGUÉS": coloresNuevoPortugues
+    };
+
     function obtenerMesaDeTarjetas() {
         const barra = document.querySelector('.header-izquierda');
         const altoBarra = barra ? barra.getBoundingClientRect().bottom : 84;
@@ -6020,7 +6024,7 @@
 
     const vocabularioNuevoEstado = {
         colores: { left: 0, top: 0, alto: null, tamanoManual: false },
-        vocab: { left: 310, top: 0, alto: null, tamanoManual: false }
+        vocab: { left: null, top: 0, alto: null, tamanoManual: false }
     };
 
     // Calcula el color real de género de una palabra de vocabulario, y si hace
@@ -6058,7 +6062,7 @@
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
 
-        const temaActual = (ordenarVocabularioPorEspanol(data[idioma]["VOCABULARIO"]) || [])
+        const temaActual = (ordenarVocabularioPorEspanol(VOCABULARIO_NUEVO_POR_IDIOMA[idioma]) || [])
             .find(t => t.titulo === modoVocabularioNuevo);
         const filasVocab = temaActual ? temaActual.rows.map(([palabraConMarca, trad]) => {
             const { texto, html } = colorYAclaracionVocabulario(palabraConMarca, idioma);
@@ -6084,7 +6088,7 @@
             </div>
             <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
         </div>`;
-        html += `<div class="tarjeta-libre${claseAutoVocab}" data-clave="vocab" style="left:${eV.left}px; top:${eV.top}px; width:auto; ${estiloAltoVocab}">
+        html += `<div class="tarjeta-libre${claseAutoVocab}" data-clave="vocab" style="left:${eV.left ?? 310}px; top:${eV.top}px; width:auto; ${estiloAltoVocab}">
             <div class="tarjeta-libre-contenido">
                 <div class="tarjeta tarjeta-con-borde">${tablaVocabHtml}</div>
             </div>
@@ -6103,15 +6107,19 @@
         const elVocab = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="vocab"]');
         const eV = vocabularioNuevoEstado.vocab;
 
-        // Si vocabulario todavía no tiene un alto fijado (primera vez que se
-        // ve, o se acaba de cambiar de tema), se mide el alto REAL de colores
-        // ya pintado en el DOM y se lo copia — recién ahí se vuelve a pintar
-        // con ese valor (sin este paso, "vocab" se vería en su tamaño natural
-        // gigante un instante antes de ajustarse).
+        // Si vocabulario todavía no tiene posición/alto fijados (primera vez
+        // que se ve), se mide Colores YA pintado en el DOM y se calcula un
+        // lugar fijo y prolijo al lado — ancho real de Colores + margen, y el
+        // mismo alto — en vez de un valor de spawn arbitrario. Como esta
+        // unidad no tiene caja de "Tarjetas" para reordenar, conviene que
+        // ambas arranquen ya acomodadas, no con una posición rara a corregir.
+        const MARGEN_VOCAB = 24;
         if (elColores && elVocab && !eV.alto) {
-            const altoColores = elColores.getBoundingClientRect().height;
-            eV.alto = altoColores;
-            elVocab.style.height = altoColores + "px";
+            const rectColores = elColores.getBoundingClientRect();
+            eV.alto = rectColores.height;
+            eV.left = rectColores.width + MARGEN_VOCAB;
+            elVocab.style.height = rectColores.height + "px";
+            elVocab.style.left = eV.left + "px";
             elVocab.classList.remove("tarjeta-libre-auto");
         }
 
@@ -6124,6 +6132,7 @@
 
             if (zonaMover) {
                 zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                     ev.preventDefault();
                     el.style.zIndex = 50;
                     const inicioX = ev.clientX, inicioY = ev.clientY;
@@ -6151,6 +6160,7 @@
 
             if (manijaResize) {
                 manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                     ev.preventDefault();
                     el.style.zIndex = 50;
                     const tabla = el.querySelector('table');
@@ -6221,6 +6231,7 @@
 
             if (zonaMover) {
                 zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                     ev.preventDefault();
                     el.style.zIndex = 50;
                     const inicioX = ev.clientX, inicioY = ev.clientY;
@@ -6248,6 +6259,7 @@
 
             if (manijaResize) {
                 manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                     ev.preventDefault();
                     el.style.zIndex = 50;
                     const tabla = el.querySelector('table');
@@ -6313,6 +6325,7 @@
 
         if (zonaMover) {
             zonaMover.addEventListener('pointerdown', (ev) => {
+                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                 ev.preventDefault();
                 el.style.zIndex = 50;
                 const inicioX = ev.clientX, inicioY = ev.clientY;
@@ -6340,6 +6353,7 @@
 
         if (manijaResize) {
             manijaResize.addEventListener('pointerdown', (ev) => {
+                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                 ev.preventDefault();
                 el.style.zIndex = 50;
                 const tabla = el.querySelector('table');
@@ -6517,6 +6531,7 @@
             if (!zonaMover) return;
 
             zonaMover.addEventListener('pointerdown', (ev) => {
+                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                 ev.preventDefault();
                 el.style.zIndex = 50;
                 const inicioX = ev.clientX, inicioY = ev.clientY;
@@ -6550,6 +6565,7 @@
             });
 
             manijaResize.addEventListener('pointerdown', (ev) => {
+                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
                 ev.preventDefault();
                 el.style.zIndex = 50;
                 const { altoMinimo } = medirMinimosTarjetaLibre(el);
@@ -6761,25 +6777,6 @@
 
     // Selector de tema de VOCABULARIO: arma el menú con los 9 títulos y
     // actualiza el botón con el tema actualmente elegido.
-    function inicializarMenuTemaVocabulario() {
-        const menu = document.getElementById('menuTemaVocabulario');
-        const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        menu.innerHTML = "";
-        const tarjetas = data[idioma]["VOCABULARIO"];
-        tarjetas.forEach((tarjeta, i) => {
-            const div = document.createElement('div');
-            div.innerText = tarjeta.titulo;
-            div.onclick = () => {
-                temaVocabularioIndex = i;
-                document.getElementById('btnTemaVocabulario').innerText = tarjeta.titulo;
-                document.getElementById('menuTemaVocabulario').classList.remove("show");
-                actualizarPantalla();
-            };
-            menu.appendChild(div);
-        });
-        document.getElementById('btnTemaVocabulario').innerText = tarjetas[temaVocabularioIndex].titulo;
-    }
-
     // Selector de decenas (10-19 ... 90-99) para NÚMEROS Y TIEMPO: arma el menú
     // y actualiza el botón con el título de la decena actualmente elegida.
     function inicializarMenuDecenas() {
@@ -6911,12 +6908,6 @@
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
 
-        if (unidadKey === "COLORES") {
-            const lienzoId = "COLORES__" + idioma;
-            registrarLienzo(lienzoId, { t0: "Colores" }, { t0: { leftPx: 0, topPx: 0 } });
-            const tarjetasPorClave = { t0: { titulo: "Colores", htmlPersonalizado: `<div class="tarjeta tarjeta-con-borde">${renderColores(idioma)}</div>` } };
-            return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
-        }
         if (unidadKey === "GEOGRAFÍA Y CLIMA") {
             return renderGeografiaClima(idioma);
         }
@@ -6937,9 +6928,6 @@
         }
         if (unidadKey === "NÚMEROS Y TIEMPO") {
             return renderNumerosYTiempo(idioma);
-        }
-        if (unidadKey === "VOCABULARIO") {
-            return renderVocabulario(idioma);
         }
         return renderGenerico(idioma, unidadKey);
     }
