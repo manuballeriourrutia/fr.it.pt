@@ -172,6 +172,12 @@
         .flag-option.idioma-pt { color: #c8102e; }
 
         .dropdown-content { display: none; position: absolute; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-top: 8px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; left: 0; max-height: 70vh; overflow-y: auto; }
+        /* Menús que viven cerca del borde derecho de la pantalla (como el
+           selector de Tarjetas, junto al lápiz de editor) se anclan por la
+           derecha — si no, el texto largo (white-space: nowrap) los empuja
+           fuera del viewport y quedan recortados contra el borde real. */
+        .dropdown-derecha .dropdown-content { left: auto; right: 0; max-width: 90vw; }
+        .dropdown-derecha .dropdown-content div { white-space: normal; }
         .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
         /* Excepción: la zona de TIEMPOS VERBALES/VERBOS AUXILIARES mantiene el
            color de bandera del idioma en sus botones y menús — "mundo aparte",
@@ -740,7 +746,7 @@
 </header>
 
 <header class="header-derecha">
-    <div class="dropdown" id="selectorTarjetasLibreWrap" style="display: none;">
+    <div class="dropdown dropdown-derecha" id="selectorTarjetasLibreWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnTarjetasLibre" onclick="inicializarMenuTarjetasLibre(); toggleDropdown('menuTarjetasLibre')">Tarjetas</button>
         <div id="menuTarjetasLibre" class="dropdown-content"></div>
     </div>
@@ -5669,6 +5675,17 @@
         if (!lienzo) return;
         const lienzoId = lienzo.dataset.lienzoId;
         const posicionesMap = LIENZOS_POSICIONES[lienzoId];
+
+        // Una vez que el lienzo ya está insertado en el DOM real, se corrige su
+        // tamaño al que el navegador efectivamente calculó para su contenedor
+        // padre (#contentTable) — elimina cualquier diferencia entre lo que se
+        // calculó "a mano" antes de insertar el HTML y la medida real.
+        const contenedor = lienzo.parentElement;
+        if (contenedor) {
+            lienzo.style.width = contenedor.clientWidth + "px";
+            lienzo.style.height = contenedor.clientHeight + "px";
+        }
+
         const tarjetas = lienzo.querySelectorAll('.tarjeta-libre');
 
         tarjetas.forEach(el => {
