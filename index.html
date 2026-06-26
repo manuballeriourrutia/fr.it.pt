@@ -240,6 +240,14 @@
             min-height: 0;
             padding: 4px;
         }
+        /* Cuando el lienzo libre está activo, el scroll/rebote elástico de
+           #contentTable queda completamente desactivado — el límite real del
+           área de tarjetas tiene que ser tan sólido como los bordes fijos de
+           la pantalla, sin ningún "arrastre de fondo" posible. El scroll, si
+           hace falta, vive solo dentro de cada tarjeta (ya tienen el suyo). */
+        .content-area.lienzo-fijo #contentTable {
+            overflow: hidden;
+        }
         
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
@@ -341,6 +349,7 @@
         .personas-lienzo {
             position: relative;
             overflow: hidden;
+            touch-action: none;
         }
         /* Grilla visual decorativa (tipo hoja cuadriculada) — solo de ayuda
            para acomodar a ojo, NO fuerza ningún snap real de posición. Visible
