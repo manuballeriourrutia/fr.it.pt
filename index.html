@@ -264,6 +264,15 @@
         .content-area.lienzo-fijo #contentTable {
             overflow: hidden;
         }
+        /* REGLAS: única unidad apilada en columna con scroll de página real —
+           cada tarjeta ocupa el ancho completo disponible, una abajo de otra. */
+        .reglas-columna {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+        .reglas-columna .tarjeta { width: 100%; box-sizing: border-box; }
         
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
@@ -837,6 +846,7 @@
         "CONECTORES LÓGICOS": { "FRANCÉS": "CONNECTEURS LOGIQUES", "ITALIANO": "CONNETTIVI LOGICI", "PORTUGUÉS": "CONECTORES LÓGICOS" },
         "FANTASMA": { "FRANCÉS": "FANTASMA", "ITALIANO": "FANTASMA", "PORTUGUÉS": "FANTASMA" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
+        "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
@@ -4966,6 +4976,7 @@
         if (unidadActualKey === "NÚMEROS Y TIEMPO") return modoNumerosYTiempo === "horasyfechas"; // Números queda fijo, Horas y Fechas usa lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "CULTURA TÍPICA") return false; // texto fijo
+        if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
         return modoVistaUnidad === "tarjetas";
     }
 
@@ -5032,7 +5043,7 @@
         document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
         // Botones rápidos (placeholder): solo en FANTASMA por ahora, visibles
         // cuando el editor está apagado — lo opuesto a Tarjetas/Guardar.
-        const visibleRapidos = unidadActualKey === "FANTASMA" && !editorLibreActivo;
+        const visibleRapidos = (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") && !editorLibreActivo;
         ["btnRapido1", "btnRapido2", "btnRapido3"].forEach(id => {
             document.getElementById(id).style.display = visibleRapidos ? "inline-block" : "none";
         });
@@ -5045,7 +5056,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "NÚMEROS Y TIEMPO", "VOCABULARIO", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "NÚMEROS Y TIEMPO", "VOCABULARIO", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -5659,6 +5670,266 @@
     // recuperación de tarjetas perdidas, tamaño al renderizar) consulta esta
     // única función — nadie vuelve a medir el DOM por su cuenta.
     const MARGEN_MESA = 16;
+    // REGLAS: unidad centralizada con TODAS las explicaciones largas que antes
+    // vivían dispersas en el modo "Reglas" de cada unidad — ahora una sola
+    // lista, apilada, con [ORIGEN] al principio de cada título para poder
+    // reordenar/agrupar por tema más adelante. Sin selector de tema todavía
+    // (eso se decide después), sin editor (es de solo lectura, contenido fijo
+    // que yo pongo). Es la única unidad con scroll de página habilitado.
+    const reglasFrances = [
+        { titulo: "[PRONOMBRES] Y — lugar o \"à + cosa\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Y\" reemplaza un complemento de lugar (¿dónde?) o un complemento con \"à\" cuando es una cosa, nunca una persona: Je vais à l'hôtel → J'y vais. Il pense à son travail → Il y pense."],
+            ["", "Nunca reemplaza personas — para eso se usa el pronombre tónico: Il pense à sa femme → Il pense à elle (no \"il y pense\")."]
+        ]},
+        { titulo: "[PRONOMBRES] EN — origen, cantidad o \"de + cosa\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"En\" reemplaza un complemento de lugar de origen (¿de dónde?), un complemento con \"de\" cuando es cosa, o una cantidad: Je viens de l'hôtel → J'en viens. Il parle de ce problème → Il en parle. Tu veux du café? → Oui, j'en veux."],
+            ["", "Tampoco reemplaza personas — se usa \"de\" + pronombre tónico: Il parle de Marie → Il parle d'elle (no \"il en parle\")."]
+        ]},
+        { titulo: "[PRONOMBRES] Relativos: \"qui\" y \"que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Qui\" reemplaza al sujeto de la oración relativa (persona o cosa): la cliente qui arrive (la clienta que llega)."],
+            ["", "\"Que\" reemplaza al complemento objeto directo: la chambre que je préfère (la habitación que prefiero). Para complementos con preposición se usa \"dont\" (de) u otras formas según la preposición."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Depuis — acción que empezó y sigue", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Depuis\" indica que algo empezó en el pasado y continúa ahora: j'habite ici depuis 2020 (vivo aquí desde 2020, y sigo viviendo)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Pendant — duración con principio y fin", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Pendant\" indica una duración definida, que puede estar terminada: j'ai travaillé ici pendant trois ans (trabajé aquí durante 3 años — ya no trabajo más ahí)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Dans / Il y a — futuro y pasado", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Dans\" + duración = futuro (dentro de): le train part dans dix minutes (el tren sale dentro de 10 minutos)."],
+            ["", "\"Il y a\" + duración = pasado (hace): je suis arrivé il y a une heure (llegué hace una hora)."]
+        ]},
+        { titulo: "[ADVERBIOS] Cantidad: con verbo o adjetivo (sin de)", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sin sustantivo, se usan solas (sin \"de\"): elle travaille beaucoup (ella trabaja mucho), c'est assez clair (es bastante claro). Son siempre invariables, nunca cambian de forma."]
+        ]},
+        { titulo: "[ADVERBIOS] Modo: formación en -ment", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino y se agrega \"-ment\": lente → lentement, douce → doucement."],
+            ["", "Si el adjetivo termina en vocal (e, i, u), se usa el masculino: rapide → rapidement, vrai → vraiment, poli → poliment."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] \"Car\" vs \"parce que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Ambos significan \"porque\", pero \"car\" es más formal y se usa más en lo escrito; \"parce que\" es el más neutro y usado en el habla diaria."],
+            ["", "\"Car\" NUNCA puede ir al inicio de una oración (siempre conecta dos partes ya empezadas); \"parce que\" sí puede ir al inicio."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] \"Or\": el más particular", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Or\" no es lo mismo que \"mais\" — introduce un dato nuevo que contrasta con lo que se esperaba: \"il avait dit qu'il viendrait, or il n'est pas venu\" (había dicho que vendría, sin embargo no vino)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Afirmación: orden básico", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Le client réserve une chambre\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Negación: siempre 2 palabras", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El francés SIEMPRE necesita dos palabras para negar, rodeando al verbo: \"ne\" antes y \"pas/jamais/plus/rien/personne\" después: il ne vient pas, je ne mange jamais, elle ne voit personne."],
+            ["", "\"Ne\" se convierte en \"n'\" ante vocal o h muda. En el habla informal se suele omitir \"ne\" (je sais pas), pero en lo escrito y formal siempre se incluye."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Atención: \"si\", no \"oui\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Para responder afirmativamente a una pregunta NEGATIVA, se usa \"si\" en vez de \"oui\": \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une\" (¿No tiene reserva? — Sí, tengo una)."]
+        ]},
+        { titulo: "[FRASES DE RECEPCIÓN] Aplicado: gramática que ya conocés", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Estas frases usan reglas que ya viste en otras unidades: \"vous\" como cortesía (PRONOMBRES SUJETO), \"je voudrais\"/\"pourriez-vous\" como condicional de petición (TIEMPOS VERBALES), y la respuesta \"si\" en vez de \"oui\" ante pregunta negativa (SINTAXIS) — por ejemplo: \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une.\""]
+        ]},
+        { titulo: "[ARTÍCULOS] Uso del partitivo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se usa para comida y bebida no contable (du pain, de la confiture), y con faire para deportes/instrumentos (faire du tennis)."],
+            ["", "En negación, el partitivo y el indefinido se reducen siempre a de/d' (je ne veux pas de café, pas d'eau)."]
+        ]},
+        { titulo: "[POSESIVOS] El posesivo reemplaza al artículo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "En francés NUNCA se usa artículo + posesivo juntos: se dice \"mon passeport\", nunca \"le mon passeport\"."],
+            ["", "El posesivo se acuerda con el género y número de lo que se posee, no con quien posee — \"sa chambre\" puede ser la habitación de él o de ella, da igual."]
+        ]},
+        { titulo: "[POSESIVOS] Excepción clave: vocal o h muda", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Si el objeto poseído es femenino singular y empieza con vocal o h muda, se usa la forma masculina (mon, ton, son) en vez de la femenina: \"mon arrivée\" (no \"ma arrivée\"), \"son histoire\"."],
+            ["", "Con partes del cuerpo, el francés suele evitar el posesivo y usa el artículo definido: \"j'ai mal à la tête\" (no \"à ma tête\")."]
+        ]},
+        { titulo: "[PERSONAS] Siempre es obligatorio", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del italiano y el portugués, en francés el pronombre sujeto NUNCA se omite — la terminación verbal sola no alcanza para saber de quién se habla."],
+            ["", "\"On\" es un comodín muy usado en el habla informal: puede reemplazar a \"nous\" (on y va = vamos), o significar \"alguien\"/\"la gente\" de forma genérica."]
+        ]},
+        { titulo: "[PERSONAS] Cortesía: \"vous\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Vous\" se usa tanto para el plural como para tratar con cortesía a una sola persona (el \"usted\" formal) — clave en recepción de hotel: siempre \"vous\" con un huésped, nunca \"tu\"."]
+        ]},
+        { titulo: "[PERSONAS] ¿Cuándo se usan los tónicos?", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Después de una preposición: avec moi, sans toi, pour lui, chez elle, entre nous, contre eux."],
+            ["", "Para dar énfasis al inicio de la frase (moi, je pense que...), en respuestas cortas sin verbo (Qui veut du café? — Moi!), y en construcciones \"c'est + tónico\" (c'est moi qui...)."]
+        ]},
+        { titulo: "[PERSONAS] Reflexivo: siempre antes del verbo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El reflexivo va siempre antes del verbo conjugado: je me lave, tu te lèves. \"Me/te/se\" se elide a m'/t'/s' ante vocal o h muda: je m'appelle (yo me llamo)."],
+            ["", "En tiempos compuestos, los verbos reflexivos forman el pasado SIEMPRE con être (nunca avoir): je me suis levé(e) (me levanté). En negación, \"ne\" y \"pas\" rodean al pronombre y al verbo juntos: je ne me lave pas."]
+        ]}
+    ];
+
+    const reglasItaliano = [
+        { titulo: "[PRONOMBRES] CI — equivalente de \"y\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Ci\" funciona igual que el francés \"y\": reemplaza un lugar o un complemento con \"a\" cuando es cosa, nunca persona. Vado in albergo → Ci vado. Penso al lavoro → Ci penso."],
+            ["", "Para personas se usa el pronombre tónico: Penso a mia moglie → Penso a lei (no \"ci penso\")."]
+        ]},
+        { titulo: "[PRONOMBRES] NE — equivalente de \"en\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Ne\" funciona igual que el francés \"en\": reemplaza origen, complemento con \"di\", o cantidad. Vengo dall'albergo → Ne vengo. Parlo di questo problema → Ne parlo. Vuoi del caffè? → Sì, ne voglio."],
+            ["", "Tampoco reemplaza personas — se usa \"di\" + pronombre tónico: Parlo di Maria → Parlo di lei (no \"ne parlo\")."]
+        ]},
+        { titulo: "[PRONOMBRES] Relativos: \"che\" y \"cui\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Che\" sustituye sujeto o complemento objeto directo, sin preposición: la cliente che arriva (la clienta que llega)."],
+            ["", "\"Cui\" sustituye cualquier complemento con preposición simple (di, a, da, in, con, su, per, tra): la camera in cui dormo (la habitación en la que duermo)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Da — acción que empezó y sigue", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Da\" indica que algo empezó en el pasado y continúa ahora (equivalente al francés \"depuis\"): vivo qui dal 2020 (vivo aquí desde 2020, y sigo viviendo)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Per — duración con principio y fin", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Per\" indica una duración definida, ya terminada, usada con el passato prossimo: ho lavorato qui per tre anni (trabajé aquí durante 3 años — ya no trabajo más ahí)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Tra-Fra / Fa — futuro y pasado", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Tra\" o \"fra\" + duración = futuro (dentro de, equivalente al francés \"dans\"): il treno parte tra dieci minuti (el tren sale dentro de 10 minutos)."],
+            ["", "\"Fa\" + duración = pasado (hace, equivalente al francés \"il y a\"): sono arrivato un'ora fa (llegué hace una hora)."]
+        ]},
+        { titulo: "[ADVERBIOS] Cantidad: variable (adjetivo) vs invariable (adverbio)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés y el portugués, en italiano \"molto\", \"poco\", \"troppo\", \"tanto\" CAMBIAN de género/número cuando acompañan a un sustantivo (son adjetivos): ho molta fame, ho molti amici."],
+            ["", "Cuando modifican un verbo, adjetivo u otro adverbio, son adverbios y quedan siempre invariables: sono molto stanco/stanca, mi sono divertito molto."]
+        ]},
+        { titulo: "[ADVERBIOS] Modo: formación en -mente", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino singular y se agrega \"-mente\": lenta → lentamente, attenta → attentamente."],
+            ["", "Si el adjetivo termina en -e, se agrega directamente: felice → felicemente. Si termina en -le o -re (precedido de vocal), se pierde la -e final: facile → facilmente, singolare → singolarmente."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] \"Perché\" no puede ir al inicio (salvo respuesta)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que \"car\" en francés, \"perché\" causal no inicia una oración nueva — conecta una ya empezada: \"Resto a casa perché piove\" (me quedo en casa porque llueve)."],
+            ["", "La única excepción es cuando responde directamente a una pregunta con \"Perché...?\": \"Perché non vieni?\" — \"Perché sono stanco\" (¿Por qué no venís? — Porque estoy cansado)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Sin equivalente exacto de \"or\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El italiano no tiene una conjunción de coordinación equivalente a \"or\". El contraste lógico (\"sin embargo, resulta que...\") se cubre con adverbios como \"tuttavia\" o \"eppure\": \"aveva detto che sarebbe venuto, eppure non è venuto\"."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Afirmación: orden básico", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Il cliente prenota una camera\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Negación: 1 o 2 palabras, según el orden", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Si el elemento negativo (nessuno, niente, mai) va DESPUÉS del verbo, se necesita \"non\" antes: non è venuto nessuno, non ho visto niente."],
+            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"non\" se omite: nessuno è venuto, niente mi spaventa."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Interrogación: entonación o palabra interrogativa", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés, el italiano no tiene un sistema de inversión obligatorio — alcanza con la entonación ascendente (y el signo de pregunta al escribir): \"Ha una prenotazione?\" (mismo orden que la afirmación, solo cambia el tono)."],
+            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Chi, Cosa, Dove, Quando, Come, Perché — \"Dove è la sua camera?\" (¿dónde está su habitación?)."]
+        ]},
+        { titulo: "[FRASES DE RECEPCIÓN] Aplicado: gramática que ya conocés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Estas frases usan reglas que ya viste en otras unidades: \"Lei\" como cortesía formal, con mayúscula y verbo en 3ª persona femenina, incluso dirigiéndose a un hombre (PRONOMBRES SUJETO) — \"Lei ha una prenotazione?\", \"Potrebbe attendere un attimo?\"."]
+        ]},
+        { titulo: "[ARTÍCULOS] A diferencia del francés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El indefinido no tiene plural propio — el partitivo plural (dei, degli, delle) cumple ese rol, con el sentido de \"algunos/algunas\"."]
+        ]},
+        { titulo: "[POSESIVOS] El artículo es obligatorio", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés, en italiano el posesivo casi siempre va precedido del artículo definido: \"il mio passaporto\", nunca solo \"mio passaporto\" (salvo la excepción de parentesco, ver al lado)."],
+            ["", "Loro (de ellos/ellas) es invariable — no cambia con género ni número, pero el artículo que lo acompaña sí concuerda con lo poseído: \"il loro libro\", \"la loro casa\"."]
+        ]},
+        { titulo: "[POSESIVOS] Excepción clave: parentesco en singular", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Con un término de parentesco en singular sin modificador, se omite el artículo: \"mio fratello\", \"tua madre\", \"nostro zio\" (pero \"loro\" siempre lleva artículo: \"il loro fratello\")."],
+            ["", "Si el parentesco va en plural, o lleva un adjetivo o diminutivo, el artículo vuelve: \"i miei fratelli\", \"la mia sorella minore\", \"il mio fratellino\"."]
+        ]},
+        { titulo: "[PERSONAS] Casi siempre se omite", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "La terminación del verbo ya indica la persona, así que el pronombre suele omitirse: \"vado\" ya significa \"yo voy\", sin necesitar \"io vado\"."],
+            ["", "Se usa el pronombre solo para dar énfasis, marcar contraste, o cuando la forma verbal es ambigua entre personas (ej. en el subjuntivo presente, donde io/tu/lui-lei se conjugan igual)."]
+        ]},
+        { titulo: "[PERSONAS] Cortesía: \"Lei\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Lei\" (con mayúscula) es la forma de cortesía formal para dirigirse a alguien, hombre o mujer, conjugando el verbo en 3ª persona singular femenino — clave en recepción de hotel: \"Lei desidera...?\" con cualquier huésped."]
+        ]},
+        { titulo: "[PERSONAS] ¿Cuándo se usan los tónicos?", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Solo \"me\" y \"te\" son distintos del pronombre sujeto (io/tu) — el resto (lui, lei, noi, voi, loro) son las mismas palabras que ya usás como sujeto."],
+            ["", "Se usan después de una preposición (con me, per te, da lei, tra noi), después de secondo/come/quanto, o para dar énfasis (anche te, proprio lui)."]
+        ]},
+        { titulo: "[PERSONAS] Reflexivos: iguales a los pronombres COD", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Los reflexivos italianos (mi, ti, si, ci, vi, si) son exactamente los mismos pronombres que ya viste como COD — a diferencia del francés, que tiene palabras propias para el reflexivo (me/te/se)."],
+            ["", "Van antes del verbo en general (mi chiamo), pero después y pegados con guion en infinitivo, gerundio e imperativo afirmativo (chiamarsi → voglio chiamarmi; alzati! = ¡levantate!). Los verbos reflexivos forman el pasado siempre con essere."]
+        ]}
+    ];
+
+    const reglasPortugues = [
+        { titulo: "[PRONOMBRES] No existe un equivalente de \"y\"/\"en\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés (y/en) y el italiano (ci/ne), el portugués NO tiene una partícula gramatical especial para lugar o cantidad."],
+            ["", "Se resuelve con palabras normales: \"lá\"/\"ali\" para lugar (Vais ao hotel? Sim, vou lá), o repitiendo/omitiendo la cosa en vez de sustituirla por una partícula."]
+        ]},
+        { titulo: "[PRONOMBRES] Relativos: \"que\", \"quem\", \"cujo\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Que\" es el relativo universal — sirve para personas o cosas, como sujeto o complemento directo: o quarto que reservei (la habitación que reservé)."],
+            ["", "\"Quem\" se refiere solo a personas y siempre va con preposición: a pessoa de quem falei (la persona de quien hablé). \"Cujo/cuja\" expresa posesión y nunca lleva artículo después: o hóspede cujo passaporte ficou aqui."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Desde — desde un punto exacto", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Desde\" indica el punto exacto en que algo empezó: moro aqui desde 2020 (vivo aquí desde 2020 — marca el inicio puntual)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Há — cuánto tiempo pasó", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Há\" indica cuánto tiempo pasó desde que algo empezó (la cantidad, no el punto exacto): moro aqui há cinco anos (vivo aquí desde hace 5 años)."],
+            ["", "\"Desde\" + cantidad y \"há\" + cantidad pueden describir la misma situación con el mismo sentido (moro aqui há 5 anos = moro aqui desde há 5 anos), pero \"desde\" se usa naturalmente con una fecha o punto concreto (desde 2020), y \"há\" con una cantidad (há 5 anos)."]
+        ]},
+        { titulo: "[PREPOSICIONES DE TIEMPO] Durante / Dentro de", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Durante\" indica una duración definida: trabalhei aqui durante três anos (trabajé aquí durante 3 años)."],
+            ["", "\"Dentro de\" + duración = futuro: o trem parte dentro de dez minutos (el tren sale dentro de 10 minutos)."]
+        ]},
+        { titulo: "[ADVERBIOS] Invariables como adverbio", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del italiano, en portugués estas palabras son siempre invariables cuando funcionan como adverbio (modifican verbo/adjetivo): ela trabalha muito, está bastante cansada — sin cambiar de forma."],
+            ["", "Cuando acompañan directamente a un sustantivo sí concuerdan en género/número, igual que en italiano: muitos hóspedes, muita gente, poucas chaves."]
+        ]},
+        { titulo: "[ADVERBIOS] Modo: formación en -mente", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino y se agrega \"-mente\": lenta → lentamente, rápida → rapidamente."],
+            ["", "Para adjetivos uniformes (terminados en -e, -l, -z, -s) se agrega directamente, sin cambio: feliz → felizmente, simples → simplesmente."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] \"Pois\": dos significados según posición", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Antes del verbo, al inicio de la oración subordinada, \"pois\" funciona como \"porque\" (causa): \"Não saí, pois chovia\" (no salí, porque llovía)."],
+            ["", "Después del verbo, en medio o al final de la oración, \"pois\" cambia de sentido y funciona como \"por lo tanto/entonces\" (consecuencia): \"Estudei muito, fui bem na prova, pois\" (estudié mucho, por lo tanto me fue bien en la prueba)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Sin equivalente exacto de \"or\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que en italiano, el portugués no tiene una conjunción de coordinación equivalente a \"or\" francés. El contraste lógico se cubre con \"no entanto\" o \"contudo\": \"tinha dito que viria, no entanto não veio\"."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Afirmación: orden básico", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"O cliente reserva um quarto\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Negación: 1 o 2 palabras, según el orden", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Misma regla que el italiano: si el elemento negativo (ninguém, nada, nunca) va DESPUÉS del verbo, se necesita \"não\" antes: não veio ninguém, não vi nada."],
+            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"não\" se omite: ninguém veio, nada me assusta."]
+        ]},
+        { titulo: "[CONECTORES LÓGICOS] Interrogación: entonación o palabra interrogativa", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que en italiano, alcanza con la entonación ascendente: \"Tem uma reserva?\" (mismo orden que la afirmación, solo cambia el tono)."],
+            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Quem, O que, Onde, Quando, Como, Porque — \"Onde está o seu quarto?\" (¿dónde está su habitación?)."]
+        ]},
+        { titulo: "[FRASES DE RECEPCIÓN] Aplicado: gramática que ya conocés", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Estas frases usan reglas que ya viste en otras unidades: \"você\" como forma práctica de cortesía (PRONOMBRES SUJETO), y el pronombre sujeto se omite con frecuencia (\"tem uma reserva?\" en vez de \"você tem uma reserva?\")."]
+        ]},
+        { titulo: "[ARTÍCULOS] ¿Y el partitivo?", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés y el italiano, en portugués el artículo partitivo prácticamente no se usa hoy — existió en otra época, pero quedó en desuso."],
+            ["", "Donde el francés diría \"du café\" o el italiano \"del caffè\", el portugués simplemente dice \"café\" sin artículo, o usa um/uma si hace falta precisar una unidad."]
+        ]},
+        { titulo: "[POSESIVOS] El artículo es opcional (pero frecuente)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "En portugués europeo es muy común decir \"o meu carro\" con artículo, a diferencia del portugués de Brasil, donde suele omitirse (\"meu carro\")."],
+            ["", "Con artículo definido, el posesivo va antes del sustantivo (\"o meu amigo\"). Con artículo indefinido, el posesivo suele ir después (\"um amigo meu\")."]
+        ]},
+        { titulo: "[POSESIVOS] Ambigüedad de \"seu/sua\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Seu/sua\" puede significar \"de él\", \"de ella\", \"de usted\" o \"de ustedes\" — para evitar confusión, se puede aclarar con \"dele\", \"dela\", \"deles\", \"delas\": \"o livro dele\" en vez de \"o seu livro\"."]
+        ]},
+        { titulo: "[PERSONAS] También se omite con frecuencia", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que en italiano, la terminación verbal suele alcanzar para saber la persona, así que el pronombre se omite seguido, sobre todo en el habla oral: \"estou a estudar\" en vez de \"eu estou a estudar\"."]
+        ]},
+        { titulo: "[PERSONAS] Cortesía: \"você\", no \"tu\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Para recepción de hotel, lo práctico es usar \"você\" con los huéspedes (cortesía, conjugado en 3ª persona) — \"tu\" es informal/regional y no conviene con desconocidos."],
+            ["", "\"Vós\" (2ª persona plural) casi no se usa hoy en portugués europeo — se reemplaza por \"vocês\"."]
+        ]},
+        { titulo: "[PERSONAS] ¿Cuándo se usan los tónicos?", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Siempre van después de una preposición: para mim, sem ti, por nós, entre mim e ti."],
+            ["", "Con la preposición \"com\" se fusionan en una sola palabra: comigo, contigo, conosco (en vez de \"com mim\", \"com ti\", \"com nós\")."]
+        ]},
+        { titulo: "[PERSONAS] Reflexivo: después del verbo, con guion (lo normal en PT-PT)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés y el italiano (siempre antes del verbo), en portugués europeo la posición habitual en una frase afirmativa simple es DESPUÉS del verbo, unido con guion: \"chamo-me\" (no \"me chamo\", que sí es normal en portugués de Brasil)."],
+            ["", "El reflexivo pasa a ir ANTES del verbo con la negación, en preguntas, y después de ciertas palabras (alguém, nunca, que, quando...): \"não me chamo assim\", \"como te chamas?\"."]
+        ]}
+    ];
+
+    // Mapa de idioma -> array de reglas, para no repetir el if/else en el render.
+    const REGLAS_POR_IDIOMA = { "FRANCÉS": reglasFrances, "ITALIANO": reglasItaliano, "PORTUGUÉS": reglasPortugues };
+
+    // REGLAS: única unidad de solo lectura (sin editor, sin drag, sin mesa fija)
+    // — usa el sistema viejo de #contentTable, que sí tiene scroll de página
+    // propio, porque acá el contenido apilado puede ser largo de verdad.
+    function renderReglas(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "none";
+        document.getElementById('contentTable').style.display = "";
+        const reglas = REGLAS_POR_IDIOMA[idioma] || [];
+        let html = '<div class="reglas-columna">';
+        reglas.forEach(tabla => {
+            html += `<div class="tarjeta tarjeta-con-borde tarjeta-ancha">${renderTabla(tabla, idioma)}</div>`;
+        });
+        html += '</div>';
+        return html;
+    }
+
     function obtenerMesaDeTarjetas() {
         const barra = document.querySelector('.header-izquierda');
         const altoBarra = barra ? barra.getBoundingClientRect().bottom : 84;
@@ -6116,8 +6387,8 @@
         }
         // Los 3 botones rápidos (placeholder, sin función todavía) son lo
         // opuesto al editor: se ven con el lápiz apagado, se ocultan cuando
-        // se prende — solo en FANTASMA por ahora.
-        if (unidadActualKey === "FANTASMA") {
+        // se prende — por ahora en FANTASMA y LOS NÚMEROS Y EL TIEMPO.
+        if (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
             const displayRapidos = editorLibreActivo ? "none" : "inline-block";
             document.getElementById('btnRapido1').style.display = displayRapidos;
             document.getElementById('btnRapido2').style.display = displayRapidos;
@@ -6428,6 +6699,9 @@
         }
         if (unidadKey === "LOS NÚMEROS Y EL TIEMPO") {
             return renderNumerosTiempoNuevo();
+        }
+        if (unidadKey === "REGLAS") {
+            return renderReglas(idioma);
         }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
