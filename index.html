@@ -789,6 +789,14 @@
             <div onclick="cambiarModoCultura('recepcion')">Frases de recepción</div>
         </div>
     </div>
+    <div class="dropdown" id="selectorModoGeografiaClimaNuevoWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="toggleDropdown('menuModoGeografiaClimaNuevo')">Clima</button>
+        <div id="menuModoGeografiaClimaNuevo" class="dropdown-content">
+            <div onclick="cambiarModoGeografiaClimaNuevo('clima')">Clima</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('geografia')">Geografía</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('estaciones')">Estaciones</div>
+        </div>
+    </div>
 </header>
 
 <header class="header-derecha">
@@ -829,6 +837,7 @@
         "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
         "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
         "CULTURA": { "FRANCÉS": "CULTURA 🌍", "ITALIANO": "CULTURA 🌍", "PORTUGUÉS": "CULTURA 🌍" },
+        "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️", "ITALIANO": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️", "PORTUGUÉS": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX 🌈", "ITALIANO": "TEMPI VERBALI 🌈", "PORTUGUÉS": "TEMPOS VERBAIS 🌈" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" }
     };
@@ -2917,6 +2926,8 @@
                 document.getElementById('btnModoPersonasNuevo').innerText = "Personas";
                 modoCultura = "local";
                 document.getElementById('btnModoCultura').innerText = "Local";
+                modoGeografiaClimaNuevo = "clima";
+                document.getElementById('btnModoGeografiaClimaNuevo').innerText = "Clima";
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -2944,7 +2955,7 @@
     // viejo sistema) — los 3 botones de navegación rápida entre unidades
     // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
     // arme una unidad nueva, se agrega a esta lista.
-    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA"];
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -2956,7 +2967,7 @@
         if (unidadActualKey === "PARTÍCULAS") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "CULTURA") return true; // unidad nueva, sistema de mesa
-        if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
+        if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
@@ -3005,6 +3016,9 @@
         const visibleCultura = unidadActualKey === "CULTURA";
         document.getElementById('selectorModoCulturaWrap').style.display = visibleCultura ? "inline-block" : "none";
 
+        const visibleGeografiaClimaNuevo = unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA";
+        document.getElementById('selectorModoGeografiaClimaNuevoWrap').style.display = visibleGeografiaClimaNuevo ? "inline-block" : "none";
+
         // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
         // activo: Personas → Artículos → francés, o unidades genéricas en
         // modo Tarjetas.
@@ -3033,7 +3047,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -4808,13 +4822,6 @@
             ["assez de", "suficiente/bastante", "assez de chambres"],
             ["trop de", "demasiado/a/os/as", "trop de bruit"]
         ]},
-        { titulo: "Cantidad: con verbo o adjetivo (sin de)", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sin sustantivo, se usan solas (sin \"de\"): elle travaille beaucoup (ella trabaja mucho), c'est assez clair (es bastante claro). Son siempre invariables, nunca cambian de forma."]
-        ]},
-        { titulo: "Modo: formación en -ment", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino y se agrega \"-ment\": lente → lentement, douce → doucement."],
-            ["", "Si el adjetivo termina en vocal (e, i, u), se usa el masculino: rapide → rapidement, vrai → vraiment, poli → poliment."]
-        ]},
         { titulo: "Excepciones clave: bien / mal", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
             ["bien", "bien (no \"bonnement\")", "elle parle bien"],
             ["mal", "mal (no \"mauvaisement\")", "il dort mal"]
@@ -4830,48 +4837,23 @@
             ["Or", "Sin embargo/ahora bien", "contraste lógico"],
             ["Ni", "Ni", "exclusión"],
             ["Car", "Porque/pues", "causa"]
-        ]},
-        { titulo: "\"Car\" vs \"parce que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Ambos significan \"porque\", pero \"car\" es más formal y se usa más en lo escrito; \"parce que\" es el más neutro y usado en el habla diaria."],
-            ["", "\"Car\" NUNCA puede ir al inicio de una oración (siempre conecta dos partes ya empezadas); \"parce que\" sí puede ir al inicio."]
-        ]},
-        { titulo: "\"Or\": el más particular", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Or\" no es lo mismo que \"mais\" — introduce un dato nuevo que contrasta con lo que se esperaba: \"il avait dit qu'il viendrait, or il n'est pas venu\" (había dicho que vendría, sin embargo no vino)."]
         ]}
     ];
 
     const particulasSintaxisFrances = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Le client réserve une chambre\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: siempre 2 palabras", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El francés SIEMPRE necesita dos palabras para negar, rodeando al verbo: \"ne\" antes y \"pas/jamais/plus/rien/personne\" después: il ne vient pas, je ne mange jamais, elle ne voit personne."],
-            ["", "\"Ne\" se convierte en \"n'\" ante vocal o h muda. En el habla informal se suele omitir \"ne\" (je sais pas), pero en lo escrito y formal siempre se incluye."]
-        ]},
         { titulo: "Interrogación: 3 niveles de registro", headers: ["Nivel", "Francés", "Ejemplo"], columnasConSonido: [2], rows: [
             ["Informal (entonación)", "Sujeto + Verbo + ?", "Vous avez une réservation ?"],
             ["Neutro", "Est-ce que + Sujeto + Verbo", "Est-ce que vous avez une réservation ?"],
             ["Formal (inversión)", "Verbo-Sujeto", "Avez-vous une réservation ?"]
-        ]},
-        { titulo: "Atención: \"si\", no \"oui\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para responder afirmativamente a una pregunta NEGATIVA, se usa \"si\" en vez de \"oui\": \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une\" (¿No tiene reserva? — Sí, tengo una)."]
         ]}
     ];
 
     const particulasAdverbiosItaliano = [
-        { titulo: "Cantidad: variable (adjetivo) vs invariable (adverbio)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés y el portugués, en italiano \"molto\", \"poco\", \"troppo\", \"tanto\" CAMBIAN de género/número cuando acompañan a un sustantivo (son adjetivos): ho molta fame, ho molti amici."],
-            ["", "Cuando modifican un verbo, adjetivo u otro adverbio, son adverbios y quedan siempre invariables: sono molto stanco/stanca, mi sono divertito molto."]
-        ]},
         { titulo: "Lista de cantidad", headers: ["Italiano", "Español", "Ejemplo (adverbio)"], columnasConSonido: [2], rows: [
             ["molto", "mucho", "è molto simpatico"],
             ["poco", "poco", "ho dormito poco"],
             ["abbastanza", "bastante/suficiente", "è abbastanza chiaro"],
             ["troppo", "demasiado", "lavori troppo"]
-        ]},
-        { titulo: "Modo: formación en -mente", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino singular y se agrega \"-mente\": lenta → lentamente, attenta → attentamente."],
-            ["", "Si el adjetivo termina en -e, se agrega directamente: felice → felicemente. Si termina en -le o -re (precedido de vocal), se pierde la -e final: facile → facilmente, singolare → singolarmente."]
         ]},
         { titulo: "Excepciones clave: bene / male", headers: ["Italiano", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
             ["bene", "bien (no \"buonamente\")", "parla bene"],
@@ -4887,29 +4869,10 @@
             ["Quindi / Dunque / Perciò", "Entonces/por lo tanto", "consecuencia"],
             ["Né", "Ni", "exclusión"],
             ["Perché / Poiché", "Porque/pues", "causa"]
-        ]},
-        { titulo: "\"Perché\" no puede ir al inicio (salvo respuesta)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que \"car\" en francés, \"perché\" causal no inicia una oración nueva — conecta una ya empezada: \"Resto a casa perché piove\" (me quedo en casa porque llueve)."],
-            ["", "La única excepción es cuando responde directamente a una pregunta con \"Perché...?\": \"Perché non vieni?\" — \"Perché sono stanco\" (¿Por qué no venís? — Porque estoy cansado)."]
-        ]},
-        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El italiano no tiene una conjunción de coordinación equivalente a \"or\". El contraste lógico (\"sin embargo, resulta que...\") se cubre con adverbios como \"tuttavia\" o \"eppure\": \"aveva detto che sarebbe venuto, eppure non è venuto\"."]
         ]}
     ];
 
-    const particulasSintaxisItaliano = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Il cliente prenota una camera\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Si el elemento negativo (nessuno, niente, mai) va DESPUÉS del verbo, se necesita \"non\" antes: non è venuto nessuno, non ho visto niente."],
-            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"non\" se omite: nessuno è venuto, niente mi spaventa."]
-        ]},
-        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés, el italiano no tiene un sistema de inversión obligatorio — alcanza con la entonación ascendente (y el signo de pregunta al escribir): \"Ha una prenotazione?\" (mismo orden que la afirmación, solo cambia el tono)."],
-            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Chi, Cosa, Dove, Quando, Come, Perché — \"Dove è la sua camera?\" (¿dónde está su habitación?)."]
-        ]}
-    ];
+    const particulasSintaxisItaliano = [];
 
     const particulasAdverbiosPortugues = [
         { titulo: "Cantidad: con sustantivo o verbo/adjetivo", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
@@ -4917,14 +4880,6 @@
             ["pouco", "poco/a/os/as", "pouco tempo"],
             ["bastante", "bastante/suficiente", "bastante calmo"],
             ["demasiado", "demasiado/a/os/as", "demasiado caro"]
-        ]},
-        { titulo: "Invariables como adverbio", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del italiano, en portugués estas palabras son siempre invariables cuando funcionan como adverbio (modifican verbo/adjetivo): ela trabalha muito, está bastante cansada — sin cambiar de forma."],
-            ["", "Cuando acompañan directamente a un sustantivo sí concuerdan en género/número, igual que en italiano: muitos hóspedes, muita gente, poucas chaves."]
-        ]},
-        { titulo: "Modo: formación en -mente", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino y se agrega \"-mente\": lenta → lentamente, rápida → rapidamente."],
-            ["", "Para adjetivos uniformes (terminados en -e, -l, -z, -s) se agrega directamente, sin cambio: feliz → felizmente, simples → simplesmente."]
         ]},
         { titulo: "Excepciones clave: bem / mal", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
             ["bem", "bien (no \"boamente\")", "ela fala bem"],
@@ -4940,29 +4895,10 @@
             ["Logo / Portanto / Por isso", "Entonces/por lo tanto", "consecuencia"],
             ["Nem", "Ni", "exclusión"],
             ["Porque", "Porque", "causa"]
-        ]},
-        { titulo: "\"Pois\": dos significados según posición", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Antes del verbo, al inicio de la oración subordinada, \"pois\" funciona como \"porque\" (causa): \"Não saí, pois chovia\" (no salí, porque llovía)."],
-            ["", "Después del verbo, en medio o al final de la oración, \"pois\" cambia de sentido y funciona como \"por lo tanto/entonces\" (consecuencia): \"Estudei muito, fui bem na prova, pois\" (estudié mucho, por lo tanto me fue bien en la prueba)."]
-        ]},
-        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que en italiano, el portugués no tiene una conjunción de coordinación equivalente a \"or\" francés. El contraste lógico se cubre con \"no entanto\" o \"contudo\": \"tinha dito que viria, no entanto não veio\"."]
         ]}
     ];
 
-    const particulasSintaxisPortugues = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"O cliente reserva um quarto\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Misma regla que el italiano: si el elemento negativo (ninguém, nada, nunca) va DESPUÉS del verbo, se necesita \"não\" antes: não veio ninguém, não vi nada."],
-            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"não\" se omite: ninguém veio, nada me assusta."]
-        ]},
-        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que en italiano, alcanza con la entonación ascendente: \"Tem uma reserva?\" (mismo orden que la afirmación, solo cambia el tono)."],
-            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Quem, O que, Onde, Quando, Como, Porque — \"Onde está o seu quarto?\" (¿dónde está su habitación?)."]
-        ]}
-    ];
+    const particulasSintaxisPortugues = [];
 
     const PARTICULAS_POR_IDIOMA = {
         "FRANCÉS": [...particulasAdverbiosFrances, ...particulasConectoresFrances, ...particulasSintaxisFrances],
@@ -5697,6 +5633,302 @@
         tarjetasEl.forEach(el => {
             const id = el.dataset.clave;
             const e = personasNuevoEstado[id];
+            if (!e) return;
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const tabla = el.querySelector('table');
+                    const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                    const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
+
+    // ===== Contenido propio e independiente de "La Geografía y el Clima"
+    // (unidad nueva) — copia exacta del contenido verificado, SIN depender
+    // de las constantes viejas, para que esta unidad sea autosuficiente. =====
+    const climaNuevoGeoFrances = [
+        { titulo: "Sustantivos", headers: ["", "Francés"], rows: [
+            ["☀️", "Le soleil"], ["🌧️", "La pluie"], ["❄️", "La neige"], ["💨", "Le vent"],
+            ["🌫️", "Le brouillard"], ["🧊", "Le gel"], ["⛈️", "L'orage"], ["🧊", "La grêle"],
+            ["☁️", "Le ciel"], ["☁️", "Le nuage"]
+        ]},
+        { titulo: "Hace / Está / Hay", headers: ["", "Francés"], rows: [
+            ["🥶", "Il fait froid"], ["🥵", "Il fait chaud"], ["☁️", "Le ciel est couvert"],
+            ["🌫️", "Il y a du brouillard"], ["🧊", "Il gèle"], ["💨", "Il y a du vent"]
+        ]},
+        { titulo: "Pronóstico", headers: ["", "Francés"], rows: [
+            ["❄️", "Il va neiger"], ["🌧️", "Il va pleuvoir"], ["☀️", "Demain il fera beau"], ["🧊", "Cette nuit il va geler"]
+        ]},
+        { titulo: "Frases de recepción", headers: ["", "Francés"], rows: [
+            ["💬", "Quel temps fait-il aujourd'hui ?"], ["👁️", "Il y a une bonne visibilité aujourd'hui"],
+            ["🚫", "Les pistes sont fermées à cause du vent"], ["❄️", "Aujourd'hui il neige en altitude"]
+        ]}
+    ];
+
+    const geografiaNuevoGeoFrances = [
+        { titulo: "Fauna de Chamonix / los Alpes", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["le chamois||el rebeco/gamuza", ""], ["la marmotte||la marmota", ""], ["le bouquetin||el íbice/cabra montés", ""],
+            ["le cerf||el ciervo", ""], ["le chevreuil||el corzo", ""], ["l'aigle royal#masc||el águila real", ""],
+            ["le gypaète barbu||el quebrantahuesos", ""], ["le tétras-lyre||el urogallo", ""], ["l'écureuil roux#masc||la ardilla roja", ""],
+            ["la vipère||la víbora", ""]
+        ]},
+        { titulo: "Flora de Chamonix / los Alpes", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["l'edelweiss#fem||el edelweiss", ""], ["la gentiane||la genciana", ""], ["le rhododendron||el rododendro", ""],
+            ["le sapin||el abeto", ""], ["le hêtre||el haya", ""], ["l'épicéa#masc||la pícea", ""],
+            ["la myrtille||el arándano", ""], ["le mélèze||el alerce", ""]
+        ]},
+        { titulo: "Fauna típica de Francia (en general)", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["le coq||el gallo (símbolo nacional)", ""], ["le renard||el zorro", ""], ["le sanglier||el jabalí", ""],
+            ["le loup||el lobo", ""], ["l'ours brun#masc||el oso pardo", ""], ["le lièvre||la liebre", ""],
+            ["la loutre||la nutria", ""]
+        ]},
+        { titulo: "Flora típica de Francia (en general)", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["le chêne||el roble", ""], ["la lavande||la lavanda", ""], ["le tournesol||el girasol", ""],
+            ["la vigne||la vid", ""], ["le platane||el plátano (árbol)", ""], ["le coquelicot||la amapola", ""]
+        ]}
+    ];
+
+    const estacionesNuevoGeoFrances = [
+        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Francés", "Meses"], columnasConSonido: [0],
+          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
+          rows: [
+            ["le printemps", "marzo, abril, mayo"],
+            ["l'été", "junio, julio, agosto"],
+            ["l'automne", "septiembre, octubre, noviembre"],
+            ["l'hiver", "diciembre, enero, febrero"]
+        ]}
+    ];
+
+    const climaNuevoGeoItaliano = [
+        { titulo: "Sostantivi", headers: ["", "Italiano"], rows: [
+            ["☀️", "Il sole"], ["🌧️", "La pioggia"], ["❄️", "La neve"], ["💨", "Il vento"],
+            ["🌫️", "La nebbia"], ["🧊", "Il gelo"], ["⛈️", "Il temporale"], ["🧊", "La grandine"],
+            ["☁️", "Il cielo"], ["☁️", "La nuvola"]
+        ]},
+        { titulo: "Fa / È / C'è", headers: ["", "Italiano"], rows: [
+            ["🥶", "Fa freddo"], ["🥵", "Fa caldo"], ["☁️", "Il cielo è coperto"],
+            ["🌫️", "C'è nebbia"], ["🧊", "Sta gelando"], ["💨", "C'è vento"]
+        ]},
+        { titulo: "Previsioni", headers: ["", "Italiano"], rows: [
+            ["❄️", "Nevicherà"], ["🌧️", "Pioverà"], ["☀️", "Domani farà bel tempo"], ["🧊", "Stanotte gelerà"]
+        ]},
+        { titulo: "Frasi per la reception", headers: ["", "Italiano"], rows: [
+            ["💬", "Che tempo fa oggi?"], ["👁️", "Oggi c'è buona visibilità"],
+            ["🚫", "Le piste sono chiuse per il vento"], ["❄️", "Oggi nevica in quota"]
+        ]}
+    ];
+
+    const geografiaNuevoGeoItaliano = [
+        { titulo: "Fauna de Chamonix / las Alpes", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["il camoscio||el rebeco/gamuza", ""], ["la marmotta||la marmota", ""], ["lo stambecco||el íbice/cabra montés", ""],
+            ["il cervo||el ciervo", ""], ["il capriolo||el corzo", ""], ["l'aquila reale#fem||el águila real", ""],
+            ["il gipeto||el quebrantahuesos", ""], ["il fagiano di monte||el urogallo", ""], ["lo scoiattolo rosso||la ardilla roja", ""],
+            ["la vipera||la víbora", ""]
+        ]},
+        { titulo: "Flora de Chamonix / las Alpes", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["la stella alpina||el edelweiss", ""], ["la genziana||la genciana", ""], ["il rododendro||el rododendro", ""],
+            ["l'abete#masc||el abeto", ""], ["il faggio||el haya", ""], ["il mirtillo||el arándano", ""],
+            ["il larice||el alerce", ""]
+        ]},
+        { titulo: "Fauna típica de Italia (en general)", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["il lupo||el lobo (símbolo nacional)", ""], ["l'orso bruno#masc||el oso pardo", ""], ["la lince||el lince", ""],
+            ["il cinghiale||el jabalí", ""], ["la volpe||el zorro", ""], ["la lepre||la liebre", ""],
+            ["la lontra||la nutria", ""]
+        ]},
+        { titulo: "Flora típica de Italia (en general)", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["l'ulivo#masc||el olivo", ""], ["il cipresso||el ciprés", ""], ["l'alloro#masc||el laurel", ""],
+            ["la vite||la vid", ""], ["il pino marittimo||el pino marítimo", ""], ["il castagno||el castaño", ""]
+        ]}
+    ];
+
+    const estacionesNuevoGeoItaliano = [
+        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Italiano", "Meses"], columnasConSonido: [0],
+          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
+          rows: [
+            ["la primavera", "marzo, abril, mayo"],
+            ["l'estate", "junio, julio, agosto"],
+            ["l'autunno", "septiembre, octubre, noviembre"],
+            ["l'inverno", "diciembre, enero, febrero"]
+        ]}
+    ];
+
+    const climaNuevoGeoPortugues = [
+        { titulo: "Substantivos", headers: ["", "Portugués"], rows: [
+            ["☀️", "O sol"], ["🌧️", "A chuva"], ["❄️", "A neve"], ["💨", "O vento"],
+            ["🌫️", "O nevoeiro"], ["🧊", "A geada"], ["⛈️", "A tempestade"], ["🧊", "O granizo"],
+            ["☁️", "O céu"], ["☁️", "A nuvem"]
+        ]},
+        { titulo: "Está / Há", headers: ["", "Portugués"], rows: [
+            ["🥶", "Está frio"], ["🥵", "Está calor"], ["☁️", "O céu está nublado"],
+            ["🌫️", "Há nevoeiro"], ["🧊", "Está a gear"], ["💨", "Está ventoso"]
+        ]},
+        { titulo: "Previsão", headers: ["", "Portugués"], rows: [
+            ["❄️", "Vai nevar"], ["🌧️", "Vai chover"], ["☀️", "Amanhã estará bom tempo"], ["🧊", "Esta noite vai gear"]
+        ]},
+        { titulo: "Frases de recepção", headers: ["", "Portugués"], rows: [
+            ["💬", "Como está o tempo hoje?"], ["👁️", "Hoje há boa visibilidade"],
+            ["🚫", "As pistas estão fechadas devido ao vento"], ["❄️", "Hoje neva em altitude"]
+        ]}
+    ];
+
+    const geografiaNuevoGeoPortugues = [
+        { titulo: "Fauna de Chamonix / os Alpes", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["a camurça||el rebeco/gamuza", ""], ["a marmota||la marmota", ""], ["a cabra-montesa||el íbice/cabra montés", ""],
+            ["o veado||el ciervo", ""], ["o corço||el corzo", ""], ["a águia-real||el águila real", ""],
+            ["o quebra-ossos||el quebrantahuesos", ""], ["o galo-lira||el urogallo", ""], ["o esquilo-vermelho||la ardilla roja", ""],
+            ["a víbora||la víbora", ""]
+        ]},
+        { titulo: "Flora de Chamonix / os Alpes", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["o edelweiss||el edelweiss", ""], ["a genciana||la genciana", ""], ["o rododendro||el rododendro", ""],
+            ["o abeto||el abeto", ""], ["a faia||el haya", ""], ["o mirtilo||el arándano", ""],
+            ["o lariço||el alerce", ""]
+        ]},
+        { titulo: "Fauna típica de Portugal (en general)", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["o lince-ibérico||el lince ibérico", ""], ["o lobo-ibérico||el lobo ibérico", ""], ["a raposa||el zorro", ""],
+            ["o javali||el jabalí", ""], ["o veado||el ciervo", ""], ["a lebre||la liebre", ""],
+            ["a sardinha||la sardina", ""]
+        ]},
+        { titulo: "Flora típica de Portugal (en general)", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
+            ["o sobreiro||el alcornoque (árbol nacional)", ""], ["a oliveira||el olivo", ""], ["a azinheira||la encina", ""],
+            ["o zimbro||el enebro", ""], ["a vinha||la vid", ""], ["o medronheiro||el madroño", ""]
+        ]}
+    ];
+
+    const estacionesNuevoGeoPortugues = [
+        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Português", "Meses"], columnasConSonido: [0],
+          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
+          rows: [
+            ["a primavera", "marzo, abril, mayo"],
+            ["o verão", "junio, julio, agosto"],
+            ["o outono", "septiembre, octubre, noviembre"],
+            ["o inverno", "diciembre, enero, febrero"]
+        ]}
+    ];
+
+    const GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA = {
+        "FRANCÉS": {
+            clima: climaNuevoGeoFrances,
+            geografia: geografiaNuevoGeoFrances,
+            estaciones: estacionesNuevoGeoFrances
+        },
+        "ITALIANO": {
+            clima: climaNuevoGeoItaliano,
+            geografia: geografiaNuevoGeoItaliano,
+            estaciones: estacionesNuevoGeoItaliano
+        },
+        "PORTUGUÉS": {
+            clima: climaNuevoGeoPortugues,
+            geografia: geografiaNuevoGeoPortugues,
+            estaciones: estacionesNuevoGeoPortugues
+        },
+    };
+
+    // "La Geografía y el Clima" (unidad nueva): 3 temas (clima/geografía/
+    // estaciones), cada uno multi-tarjeta con su propia caja de "Tarjetas" —
+    // mismo patrón que Partículas/Personas. Arranca con todas las tarjetas
+    // ocultas, igual que el resto del sistema nuevo.
+    let modoGeografiaClimaNuevo = "clima";
+    const geografiaClimaNuevoEstado = {};
+
+    function cambiarModoGeografiaClimaNuevo(nuevoModo) {
+        modoGeografiaClimaNuevo = nuevoModo;
+        const etiquetas = { clima: 'Clima', geografia: 'Geografía', estaciones: 'Estaciones' };
+        document.getElementById('btnModoGeografiaClimaNuevo').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
+        actualizarPantalla();
+    }
+
+    function renderGeografiaClimaNuevo(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+        const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        tarjetas.forEach((t, i) => {
+            const id = idioma + "__" + modoGeografiaClimaNuevo + "__t" + i;
+            if (!geografiaClimaNuevoEstado[id]) {
+                geografiaClimaNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+            }
+            const e = geografiaClimaNuevoEstado[id];
+            if (!e.visible) return;
+            const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+            const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde">${renderTabla(t, idioma)}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreGeografiaClimaNuevo());
+        return null;
+    }
+
+    function inicializarArrastreGeografiaClimaNuevo() {
+        const tarjetasEl = document.querySelectorAll('#mesaDeTarjetas .tarjeta-libre');
+        tarjetasEl.forEach(el => {
+            const id = el.dataset.clave;
+            const e = geografiaClimaNuevoEstado[id];
             if (!e) return;
             const zonaMover = el.querySelector('caption');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
@@ -6761,6 +6993,28 @@
             });
             return;
         }
+        if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") {
+            const menu = document.getElementById('menuTarjetasLibre');
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+            menu.innerHTML = "";
+            tarjetas.forEach((t, i) => {
+                const id = idioma + "__" + modoGeografiaClimaNuevo + "__t" + i;
+                if (!geografiaClimaNuevoEstado[id]) {
+                    geografiaClimaNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+                }
+                const e = geografiaClimaNuevoEstado[id];
+                const div = document.createElement('div');
+                div.innerText = (e.visible ? "✓ " : "") + (t.titulo || ("Tarjeta " + (i + 1)));
+                div.onclick = () => {
+                    e.visible = !e.visible;
+                    document.getElementById('menuTarjetasLibre').classList.remove("show");
+                    actualizarPantalla();
+                };
+                menu.appendChild(div);
+            });
+            return;
+        }
         if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
         const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
@@ -6919,6 +7173,9 @@
         }
         if (unidadKey === "CULTURA") {
             return renderCultura(idioma);
+        }
+        if (unidadKey === "LA GEOGRAFÍA Y EL CLIMA") {
+            return renderGeografiaClimaNuevo(idioma);
         }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
