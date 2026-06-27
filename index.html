@@ -749,18 +749,8 @@
         <div id="menuGrupoNumerosNuevo" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorModoVocabularioNuevoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoVocabularioNuevo" onclick="toggleDropdown('menuModoVocabularioNuevo')">Lugares del hotel</button>
-        <div id="menuModoVocabularioNuevo" class="dropdown-content">
-            <div onclick="cambiarModoVocabularioNuevo('Lugares del hotel')">Lugares del hotel</div>
-            <div onclick="cambiarModoVocabularioNuevo('Objetos y equipaje')">Objetos y equipaje</div>
-            <div onclick="cambiarModoVocabularioNuevo('Partes del cuerpo')">Partes del cuerpo</div>
-            <div onclick="cambiarModoVocabularioNuevo('Salud y emergencias')">Salud y emergencias</div>
-            <div onclick="cambiarModoVocabularioNuevo('Alimentos y bebidas')">Alimentos y bebidas</div>
-            <div onclick="cambiarModoVocabularioNuevo('Verbos de acción de recepción')">Verbos de acción de recepción</div>
-            <div onclick="cambiarModoVocabularioNuevo('Incidentes de habitación')">Incidentes de habitación</div>
-            <div onclick="cambiarModoVocabularioNuevo('Ropa y accesorios')">Ropa y accesorios</div>
-            <div onclick="cambiarModoVocabularioNuevo('Tiempo libre y servicios del hotel')">Tiempo libre y servicios del hotel</div>
-        </div>
+        <button class="dropbtn dropbtn-chico" id="btnModoVocabularioNuevo" onclick="inicializarMenuVocabularioNuevo(); toggleDropdown('menuModoVocabularioNuevo')">Lugares del hotel</button>
+        <div id="menuModoVocabularioNuevo" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorModoPersonasNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoPersonasNuevo" onclick="inicializarMenuPersonasNuevo(); toggleDropdown('menuModoPersonasNuevo')">Personas</button>
@@ -807,13 +797,13 @@
 
 <script>
     const unidades = {
-        "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🔢 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🔢 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🔢 Y EL TIEMPO ⏳" },
-        "REGLAS": { "FRANCÉS": "REGLAS 📜", "ITALIANO": "REGLAS 📜", "PORTUGUÉS": "REGLAS 📜" },
-        "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 🔤", "ITALIANO": "VOCABULARIO 🔤", "PORTUGUÉS": "VOCABULARIO 🔤" },
-        "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS 🧳", "ITALIANO": "PARTÍCULAS 🧳", "PORTUGUÉS": "PARTÍCULAS 🧳" },
-        "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
-        "CULTURA": { "FRANCÉS": "CULTURA 🌍", "ITALIANO": "CULTURA 🌍", "PORTUGUÉS": "CULTURA 🌍" },
-        "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️", "ITALIANO": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️", "PORTUGUÉS": "LA GEOGRAFÍA 🏔️ Y EL CLIMA ☀️🌥️🌧️" },
+        "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LES NOMBRES 🔢 ET LE TEMPS ⏳", "ITALIANO": "I NUMERI 🔢 E IL TEMPO ⏳", "PORTUGUÉS": "OS NÚMEROS 🔢 E O TEMPO ⏳" },
+        "REGLAS": { "FRANCÉS": "RÈGLES 📜", "ITALIANO": "REGOLE 📜", "PORTUGUÉS": "REGRAS 📜" },
+        "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULAIRE 🔤", "ITALIANO": "VOCABOLARIO 🔤", "PORTUGUÉS": "VOCABULÁRIO 🔤" },
+        "PARTÍCULAS": { "FRANCÉS": "PARTICULES 🧳", "ITALIANO": "PARTICELLE 🧳", "PORTUGUÉS": "PARTÍCULAS 🧳" },
+        "PERSONAS NUEVO": { "FRANCÉS": "PERSONNES 🧍", "ITALIANO": "PERSONE 🧍", "PORTUGUÉS": "PESSOAS 🧍" },
+        "CULTURA": { "FRANCÉS": "CULTURE 🌍", "ITALIANO": "CULTURA 🌍", "PORTUGUÉS": "CULTURA 🌍" },
+        "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GÉOGRAPHIE 🏔️ ET LE CLIMAT ☀️🌥️🌧️", "ITALIANO": "LA GEOGRAFIA 🏔️ E IL CLIMA ☀️🌥️🌧️", "PORTUGUÉS": "A GEOGRAFIA 🏔️ E O CLIMA ☀️🌥️🌧️" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX 🌈", "ITALIANO": "TEMPI VERBALI 🌈", "PORTUGUÉS": "TEMPOS VERBAIS 🌈" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" }
     };
@@ -2728,7 +2718,7 @@
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros[idioma];
                 modoVocabularioNuevo = "Lugares del hotel";
-                document.getElementById('btnModoVocabularioNuevo').innerText = "Lugares del hotel";
+                document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO["Lugares del hotel"][idioma];
                 modoPersonasNuevo = "personas";
                 document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS.personas[idioma];
                 modoCultura = "local";
@@ -2988,6 +2978,9 @@
         }
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") {
             inicializarMenuGeografiaClimaNuevo();
+        }
+        if (unidadActualKey === "VOCABULARIO NUEVO") {
+            inicializarMenuVocabularioNuevo();
         }
         if (unidadActualKey === "TIEMPOS VERBALES") {
             inicializarMenuVerbos();
@@ -6126,9 +6119,39 @@
     // que sería gigante con 25 palabras) — de ahí para abajo es scrolleable
     // como cualquier tarjeta redimensionada a mano.
     let modoVocabularioNuevo = "Lugares del hotel";
+    // Los 9 temas de VOCABULARIO: la clave interna (modoVocabularioNuevo) sigue
+    // siendo el título en ESPAÑOL tal cual vive en VOCABULARIO_NUEVO_POR_IDIOMA
+    // (no se toca esa lógica) — esto solo traduce lo que se MUESTRA en el botón
+    // y el menú.
+    const TEMAS_VOCABULARIO = {
+        "Lugares del hotel": { FRANCÉS: "Endroits de l'hôtel", ITALIANO: "Luoghi dell'hotel", PORTUGUÉS: "Locais do hotel" },
+        "Objetos y equipaje": { FRANCÉS: "Objets et bagages", ITALIANO: "Oggetti e bagagli", PORTUGUÉS: "Objetos e bagagem" },
+        "Partes del cuerpo": { FRANCÉS: "Parties du corps", ITALIANO: "Parti del corpo", PORTUGUÉS: "Partes do corpo" },
+        "Salud y emergencias": { FRANCÉS: "Santé et urgences", ITALIANO: "Salute ed emergenze", PORTUGUÉS: "Saúde e emergências" },
+        "Alimentos y bebidas": { FRANCÉS: "Aliments et boissons", ITALIANO: "Cibo e bevande", PORTUGUÉS: "Alimentos e bebidas" },
+        "Verbos de acción de recepción": { FRANCÉS: "Verbes d'action de réception", ITALIANO: "Verbi d'azione in reception", PORTUGUÉS: "Verbos de ação na recepção" },
+        "Incidentes de habitación": { FRANCÉS: "Incidents dans la chambre", ITALIANO: "Incidenti in camera", PORTUGUÉS: "Incidentes no quarto" },
+        "Ropa y accesorios": { FRANCÉS: "Vêtements et accessoires", ITALIANO: "Vestiti e accessori", PORTUGUÉS: "Roupas e acessórios" },
+        "Tiempo libre y servicios del hotel": { FRANCÉS: "Temps libre et services de l'hôtel", ITALIANO: "Tempo libero e servizi dell'hotel", PORTUGUÉS: "Tempo livre e serviços do hotel" }
+    };
+
+    function inicializarMenuVocabularioNuevo() {
+        const menu = document.getElementById('menuModoVocabularioNuevo');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        menu.innerHTML = "";
+        Object.keys(TEMAS_VOCABULARIO).forEach(claveEs => {
+            const div = document.createElement('div');
+            div.innerHTML = `${TEMAS_VOCABULARIO[claveEs][idioma]}<div class="traduccion-unidad">${claveEs}</div>`;
+            div.onclick = () => cambiarModoVocabularioNuevo(claveEs);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO[modoVocabularioNuevo][idioma];
+    }
+
     function cambiarModoVocabularioNuevo(nuevoTema) {
         modoVocabularioNuevo = nuevoTema;
-        document.getElementById('btnModoVocabularioNuevo').innerText = nuevoTema;
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO[nuevoTema][idioma];
         document.getElementById('menuModoVocabularioNuevo').classList.remove("show");
         actualizarPantalla();
     }
