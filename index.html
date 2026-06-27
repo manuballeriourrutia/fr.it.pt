@@ -748,14 +748,6 @@
             <div onclick="cambiarModoGeografiaClima('geografia')">Geografía</div>
         </div>
     </div>
-    <div class="dropdown" id="selectorModoPersonasWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoPersonas" onclick="toggleDropdown('menuModoPersonas')">Personas</button>
-        <div id="menuModoPersonas" class="dropdown-content">
-            <div onclick="cambiarModoPersonas('tarjetas')">Personas</div>
-            <div onclick="cambiarModoPersonas('reglas')">Reglas</div>
-            <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
-        </div>
-    </div>
     <div class="dropdown" id="selectorModoNumerosTiempoNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
         <div id="menuModoNumerosTiempoNuevo" class="dropdown-content">
@@ -828,11 +820,8 @@
 
 <script>
     const unidades = {
-        "PERSONAS": { "FRANCÉS": "PERSONNES", "ITALIANO": "PERSONE", "PORTUGUÉS": "PESSOAS" },
         "GEOGRAFÍA Y CLIMA": { "FRANCÉS": "GÉOGRAPHIE ET MÉTÉO", "ITALIANO": "GEOGRAFIA E METEO", "PORTUGUÉS": "GEOGRAFIA E TEMPO" },
         "FRASES DE RECEPCIÓN": { "FRANCÉS": "PHRASES DE RÉCEPTION", "ITALIANO": "FRASI DI RECEPTION", "PORTUGUÉS": "FRASES DE RECEÇÃO" },
-        "ADVERBIOS DE CANTIDAD Y MODO": { "FRANCÉS": "ADVERBES DE QUANTITÉ ET DE MANIÈRE", "ITALIANO": "AVVERBI DI QUANTITÀ E MODO", "PORTUGUÉS": "ADVÉRBIOS DE QUANTIDADE E MODO" },
-        "CONECTORES LÓGICOS": { "FRANCÉS": "CONNECTEURS LOGIQUES", "ITALIANO": "CONNETTIVI LOGICI", "PORTUGUÉS": "CONECTORES LÓGICOS" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📚", "ITALIANO": "VOCABULARIO 📚", "PORTUGUÉS": "VOCABULARIO 📚" },
@@ -2683,60 +2672,9 @@
     // Francés e italiano usan sistema binario (cerca/lejos); portugués es ternario
     // (este=cerca de quien habla, esse=cerca de quien escucha, aquele=lejos de ambos),
     // así que su tabla de demostrativos tiene una columna más.
-    const posicionesFrances = [
-        { titulo: "Demostrativos — Singular", headers: ["", "Cerca (-ci)", "Lejos (-là)"],
-          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
-          rows: [
-            ["Masc.", "celui-ci", "celui-là"], ["Fem.", "celle-ci", "celle-là"]
-        ]},
-        { titulo: "Demostrativos — Plural", headers: ["", "Cerca (-ci)", "Lejos (-là)"],
-          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
-          rows: [
-            ["Masc.", "ceux-ci", "ceux-là"], ["Fem.", "celles-ci", "celles-là"]
-        ]},
-        { titulo: "Mapa de posiciones", headers: ["", ""], rows: [
-            ["⬆️", "Devant"], ["⬇️", "Derrière"], ["↔️", "À côté de"], ["🔼", "Sur"],
-            ["📦", "Dans"], ["🔽", "Sous"], ["↕️", "Entre"], ["👀", "En face de"],
-            ["📍", "Près de"], ["🌍", "Loin de"], ["⏫", "Au-dessus de"], ["⏬", "Au-dessous de"], ["🔄", "Autour de"]
-        ]}
-    ];
-
-    const posicionesItaliano = [
-        { titulo: "Dimostrativi — Singolare", headers: ["", "Vicino", "Lontano"],
-          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
-          rows: [
-            ["Masc.", "questo", "quello"], ["Fem.", "questa", "quella"]
-        ]},
-        { titulo: "Dimostrativi — Plurale", headers: ["", "Vicino", "Lontano"],
-          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
-          rows: [
-            ["Masc.", "questi", "quelli"], ["Fem.", "queste", "quelle"]
-        ]},
-        { titulo: "Mappa delle posizioni", headers: ["", ""], rows: [
-            ["⬆️", "Davanti a"], ["⬇️", "Dietro (a)"], ["↔️", "Accanto a"], ["🔼", "Sopra"],
-            ["📦", "Dentro"], ["🔽", "Sotto"], ["↕️", "Tra / Fra"], ["👀", "Di fronte a"],
-            ["📍", "Vicino a"], ["🌍", "Lontano da"], ["⏫", "Al di sopra di"], ["⏬", "Al di sotto di"], ["🔄", "Intorno a"]
-        ]}
-    ];
-
-    const posicionesPortugues = [
-        { titulo: "Demonstrativos — Singular", headers: ["", "Perto de mim", "Perto de ti", "Longe"],
-          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
-          rows: [
-            ["Masc.", "este", "esse", "aquele"], ["Fem.", "esta", "essa", "aquela"]
-        ]},
-        { titulo: "Demonstrativos — Plural", headers: ["", "Perto de mim", "Perto de ti", "Longe"],
-          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
-          rows: [
-            ["Masc.", "estes", "esses", "aqueles"], ["Fem.", "estas", "essas", "aquelas"]
-        ]},
-        { titulo: "Mapa de posições", headers: ["", ""], rows: [
-            ["⬆️", "À frente de"], ["⬇️", "Atrás de"], ["↔️", "Ao lado de"], ["🔼", "Em cima de"],
-            ["📦", "Dentro de"], ["🔽", "Debaixo de"], ["↕️", "Entre"], ["👀", "Em frente a"],
-            ["📍", "Perto de"], ["🌍", "Longe de"], ["⏫", "Por cima de"], ["⏬", "Por baixo de"], ["🔄", "Ao redor de"]
-        ]}
-    ];
-
+    
+    
+    
     // PRONOMBRES Y COD: complemento de objeto directo (COD) y complemento de objeto
     // indirecto (COI), separados y etiquetados correctamente. "Lui/leur" (FR), "gli/le"
     // (IT) y "lhe/lhes" (PT) son técnicamente COI, no COD, aunque venían juntos en el
@@ -2795,23 +2733,7 @@
         return String(texto).replace(/#(masc|fem)$/, "");
     }
 
-    const codCoiFrances = [
-        { titulo: "COD — Complement d'Objet Direct", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["le (masc.)", "Je le vois", "Yo lo veo"],
-            ["la (fem.)", "Je la cherche", "Yo la busco"],
-            ["l' (ambos, + vocal)", "Je l'adore", "Yo lo/la amo"],
-            ["les (plural)", "Je les trouve", "Yo los/las encuentro"]
-        ]},
-        { titulo: "COI — Complement d'Objet Indirect", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["lui (él / ella)", "Je lui donne la clé", "Yo le doy la llave (a él/ella)"],
-            ["leur (ellos / ellas)", "Je leur parle du climat", "Yo les hablo del clima (a ellos/ellas)"]
-        ]}
-    ];
-
+    
     const pronombresFrances = [
         { titulo: "Y — lugar o \"à + cosa\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
             ["", "\"Y\" reemplaza un complemento de lugar (¿dónde?) o un complemento con \"à\" cuando es una cosa, nunca una persona: Je vais à l'hôtel → J'y vais. Il pense à son travail → Il y pense."],
@@ -2827,23 +2749,7 @@
         ]}
     ];
 
-    const codCoiItaliano = [
-        { titulo: "COD — Complemento Oggetto Diretto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["lo (masc.)", "Lo vedo", "Yo lo veo"],
-            ["la (fem.)", "La cerco", "Yo la busco"],
-            ["li (masc. plural)", "Li trovo", "Yo los encuentro"],
-            ["le (fem. plural)", "Le adoro", "Yo las amo"]
-        ]},
-        { titulo: "COI — Complemento di Termine", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["gli (a él / a ellos)", "Gli do la chiave", "Yo le doy la llave (a él) / les doy (a ellos)"],
-            ["le (a ella)", "Le parlo del meteo", "Yo le hablo del clima (a ella)"]
-        ]}
-    ];
-
+    
     const pronombresItaliano = [
         { titulo: "CI — equivalente de \"y\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
             ["", "\"Ci\" funciona igual que el francés \"y\": reemplaza un lugar o un complemento con \"a\" cuando es cosa, nunca persona. Vado in albergo → Ci vado. Penso al lavoro → Ci penso."],
@@ -2859,23 +2765,7 @@
         ]}
     ];
 
-    const codCoiPortugues = [
-        { titulo: "CD — Complemento Direto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["o (masc.)", "Eu vejo-o", "Yo lo veo"],
-            ["a (fem.)", "Eu procuro-a", "Yo la busco"],
-            ["os (masc. plural)", "Eu encontro-os", "Yo los encuentro"],
-            ["as (fem. plural)", "Eu adoro-as", "Yo las amo"]
-        ]},
-        { titulo: "CI — Complemento Indireto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
-          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["lhe (a ele / a ela)", "Eu dou-lhe a chave", "Yo le doy la llave (a él/ella)"],
-            ["lhes (a eles / a elas)", "Eu falo-lhes do tempo", "Yo les hablo del clima (a ellos/ellas)"]
-        ]}
-    ];
-
+    
     const pronombresPortugues = [
         { titulo: "No existe un equivalente de \"y\"/\"en\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
             ["", "A diferencia del francés (y/en) y el italiano (ci/ne), el portugués NO tiene una partícula gramatical especial para lugar o cantidad."],
@@ -2950,129 +2840,18 @@
     // "poco" cambian de forma cuando acompañan a un sustantivo (son adjetivos) pero
     // quedan invariables cuando modifican un verbo/adjetivo (ahí son adverbios) —
     // en francés y portugués, en cambio, son siempre invariables como adverbios.
-    const adverbiosFrances = [
-        { titulo: "Cantidad: con sustantivo (+ de)", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["beaucoup de", "mucho/a/os/as (+ sustantivo)", "beaucoup de clients"],
-            ["un peu de", "un poco de", "un peu de patience"],
-            ["assez de", "suficiente/bastante", "assez de chambres"],
-            ["trop de", "demasiado/a/os/as", "trop de bruit"]
-        ]},
-        { titulo: "Cantidad: con verbo o adjetivo (sin de)", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sin sustantivo, se usan solas (sin \"de\"): elle travaille beaucoup (ella trabaja mucho), c'est assez clair (es bastante claro). Son siempre invariables, nunca cambian de forma."]
-        ]},
-        { titulo: "Modo: formación en -ment", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino y se agrega \"-ment\": lente → lentement, douce → doucement."],
-            ["", "Si el adjetivo termina en vocal (e, i, u), se usa el masculino: rapide → rapidement, vrai → vraiment, poli → poliment."]
-        ]},
-        { titulo: "Excepciones clave: bien / mal", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["bien", "bien (no \"bonnement\")", "elle parle bien"],
-            ["mal", "mal (no \"mauvaisement\")", "il dort mal"]
-        ]}
-    ];
-
-    const adverbiosItaliano = [
-        { titulo: "Cantidad: variable (adjetivo) vs invariable (adverbio)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés y el portugués, en italiano \"molto\", \"poco\", \"troppo\", \"tanto\" CAMBIAN de género/número cuando acompañan a un sustantivo (son adjetivos): ho molta fame, ho molti amici."],
-            ["", "Cuando modifican un verbo, adjetivo u otro adverbio, son adverbios y quedan siempre invariables: sono molto stanco/stanca, mi sono divertito molto."]
-        ]},
-        { titulo: "Lista de cantidad", headers: ["Italiano", "Español", "Ejemplo (adverbio)"], columnasConSonido: [2], rows: [
-            ["molto", "mucho", "è molto simpatico"],
-            ["poco", "poco", "ho dormito poco"],
-            ["abbastanza", "bastante/suficiente", "è abbastanza chiaro"],
-            ["troppo", "demasiado", "lavori troppo"]
-        ]},
-        { titulo: "Modo: formación en -mente", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino singular y se agrega \"-mente\": lenta → lentamente, attenta → attentamente."],
-            ["", "Si el adjetivo termina en -e, se agrega directamente: felice → felicemente. Si termina en -le o -re (precedido de vocal), se pierde la -e final: facile → facilmente, singolare → singolarmente."]
-        ]},
-        { titulo: "Excepciones clave: bene / male", headers: ["Italiano", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["bene", "bien (no \"buonamente\")", "parla bene"],
-            ["male", "mal (no \"cattivamente\")", "dorme male"]
-        ]}
-    ];
-
-    const adverbiosPortugues = [
-        { titulo: "Cantidad: con sustantivo o verbo/adjetivo", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["muito", "mucho/a/os/as", "muitos hóspedes"],
-            ["pouco", "poco/a/os/as", "pouco tempo"],
-            ["bastante", "bastante/suficiente", "bastante calmo"],
-            ["demasiado", "demasiado/a/os/as", "demasiado caro"]
-        ]},
-        { titulo: "Invariables como adverbio", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del italiano, en portugués estas palabras son siempre invariables cuando funcionan como adverbio (modifican verbo/adjetivo): ela trabalha muito, está bastante cansada — sin cambiar de forma."],
-            ["", "Cuando acompañan directamente a un sustantivo sí concuerdan en género/número, igual que en italiano: muitos hóspedes, muita gente, poucas chaves."]
-        ]},
-        { titulo: "Modo: formación en -mente", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se toma el adjetivo en femenino y se agrega \"-mente\": lenta → lentamente, rápida → rapidamente."],
-            ["", "Para adjetivos uniformes (terminados en -e, -l, -z, -s) se agrega directamente, sin cambio: feliz → felizmente, simples → simplesmente."]
-        ]},
-        { titulo: "Excepciones clave: bem / mal", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["bem", "bien (no \"boamente\")", "ela fala bem"],
-            ["mal", "mal (no \"mamente\")", "ele dorme mal"]
-        ]}
-    ];
-
+    
+    
+    
     // CONECTORES LÓGICOS: verificado con fuentes gramaticales — la equivalencia
     // básica funciona bien entre los 3 idiomas, pero "or" francés (oposición/
     // contraste lógico, distinto de "mais") NO tiene equivalente exacto de
     // coordinación en italiano ni portugués: ahí se cubre con adverbios/conectores
     // de otra categoría (tuttavia/eppure, no entanto/contudo), no con una
     // conjunción de coordinación propiamente dicha.
-    const conectoresFrances = [
-        { titulo: "Las 7 conjunciones de coordinación", headers: ["Francés", "Español", "Función"], columnasConSonido: [0], rows: [
-            ["Mais", "Pero", "oposición"],
-            ["Ou", "O", "alternativa"],
-            ["Et", "Y", "suma/adición"],
-            ["Donc", "Entonces/por lo tanto", "consecuencia"],
-            ["Or", "Sin embargo/ahora bien", "contraste lógico"],
-            ["Ni", "Ni", "exclusión"],
-            ["Car", "Porque/pues", "causa"]
-        ]},
-        { titulo: "\"Car\" vs \"parce que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Ambos significan \"porque\", pero \"car\" es más formal y se usa más en lo escrito; \"parce que\" es el más neutro y usado en el habla diaria."],
-            ["", "\"Car\" NUNCA puede ir al inicio de una oración (siempre conecta dos partes ya empezadas); \"parce que\" sí puede ir al inicio."]
-        ]},
-        { titulo: "\"Or\": el más particular", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Or\" no es lo mismo que \"mais\" — introduce un dato nuevo que contrasta con lo que se esperaba: \"il avait dit qu'il viendrait, or il n'est pas venu\" (había dicho que vendría, sin embargo no vino)."]
-        ]}
-    ];
-
-    const conectoresItaliano = [
-        { titulo: "Equivalentes de las 7 conjunciones francesas", headers: ["Italiano", "Español", "Función"], columnasConSonido: [0], rows: [
-            ["Ma", "Pero", "oposición"],
-            ["O", "O", "alternativa"],
-            ["E", "Y", "suma/adición"],
-            ["Quindi / Dunque / Perciò", "Entonces/por lo tanto", "consecuencia"],
-            ["Né", "Ni", "exclusión"],
-            ["Perché / Poiché", "Porque/pues", "causa"]
-        ]},
-        { titulo: "\"Perché\" no puede ir al inicio (salvo respuesta)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que \"car\" en francés, \"perché\" causal no inicia una oración nueva — conecta una ya empezada: \"Resto a casa perché piove\" (me quedo en casa porque llueve)."],
-            ["", "La única excepción es cuando responde directamente a una pregunta con \"Perché...?\": \"Perché non vieni?\" — \"Perché sono stanco\" (¿Por qué no venís? — Porque estoy cansado)."]
-        ]},
-        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El italiano no tiene una conjunción de coordinación equivalente a \"or\". El contraste lógico (\"sin embargo, resulta que...\") se cubre con adverbios como \"tuttavia\" o \"eppure\": \"aveva detto che sarebbe venuto, eppure non è venuto\"."]
-        ]}
-    ];
-
-    const conectoresPortugues = [
-        { titulo: "Equivalentes de las 7 conjunciones francesas", headers: ["Português", "Español", "Función"], columnasConSonido: [0], rows: [
-            ["Mas", "Pero", "oposición"],
-            ["Ou", "O", "alternativa"],
-            ["E", "Y", "suma/adición"],
-            ["Logo / Portanto / Por isso", "Entonces/por lo tanto", "consecuencia"],
-            ["Nem", "Ni", "exclusión"],
-            ["Porque", "Porque", "causa"]
-        ]},
-        { titulo: "\"Pois\": dos significados según posición", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Antes del verbo, al inicio de la oración subordinada, \"pois\" funciona como \"porque\" (causa): \"Não saí, pois chovia\" (no salí, porque llovía)."],
-            ["", "Después del verbo, en medio o al final de la oración, \"pois\" cambia de sentido y funciona como \"por lo tanto/entonces\" (consecuencia): \"Estudei muito, fui bem na prova, pois\" (estudié mucho, por lo tanto me fue bien en la prueba)."]
-        ]},
-        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que en italiano, el portugués no tiene una conjunción de coordinación equivalente a \"or\" francés. El contraste lógico se cubre con \"no entanto\" o \"contudo\": \"tinha dito que viria, no entanto não veio\"."]
-        ]}
-    ];
-
+    
+    
+    
     // SINTAXIS: afirmación, negación e interrogación. Verificado con fuentes
     // gramaticales — el punto más importante NO es paralelo entre los 3: francés
     // SIEMPRE necesita 2 palabras para negar (ne...pas, ne...jamais), mientras que
@@ -3080,52 +2859,9 @@
     // una sola palabra negativa basta si va antes del verbo (nessuno è venuto /
     // ninguém veio), pero se necesitan 2 si el elemento negativo va después del
     // verbo (non è venuto nessuno / não veio ninguém).
-    const sintaxisFrances = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Le client réserve une chambre\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: siempre 2 palabras", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El francés SIEMPRE necesita dos palabras para negar, rodeando al verbo: \"ne\" antes y \"pas/jamais/plus/rien/personne\" después: il ne vient pas, je ne mange jamais, elle ne voit personne."],
-            ["", "\"Ne\" se convierte en \"n'\" ante vocal o h muda. En el habla informal se suele omitir \"ne\" (je sais pas), pero en lo escrito y formal siempre se incluye."]
-        ]},
-        { titulo: "Interrogación: 3 niveles de registro", headers: ["Nivel", "Francés", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["Informal (entonación)", "Sujeto + Verbo + ?", "Vous avez une réservation ?"],
-            ["Neutro", "Est-ce que + Sujeto + Verbo", "Est-ce que vous avez une réservation ?"],
-            ["Formal (inversión)", "Verbo-Sujeto", "Avez-vous une réservation ?"]
-        ]},
-        { titulo: "Atención: \"si\", no \"oui\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para responder afirmativamente a una pregunta NEGATIVA, se usa \"si\" en vez de \"oui\": \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une\" (¿No tiene reserva? — Sí, tengo una)."]
-        ]}
-    ];
-
-    const sintaxisItaliano = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Il cliente prenota una camera\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Si el elemento negativo (nessuno, niente, mai) va DESPUÉS del verbo, se necesita \"non\" antes: non è venuto nessuno, non ho visto niente."],
-            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"non\" se omite: nessuno è venuto, niente mi spaventa."]
-        ]},
-        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés, el italiano no tiene un sistema de inversión obligatorio — alcanza con la entonación ascendente (y el signo de pregunta al escribir): \"Ha una prenotazione?\" (mismo orden que la afirmación, solo cambia el tono)."],
-            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Chi, Cosa, Dove, Quando, Come, Perché — \"Dove è la sua camera?\" (¿dónde está su habitación?)."]
-        ]}
-    ];
-
-    const sintaxisPortugues = [
-        { titulo: "Afirmación: orden básico", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Sujeto + Verbo + Objeto, igual que en español: \"O cliente reserva um quarto\" (el cliente reserva una habitación)."]
-        ]},
-        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Misma regla que el italiano: si el elemento negativo (ninguém, nada, nunca) va DESPUÉS del verbo, se necesita \"não\" antes: não veio ninguém, não vi nada."],
-            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"não\" se omite: ninguém veio, nada me assusta."]
-        ]},
-        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que en italiano, alcanza con la entonación ascendente: \"Tem uma reserva?\" (mismo orden que la afirmación, solo cambia el tono)."],
-            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Quem, O que, Onde, Quando, Como, Porque — \"Onde está o seu quarto?\" (¿dónde está su habitación?)."]
-        ]}
-    ];
-
+    
+    
+    
     // FRASES DE RECEPCIÓN: a diferencia de las unidades anteriores, esto NO es
     // gramática nueva — es vocabulario y frases hechas de uso diario en el
     // mostrador del hotel, aplicando lo que ya está cubierto como gramática pura
@@ -3289,67 +3025,9 @@
     // (vocal/h muda vs consonante) en 4 categorías; italiano agrega una 5ª fila para los
     // casos especiales (x/y/z/gn/pn/ps/s+consonante) y separa plural masc./fem.; portugués
     // no distingue por sonido inicial, solo por género y número (4 categorías limpias).
-    const fusionesFrances = [
-        { titulo: "À / Hacia... (destinos)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Vocal o H muda", "à l'", "à l'hôtel"],
-            ["Consonante masc.", "au", "au comptoir"],
-            ["Consonante fem.", "à la", "à la chambre"],
-            ["Plurales", "aux", "aux voitures"]
-        ]},
-        { titulo: "De / Desde... (orígenes)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Vocal o H muda", "de l'", "de l'hôtel"],
-            ["Consonante masc.", "du", "du comptoir"],
-            ["Consonante fem.", "de la", "de la chambre"],
-            ["Plurales", "des", "des voitures"]
-        ]}
-    ];
-
-    const fusionesItaliano = [
-        { titulo: "A... (destinazioni)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["+ vocal (con apóstrofe)", "all'", "all'hotel"],
-            ["Masc. estándar", "al", "al bancone"],
-            ["Masc. especial (x/y/z, gn/pn/ps, s+cons.)", "allo", "allo zaino"],
-            ["Femenino", "alla", "alla camera"],
-            ["Plural masculino", "ai", "ai clienti"],
-            ["Plural femenino", "alle", "alle macchine"]
-        ]},
-        { titulo: "Di... (origini)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["+ vocal (con apóstrofe)", "dell'", "dell'hotel"],
-            ["Masc. estándar", "del", "del bancone"],
-            ["Masc. especial (x/y/z, gn/pn/ps, s+cons.)", "dello", "dello zaino"],
-            ["Femenino", "della", "della camera"],
-            ["Plural masculino", "dei", "dei clienti"],
-            ["Plural femenino", "delle", "delle macchine"]
-        ]}
-    ];
-
-    const fusionesPortugues = [
-        { titulo: "A... (destinos)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masculino singular", "ao", "ao hotel"],
-            ["Femenino singular", "à", "à recepção"],
-            ["Masculino plural", "aos", "aos clientes"],
-            ["Femenino plural", "às", "às malas"]
-        ]},
-        { titulo: "De... (origens)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masculino singular", "do", "do hotel"],
-            ["Femenino singular", "da", "da recepção"],
-            ["Masculino plural", "dos", "dos clientes"],
-            ["Femenino plural", "das", "das malas"]
-        ]}
-    ];
-
+    
+    
+    
     // GÉNERO Y NÚMERO: terminaciones más confiables para reconocer el género de un
     // sustantivo (no exhaustivo — los 3 idiomas tienen muchísimas excepciones; nos
     // quedamos con las reglas prácticas más útiles), más casos fijos memorizables
@@ -3361,101 +3039,9 @@
     // (Sujeto/Tónico/Reflexivo, en el propio idioma, sin traducción al español
     // ya que las personas son universales) + las terminaciones de género que
     // antes vivían en GÉNERO Y NÚMERO (esa unidad desaparece, se mudó acá).
-    const personasFrances = [
-        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
-            ["je", "moi", "me (m')"],
-            ["tu", "toi", "te (t')"],
-            ["il / elle", "lui / elle", "se (s')"],
-            ["nous", "nous", "nous"],
-            ["vous", "vous", "vous"],
-            ["ils / elles", "eux / elles", "se (s')"]
-        ]},
-        { titulo: "Terminaciones típicamente masculinas", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc.", "-age", "le garage"],
-            ["Masc.", "-ment", "le gouvernement"],
-            ["Masc.", "-isme", "le tourisme"],
-            ["Masc.", "-eau", "le bureau"],
-            ["Masc.", "-eur (cosas concretas)", "un ordinateur"]
-        ]},
-        { titulo: "Terminaciones típicamente femeninas", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Fem.", "-tion / -sion", "la réception"],
-            ["Fem.", "-ance / -ence", "la confiance"],
-            ["Fem.", "-ure", "la voiture"],
-            ["Fem.", "-té", "la réalité"],
-            ["Fem.", "-eur (cosas abstractas)", "la couleur"]
-        ]},
-        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc.", "Días de la semana", "le lundi"],
-            ["Masc.", "Meses y estaciones", "le printemps"],
-            ["Masc.", "Idiomas", "le français"],
-            ["Masc.", "Colores", "le rouge"],
-            ["Fem.", "Países terminados en -e", "la France"],
-            ["Masc.", "Resto de países", "le Mexique"]
-        ]}
-    ];
-
-    const personasItaliano = [
-        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
-            ["io", "me", "mi"],
-            ["tu", "te", "ti"],
-            ["lui / lei", "lui / lei", "si"],
-            ["noi", "noi", "ci"],
-            ["voi", "voi", "vi"],
-            ["loro", "loro", "si"]
-        ]},
-        { titulo: "Regla general", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc.", "-o", "il tavolo"],
-            ["Fem.", "-a", "la sedia"],
-            ["Indistinto", "-e (puede ser ambos)", "il/la cliente"]
-        ]},
-        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc.", "Días de la semana", "il lunedì"],
-            ["Masc.", "Idiomas", "l'italiano"],
-            ["Masc.", "Colores", "il rosso"],
-            ["Fem.", "La mayoría de las estaciones/meses", "la primavera"],
-            ["Fem.", "Excepción notable: la mano", "la mano (es femenino aunque termina en -o)"]
-        ]}
-    ];
-
-    const personasPortugues = [
-        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
-            ["eu", "mim / comigo", "me"],
-            ["tu", "ti / contigo", "te"],
-            ["ele / ela", "ele / ela", "se"],
-            ["nós", "nós / conosco", "nos"],
-            ["você", "você", "se"],
-            ["eles / elas", "eles / elas", "se"]
-        ]},
-        { titulo: "Regla general", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc.", "-o", "o quarto"],
-            ["Fem.", "-a", "a mala"],
-            ["Indistinto", "-e (puede ser ambos)", "o/a cliente"]
-        ]},
-        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
-          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Fem.", "Días de semana (segunda a sexta)", "a segunda-feira"],
-            ["Masc.", "Sábado (único día masc. junto con domingo)", "o sábado"],
-            ["Masc.", "Domingo (único día masc. junto con sábado)", "o domingo"],
-            ["Masc.", "Idiomas", "o português"],
-            ["Masc.", "Cores", "o vermelho"],
-            ["Fem.", "Palabras terminadas en -gem", "a viagem"],
-            ["Fem.", "Excepción notable: a mão", "a mão (es femenino aunque termina en -o)"]
-        ]}
-    ];
-
+    
+    
+    
     // ARTÍCULOS: definidos, indefinidos y partitivos. Verificado con fuentes
     // gramaticales de cada idioma — NO son paralelos entre los 3:
     // - Francés: el más complejo de elisión (le/la → l' ante vocal/h muda), y el
@@ -3465,94 +3051,9 @@
     // - Portugués: el más simple (o/a/os/as, um/uma/uns/umas, sin elisión por sonido
     //   inicial), y el partitivo prácticamente no se usa hoy (existió antiguamente,
     //   ver nota en la tarjeta).
-    const articulosFrances = [
-        { titulo: "Definidos — \"el/la/los/las\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "le", "le passeport"],
-            ["Fem. sing.", "la", "la chambre"],
-            ["Sing. + vocal o h muda", "l'", "l'hôtel"],
-            ["Plural (ambos géneros)", "les", "les clients"]
-        ]},
-        { titulo: "Indefinidos — \"un/una/unos/unas\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "un", "un passeport"],
-            ["Fem. sing.", "une", "une chambre"],
-            ["Plural (ambos géneros)", "des", "des clients"]
-        ]},
-        { titulo: "Partitivos — cantidad no precisa", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "du", "du café"],
-            ["Fem. sing.", "de la", "de la confiture"],
-            ["Sing. + vocal o h muda", "de l'", "de l'eau"],
-            ["Plural (ambos géneros)", "des", "des céréales"]
-        ]},
-        { titulo: "Uso del partitivo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Se usa para comida y bebida no contable (du pain, de la confiture), y con faire para deportes/instrumentos (faire du tennis)."],
-            ["", "En negación, el partitivo y el indefinido se reducen siempre a de/d' (je ne veux pas de café, pas d'eau)."]
-        ]}
-    ];
-
-    const articulosItaliano = [
-        { titulo: "Definidos — \"il/lo/la/i/gli/le\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "il", "il passaporto"],
-            ["Masc. sing. + s+cons./gn/pn/ps/x/y/z", "lo", "lo zaino"],
-            ["Masc. sing. + vocal", "l'", "l'hotel"],
-            ["Fem. sing.", "la (l' ante vocal)", "la camera"],
-            ["Masc. plural", "i", "i passaporti"],
-            ["Masc. plural (de los casos de \"lo\")", "gli", "gli zaini"],
-            ["Fem. plural (ambos géneros con \"l'\")", "le", "le camere"]
-        ]},
-        { titulo: "Indefinidos — \"un/uno/una\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. (consonante o vocal)", "un", "un passaporto"],
-            ["Masc. + s+cons./gn/pn/ps/x/y/z", "uno", "uno zaino"],
-            ["Fem. (consonante)", "una", "una camera"],
-            ["Fem. + vocal", "un'", "un'idea"]
-        ]},
-        { titulo: "Partitivos — cantidad no precisa", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "del", "del pane"],
-            ["Masc. sing. + s+cons./gn/pn/ps/x/y/z", "dello", "dello zucchero"],
-            ["Fem. sing.", "della", "della marmellata"],
-            ["Masc. plural", "dei", "dei clienti"],
-            ["Masc. plural (de los casos de \"dello\")", "degli", "degli zaini"],
-            ["Fem. plural", "delle", "delle camere"]
-        ]},
-        { titulo: "A diferencia del francés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El indefinido no tiene plural propio — el partitivo plural (dei, degli, delle) cumple ese rol, con el sentido de \"algunos/algunas\"."]
-        ]}
-    ];
-
-    const articulosPortugues = [
-        { titulo: "Definidos — \"o/a/os/as\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "o", "o passaporte"],
-            ["Fem. sing.", "a", "a chave"],
-            ["Masc. plural", "os", "os passaportes"],
-            ["Fem. plural", "as", "as chaves"]
-        ]},
-        { titulo: "Indefinidos — \"um/uma/uns/umas\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
-          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
-          rows: [
-            ["Masc. sing.", "um", "um passaporte"],
-            ["Fem. sing.", "uma", "uma chave"],
-            ["Masc. plural", "uns", "uns passaportes"],
-            ["Fem. plural", "umas", "umas chaves"]
-        ]},
-        { titulo: "¿Y el partitivo?", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés y el italiano, en portugués el artículo partitivo prácticamente no se usa hoy — existió en otra época, pero quedó en desuso."],
-            ["", "Donde el francés diría \"du café\" o el italiano \"del caffè\", el portugués simplemente dice \"café\" sin artículo, o usa um/uma si hace falta precisar una unidad."]
-        ]}
-    ];
-
+    
+    
+    
     // POSESIVOS: verificado con fuentes gramaticales — el rol del artículo junto al
     // posesivo es la diferencia MÁS importante entre los 3 idiomas, no son paralelos:
     // - Francés: el posesivo REEMPLAZA al artículo (mon livre, nunca "le mon livre").
@@ -3562,61 +3063,9 @@
     // - Portugués: el artículo es OPCIONAL pero frecuente en portugués europeo
     //   (o meu livro, o simplemente meu livro) — a diferencia del portugués de Brasil,
     //   donde es más común omitirlo.
-    const posesivosFrances = [
-        { titulo: "Formas (según el objeto poseído, no el poseedor)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Plural"], columnasConSonido: [1, 2, 3], rows: [
-            ["yo", "mon", "ma", "mes"],
-            ["tú", "ton", "ta", "tes"],
-            ["él/ella", "son", "sa", "ses"],
-            ["nosotros", "notre", "notre", "nos"],
-            ["ustedes/vosotros", "votre", "votre", "vos"],
-            ["ellos/ellas", "leur", "leur", "leurs"]
-        ]},
-        { titulo: "El posesivo reemplaza al artículo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "En francés NUNCA se usa artículo + posesivo juntos: se dice \"mon passeport\", nunca \"le mon passeport\"."],
-            ["", "El posesivo se acuerda con el género y número de lo que se posee, no con quien posee — \"sa chambre\" puede ser la habitación de él o de ella, da igual."]
-        ]},
-        { titulo: "Excepción clave: vocal o h muda", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Si el objeto poseído es femenino singular y empieza con vocal o h muda, se usa la forma masculina (mon, ton, son) en vez de la femenina: \"mon arrivée\" (no \"ma arrivée\"), \"son histoire\"."],
-            ["", "Con partes del cuerpo, el francés suele evitar el posesivo y usa el artículo definido: \"j'ai mal à la tête\" (no \"à ma tête\")."]
-        ]}
-    ];
-
-    const posesivosItaliano = [
-        { titulo: "Formas (con artículo, según el objeto poseído)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Masc. plural", "Fem. plural"], columnasConSonido: [1, 2, 3, 4], rows: [
-            ["yo", "il mio", "la mia", "i miei", "le mie"],
-            ["tú", "il tuo", "la tua", "i tuoi", "le tue"],
-            ["él/ella", "il suo", "la sua", "i suoi", "le sue"],
-            ["nosotros", "il nostro", "la nostra", "i nostri", "le nostre"],
-            ["ustedes/vosotros", "il vostro", "la vostra", "i vostri", "le vostre"],
-            ["ellos/ellas", "il loro", "la loro", "i loro", "le loro"]
-        ]},
-        { titulo: "El artículo es obligatorio", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés, en italiano el posesivo casi siempre va precedido del artículo definido: \"il mio passaporto\", nunca solo \"mio passaporto\" (salvo la excepción de parentesco, ver al lado)."],
-            ["", "Loro (de ellos/ellas) es invariable — no cambia con género ni número, pero el artículo que lo acompaña sí concuerda con lo poseído: \"il loro libro\", \"la loro casa\"."]
-        ]},
-        { titulo: "Excepción clave: parentesco en singular", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Con un término de parentesco en singular sin modificador, se omite el artículo: \"mio fratello\", \"tua madre\", \"nostro zio\" (pero \"loro\" siempre lleva artículo: \"il loro fratello\")."],
-            ["", "Si el parentesco va en plural, o lleva un adjetivo o diminutivo, el artículo vuelve: \"i miei fratelli\", \"la mia sorella minore\", \"il mio fratellino\"."]
-        ]}
-    ];
-
-    const posesivosPortugues = [
-        { titulo: "Formas (con artículo opcional, según el objeto poseído)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Masc. plural", "Fem. plural"], columnasConSonido: [1, 2, 3, 4], rows: [
-            ["yo", "(o) meu", "(a) minha", "(os) meus", "(as) minhas"],
-            ["tú", "(o) teu", "(a) tua", "(os) teus", "(as) tuas"],
-            ["él/ella/usted", "(o) seu", "(a) sua", "(os) seus", "(as) suas"],
-            ["nosotros", "(o) nosso", "(a) nossa", "(os) nossos", "(as) nossas"],
-            ["ustedes/vosotros", "(o) vosso", "(a) vossa", "(os) vossos", "(as) vossas"]
-        ]},
-        { titulo: "El artículo es opcional (pero frecuente)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "En portugués europeo es muy común decir \"o meu carro\" con artículo, a diferencia del portugués de Brasil, donde suele omitirse (\"meu carro\")."],
-            ["", "Con artículo definido, el posesivo va antes del sustantivo (\"o meu amigo\"). Con artículo indefinido, el posesivo suele ir después (\"um amigo meu\")."]
-        ]},
-        { titulo: "Ambigüedad de \"seu/sua\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Seu/sua\" puede significar \"de él\", \"de ella\", \"de usted\" o \"de ustedes\" — para evitar confusión, se puede aclarar con \"dele\", \"dela\", \"deles\", \"delas\": \"o livro dele\" en vez de \"o seu livro\"."]
-        ]}
-    ];
-
+    
+    
+    
     // PRONOMBRES SUJETO: verificado con fuentes gramaticales — la diferencia más
     // importante entre los 3 idiomas es si el pronombre es obligatorio u omitible:
     // - Francés: SIEMPRE obligatorio (la terminación verbal no alcanza para saber
@@ -3629,84 +3078,9 @@
     //   es la forma práctica más usada para dirigirse a alguien con cortesía (no
     //   "tu", que es informal/regional) — clave para trato con huéspedes. "Vós"
     //   casi no se usa hoy, reemplazado por "vocês".
-    const pronombresSujetoFrances = [
-        { titulo: "Siempre es obligatorio", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del italiano y el portugués, en francés el pronombre sujeto NUNCA se omite — la terminación verbal sola no alcanza para saber de quién se habla."],
-            ["", "\"On\" es un comodín muy usado en el habla informal: puede reemplazar a \"nous\" (on y va = vamos), o significar \"alguien\"/\"la gente\" de forma genérica."]
-        ]},
-        { titulo: "Cortesía: \"vous\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Vous\" se usa tanto para el plural como para tratar con cortesía a una sola persona (el \"usted\" formal) — clave en recepción de hotel: siempre \"vous\" con un huésped, nunca \"tu\"."]
-        ]},
-        { titulo: "¿Cuándo se usan?", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Después de una preposición: avec moi, sans toi, pour lui, chez elle, entre nous, contre eux."],
-            ["", "Para dar énfasis al inicio de la frase (moi, je pense que...), en respuestas cortas sin verbo (Qui veut du café? — Moi!), y en construcciones \"c'est + tónico\" (c'est moi qui...)."]
-        ]},
-        { titulo: "Siempre antes del verbo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El reflexivo va siempre antes del verbo conjugado: je me lave, tu te lèves. \"Me/te/se\" se elide a m'/t'/s' ante vocal o h muda: je m'appelle (yo me llamo)."],
-            ["", "En tiempos compuestos, los verbos reflexivos forman el pasado SIEMPRE con être (nunca avoir): je me suis levé(e) (me levanté). En negación, \"ne\" y \"pas\" rodean al pronombre y al verbo juntos: je ne me lave pas."]
-        ]},
-        { titulo: "Verbos reflexivos comunes", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["se laver", "lavarse"],
-            ["se lever", "levantarse"],
-            ["s'habiller", "vestirse"],
-            ["se coucher", "acostarse"],
-            ["s'appeler", "llamarse"],
-            ["se réveiller", "despertarse"]
-        ]}
-    ];
-
-    const pronombresSujetoItaliano = [
-        { titulo: "Casi siempre se omite", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "La terminación del verbo ya indica la persona, así que el pronombre suele omitirse: \"vado\" ya significa \"yo voy\", sin necesitar \"io vado\"."],
-            ["", "Se usa el pronombre solo para dar énfasis, marcar contraste, o cuando la forma verbal es ambigua entre personas (ej. en el subjuntivo presente, donde io/tu/lui-lei se conjugan igual)."]
-        ]},
-        { titulo: "Cortesía: \"Lei\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Lei\" (con mayúscula) es la forma de cortesía formal para dirigirse a alguien, hombre o mujer, conjugando el verbo en 3ª persona singular femenino — clave en recepción de hotel: \"Lei desidera...?\" con cualquier huésped."]
-        ]},
-        { titulo: "¿Cuándo se usan?", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Solo \"me\" y \"te\" son distintos del pronombre sujeto (io/tu) — el resto (lui, lei, noi, voi, loro) son las mismas palabras que ya usás como sujeto."],
-            ["", "Se usan después de una preposición (con me, per te, da lei, tra noi), después de secondo/come/quanto, o para dar énfasis (anche te, proprio lui)."]
-        ]},
-        { titulo: "Iguales a los pronombres COD", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Los reflexivos italianos (mi, ti, si, ci, vi, si) son exactamente los mismos pronombres que ya viste como COD — a diferencia del francés, que tiene palabras propias para el reflexivo (me/te/se)."],
-            ["", "Van antes del verbo en general (mi chiamo), pero después y pegados con guion en infinitivo, gerundio e imperativo afirmativo (chiamarsi → voglio chiamarmi; alzati! = ¡levantate!). Los verbos reflexivos forman el pasado siempre con essere."]
-        ]},
-        { titulo: "Verbos reflexivos comunes", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["lavarsi", "lavarse"],
-            ["alzarsi", "levantarse"],
-            ["vestirsi", "vestirse"],
-            ["coricarsi", "acostarse"],
-            ["chiamarsi", "llamarse"],
-            ["svegliarsi", "despertarse"]
-        ]}
-    ];
-
-    const pronombresSujetoPortugues = [
-        { titulo: "También se omite con frecuencia", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Igual que en italiano, la terminación verbal suele alcanzar para saber la persona, así que el pronombre se omite seguido, sobre todo en el habla oral: \"estou a estudar\" en vez de \"eu estou a estudar\"."]
-        ]},
-        { titulo: "Cortesía: \"você\", no \"tu\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Para recepción de hotel, lo práctico es usar \"você\" con los huéspedes (cortesía, conjugado en 3ª persona) — \"tu\" es informal/regional y no conviene con desconocidos."],
-            ["", "\"Vós\" (2ª persona plural) casi no se usa hoy en portugués europeo — se reemplaza por \"vocês\"."]
-        ]},
-        { titulo: "¿Cuándo se usan?", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Siempre van después de una preposición: para mim, sem ti, por nós, entre mim e ti."],
-            ["", "Con la preposición \"com\" se fusionan en una sola palabra: comigo, contigo, conosco (en vez de \"com mim\", \"com ti\", \"com nós\")."]
-        ]},
-        { titulo: "Después del verbo, con guion (lo normal en PT-PT)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés y el italiano (siempre antes del verbo), en portugués europeo la posición habitual en una frase afirmativa simple es DESPUÉS del verbo, unido con guion: \"chamo-me\" (no \"me chamo\", que sí es normal en portugués de Brasil)."],
-            ["", "El reflexivo pasa a ir ANTES del verbo con la negación, en preguntas, y después de ciertas palabras (alguém, nunca, que, quando...): \"não me chamo assim\", \"como te chamas?\"."]
-        ]},
-        { titulo: "Verbos reflexivos comunes", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["lavar-se", "lavarse"],
-            ["levantar-se", "levantarse"],
-            ["vestir-se", "vestirse"],
-            ["deitar-se", "acostarse"],
-            ["chamar-se", "llamarse"],
-            ["sentar-se", "sentarse"]
-        ]}
-    ];
-
+    
+    
+    
     // Ordena las filas de cada tarjeta de VOCABULARIO por la traducción en
     // español (columna 1), para que las 3 versiones (FR/IT/PT) tengan el mismo
     // orden entre sí y sea fácil comparar. No muta los arrays originales.
@@ -3783,9 +3157,9 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosFrances, "CONECTORES LÓGICOS": [...conectoresFrances, ...sintaxisFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "PERSONAS": { tarjetas: personasFrances.filter(t => !t.ancha), reglas: [...personasFrances.filter(t => t.ancha), ...pronombresSujetoFrances, ...posesivosFrances.filter(t => t.ancha), ...articulosFrances.filter(t => t.ancha)], articulos: { pos1: articulosFrances[0], pos2: articulosFrances[1], pos3: articulosFrances[2], pos4a: posicionesFrances[0], pos4b: posicionesFrances[1], pos5: posicionesFrances[2], pos6a: fusionesFrances[0], pos6b: fusionesFrances[1], pos7: codCoiFrances[0], pos8: codCoiFrances[1], abajo: posesivosFrances.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosItaliano, "CONECTORES LÓGICOS": [...conectoresItaliano, ...sintaxisItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "PERSONAS": { tarjetas: personasItaliano.filter(t => !t.ancha), reglas: [...personasItaliano.filter(t => t.ancha), ...pronombresSujetoItaliano, ...posesivosItaliano.filter(t => t.ancha), ...articulosItaliano.filter(t => t.ancha)], articulos: { pos1: articulosItaliano[0], pos2: articulosItaliano[1], pos3: articulosItaliano[2], pos4a: posicionesItaliano[0], pos4b: posicionesItaliano[1], pos5: posicionesItaliano[2], pos6a: fusionesItaliano[0], pos6b: fusionesItaliano[1], pos7: codCoiItaliano[0], pos8: codCoiItaliano[1], abajo: posesivosItaliano.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "ADVERBIOS DE CANTIDAD Y MODO": adverbiosPortugues, "CONECTORES LÓGICOS": [...conectoresPortugues, ...sintaxisPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "PERSONAS": { tarjetas: personasPortugues.filter(t => !t.ancha), reglas: [...personasPortugues.filter(t => t.ancha), ...pronombresSujetoPortugues, ...posesivosPortugues.filter(t => t.ancha), ...articulosPortugues.filter(t => t.ancha)], articulos: { pos1: articulosPortugues[0], pos2: articulosPortugues[1], pos3: articulosPortugues[2], pos4a: posicionesPortugues[0], pos4b: posicionesPortugues[1], pos5: posicionesPortugues[2], pos6a: fusionesPortugues[0], pos6b: fusionesPortugues[1], pos7: codCoiPortugues[0], pos8: codCoiPortugues[1], abajo: posesivosPortugues.filter(t => !t.ancha) } }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -3826,8 +3200,6 @@
                 document.getElementById('btnModoGeografiaClima').innerText = "Clima";
                 modoCulturaTipica = "local";
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
-                modoPersonas = "tarjetas";
-                document.getElementById('btnModoPersonas').innerText = "Personas";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -3873,7 +3245,6 @@
         if (unidadActualKey === "PARTÍCULAS") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
-        if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "CULTURA TÍPICA") return false; // texto fijo
@@ -3923,9 +3294,6 @@
         const visiblePersonasNuevo = unidadActualKey === "PERSONAS NUEVO";
         document.getElementById('selectorModoPersonasNuevoWrap').style.display = visiblePersonasNuevo ? "inline-block" : "none";
 
-        const visiblePersonas = unidadActualKey === "PERSONAS";
-        document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
-
         // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
         // activo: Personas → Artículos → francés, o unidades genéricas en
         // modo Tarjetas.
@@ -3954,7 +3322,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -4400,80 +3768,6 @@
         return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma, claseExtra);
     }
 
-    // PERSONAS: 3 modos — Tarjetas (sujeto/tónico/reflexivo + género), Reglas
-    // (cortesía, reflexivos, etc.), y Artículos (artículos, demostrativos,
-    // posiciones de lugar, posesivos, COD/COI y fusiones — todo lo que
-    // "modifica o reemplaza" un sustantivo, agrupado en un solo lugar).
-    let modoPersonas = "tarjetas";
-
-    function cambiarModoPersonas(nuevoModo) {
-        modoPersonas = nuevoModo;
-        const etiquetas = { tarjetas: 'Personas', reglas: 'Reglas', articulos: 'Artículos' };
-        document.getElementById('btnModoPersonas').innerText = etiquetas[nuevoModo];
-        document.getElementById('menuModoPersonas').classList.remove("show");
-        actualizarVisibilidadSelectorVerbo();
-        actualizarModoPantalla();
-        fijarAnchoPanel();
-        actualizarPantalla();
-    }
-
-    const ETIQUETAS_PERSONAS_ARTICULOS = {
-        pos1: "Definidos", pos2: "Indefinidos", pos3: "Partitivos",
-        pos4a: "Demostrativos — Singular", pos4b: "Demostrativos — Plural",
-        pos5: "Mapa de posiciones", pos6a: "Destinos", pos6b: "Orígenes",
-        pos7: "COD", pos8: "COI", abajo: "Formas (posesivos)"
-    };
-    const POSICIONES_INICIALES_PERSONAS_ARTICULOS = {
-        pos1:  { leftPx: 0,   topPx: 0   },
-        pos2:  { leftPx: 310, topPx: 0   },
-        pos3:  { leftPx: 620, topPx: 0   },
-        pos4a: { leftPx: 0,   topPx: 160 },
-        pos4b: { leftPx: 0,   topPx: 280 },
-        pos5:  { leftPx: 310, topPx: 160 },
-        pos6a: { leftPx: 620, topPx: 160 },
-        pos6b: { leftPx: 620, topPx: 280 },
-        pos7:  { leftPx: 0,   topPx: 420 },
-        pos8:  { leftPx: 310, topPx: 420 },
-        abajo: { leftPx: 0,   topPx: 560 }
-    };
-
-    function renderPersonasArticulos(idioma) {
-        const lienzoId = "personas-articulos__" + idioma;
-        registrarLienzo(lienzoId, ETIQUETAS_PERSONAS_ARTICULOS, POSICIONES_INICIALES_PERSONAS_ARTICULOS);
-        const a = data[idioma]["PERSONAS"].articulos;
-        const tarjetasPorClave = {
-            pos1: a.pos1, pos2: a.pos2, pos3: a.pos3, pos4a: a.pos4a, pos4b: a.pos4b,
-            pos5: a.pos5, pos6a: a.pos6a, pos6b: a.pos6b, pos7: a.pos7, pos8: a.pos8,
-            abajo: a.abajo && a.abajo[0]
-        };
-        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
-    }
-
-    function renderPersonas(idioma) {
-        if (modoPersonas === "articulos") {
-            return renderPersonasArticulos(idioma);
-        }
-        const datos = data[idioma]["PERSONAS"];
-        const tarjetas = datos[modoPersonas];
-        const lienzoId = "PERSONAS__" + modoPersonas + "__" + idioma;
-        const etiquetas = {};
-        const posicionesIniciales = {};
-        tarjetas.forEach((t, i) => {
-            const clave = "t" + i;
-            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            // Todas las tarjetas nuevas arrancan en la esquina superior
-            // izquierda — desde ahí se arrastran a mano a donde se prefiera.
-            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
-        });
-        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
-        const tarjetasPorClave = {};
-        tarjetas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
-        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
-    }
-
-    // Modo "Artículos" de PERSONAS: grilla 3x3 con posiciones fijas, definida a
-    // mano por la persona (no es flex-wrap automático). Fila 1: artículos
-    // definidos/indefinidos/partitivos. Fila 2: [demostr. singular + plural
     // ===== MOTOR GENÉRICO DE LIENZOS (arrastre + redimensión de altura libre) =====
     // Aplica a cualquier "lienzo" identificado por un lienzoId único (string).
     // Cada lienzo tiene: sus propias tarjetas visibles/ocultas, sus propias
@@ -7782,9 +7076,6 @@
 
         if (unidadKey === "GEOGRAFÍA Y CLIMA") {
             return renderGeografiaClima(idioma);
-        }
-        if (unidadKey === "PERSONAS") {
-            return renderPersonas(idioma);
         }
         if (unidadKey === "CULTURA TÍPICA") {
             return renderCulturaTipica(idioma);
