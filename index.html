@@ -733,13 +733,6 @@
         <button class="dropbtn" id="btnAuxiliar" onclick="toggleDropdown('menuAuxiliar')">Reglas</button>
         <div id="menuAuxiliar" class="dropdown-content"></div>
     </div>
-    <div class="dropdown" id="selectorModoVistaWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoVista" onclick="toggleDropdown('menuModoVista')">Tarjetas</button>
-        <div id="menuModoVista" class="dropdown-content">
-            <div onclick="cambiarModoVista('tarjetas')">Tarjetas</div>
-            <div onclick="cambiarModoVista('reglas')">Reglas</div>
-        </div>
-    </div>
     <div class="dropdown" id="selectorModoNumerosTiempoNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="inicializarMenuNumerosTiempoNuevo(); toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
         <div id="menuModoNumerosTiempoNuevo" class="dropdown-content"></div>
@@ -833,6 +826,26 @@
     // Reproduce un texto en voz alta, en el idioma indicado. Si el dispositivo no
     // tiene instalada la voz exacta (ej. pt-PT), el navegador elige la más cercana
     // disponible — no podemos forzar el acento si la voz no existe en el sistema.
+    // Quita emojis y banderas del texto antes de pasarlo al sintetizador de voz
+    // — sin esto, el sintetizador puede leer cosas raras o trabarse con el
+    // emoji en vez de ignorarlo silenciosamente.
+    function limpiarEmojis(texto) {
+        return String(texto)
+            .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, "") // banderas (pares de letras regionales)
+            .replace(/[\u{1F300}-\u{1FAFF}]/gu, "") // emojis generales (símbolos, objetos, naturaleza...)
+            .replace(/[\u{2600}-\u{27BF}]/gu, "")   // símbolos varios (☀️🌧️❄️📘 etc.)
+            .replace(/[\u{FE0F}\u{200D}]/gu, "")    // variation selector y zero-width joiner
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    // Reproduce en voz alta el nombre de una unidad o tema, ya traducido al
+    // idioma actual — usado por los selectores de unidad y de tema, para
+    // practicar oído con cada nombre que se va eligiendo.
+    function reproducirNombreSeleccion(textoConEmoji, idioma) {
+        reproducirSonido(limpiarEmojis(textoConEmoji), idioma);
+    }
+
     function reproducirSonido(texto, idioma) {
         if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel(); // corta cualquier lectura anterior en curso
@@ -859,7 +872,6 @@
     // Arranca sin unidad seleccionada: la persona debe elegir una del menú,
     // en vez de ver COLORES por defecto al abrir o recargar la app.
     let unidadActualKey = null;
-    let modoVistaUnidad = "tarjetas"; // "tarjetas" o "reglas" — selector nuevo dentro de cada unidad genérica
 
     const tarjetaReferencia = { vacia: true, titulo: "Espacio disponible" };
 
@@ -2495,7 +2507,7 @@
     let auxiliarActualKey = "REGLAS";
 
     // Devuelve, para el idioma dado, el contenido a mostrar según auxiliarActualKey:
-    // - "REGLAS" → array de tarjetas de texto (formato genérico, va por renderGenerico)
+    // - "REGLAS" → array de tarjetas de texto (layout especial en 2 columnas, va por renderReglasAuxiliares)
     // - un auxiliar (AVOIR/ETRE/ALLER) → array de 3 tiempos (formato de TIEMPOS
     //   VERBALES, va por renderTiemposVerbales) si existe para ese idioma, o null
     //   si esa posición no aplica (ej. ETRE en portugués).
@@ -2712,9 +2724,8 @@
             // nombre de unidad) como traducción/aclaración en gris debajo.
             div.innerHTML = `${i + 1}. ${unidades[u][idioma]}<div class="traduccion-unidad">${u}</div>`;
             div.onclick = () => {
+                reproducirNombreSeleccion(unidades[u][idioma], idioma);
                 unidadActualKey = u;
-                modoVistaUnidad = "tarjetas";
-                document.getElementById('btnModoVista').innerText = "Tarjetas";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros[idioma];
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -2767,7 +2778,7 @@
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return true; // unidad nueva, sistema de mesa
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
-        return modoVistaUnidad === "tarjetas";
+        return false; // clave de unidad no reconocida (no debería ocurrir con las unidades vivas)
     }
 
     function actualizarModoPantalla() {
@@ -2838,11 +2849,6 @@
             document.getElementById('btnEditorLibre').classList.remove("activo");
         }
 
-        // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
-        // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
-        const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
-        document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
 
     // Cambia entre REGULARES / IRREGULARES: recalcula la lista de verbos disponible
@@ -2855,13 +2861,6 @@
     }
 
     // Cambia entre TARJETAS / REGLAS dentro de la unidad genérica activa.
-    function cambiarModoVista(nuevoModo) {
-        modoVistaUnidad = nuevoModo;
-        document.getElementById('btnModoVista').innerText = nuevoModo === 'reglas' ? 'Reglas' : 'Tarjetas';
-        document.getElementById('menuModoVista').classList.remove("show");
-        actualizarPantalla();
-    }
-
     // Arma el desplegable de verbos disponibles: solo los que coinciden con la
     // regularidad activa PARA EL IDIOMA ACTIVO, con su nombre en ese idioma.
     function inicializarMenuVerbos() {
@@ -5289,7 +5288,9 @@
     function cambiarModoCultura(nuevoModo) {
         modoCultura = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura(nuevoModo, idioma);
+        const etiqueta = etiquetaTemaCultura(nuevoModo, idioma);
+        reproducirNombreSeleccion(etiqueta, idioma);
+        document.getElementById('btnModoCultura').innerText = etiqueta;
         document.getElementById('menuModoCultura').classList.remove("show");
         actualizarPantalla();
     }
@@ -5423,6 +5424,7 @@
     function cambiarModoPersonasNuevo(nuevoModo) {
         modoPersonasNuevo = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        reproducirNombreSeleccion(TEMAS_PERSONAS[nuevoModo][idioma], idioma);
         document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo][idioma];
         document.getElementById('menuModoPersonasNuevo').classList.remove("show");
         actualizarPantalla();
@@ -5746,6 +5748,7 @@
         modoGeografiaClimaNuevo = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
+        reproducirNombreSeleccion(t[idioma], idioma);
         document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t[idioma]} ${t.emoji}`;
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
         actualizarPantalla();
@@ -6151,6 +6154,7 @@
     function cambiarModoVocabularioNuevo(nuevoTema) {
         modoVocabularioNuevo = nuevoTema;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        reproducirNombreSeleccion(TEMAS_VOCABULARIO[nuevoTema][idioma], idioma);
         document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO[nuevoTema][idioma];
         document.getElementById('menuModoVocabularioNuevo').classList.remove("show");
         actualizarPantalla();
@@ -6506,54 +6510,6 @@
         }
     }
 
-    let lienzoActualId = null; // qué lienzo está activo ahora mismo en pantalla
-
-    // Registro central: lienzoId -> { etiquetas: {clave: "Nombre visible"} }.
-    // Las posiciones/visibilidad de cada lienzo se guardan en estos 2 mapas,
-    // indexados primero por lienzoId y después por clave de tarjeta.
-    const LIENZOS_ETIQUETAS = {};
-    const LIENZOS_VISIBLES = {};
-    const LIENZOS_POSICIONES = {};
-
-    // Registra un lienzo nuevo la primera vez que se necesita (idempotente).
-    // claveAPosicionInicial: { clave: {leftPx, topPx} } — posiciones de fábrica.
-    function registrarLienzo(lienzoId, etiquetas, posicionesIniciales) {
-        if (LIENZOS_ETIQUETAS[lienzoId]) return; // ya registrado
-        LIENZOS_ETIQUETAS[lienzoId] = etiquetas;
-        LIENZOS_VISIBLES[lienzoId] = {};
-        LIENZOS_POSICIONES[lienzoId] = {};
-        Object.keys(etiquetas).forEach((clave, i) => {
-            LIENZOS_VISIBLES[lienzoId][clave] = false;
-            const pos = posicionesIniciales[clave] || { leftPx: 0, topPx: 0 };
-            LIENZOS_POSICIONES[lienzoId][clave] = { leftPx: pos.leftPx, topPx: pos.topPx, altoPx: null, tamanoManual: false };
-        });
-        cargarLienzoGuardado(lienzoId);
-    }
-
-    function claveLocalStorageLienzo(lienzoId) {
-        return "idiomasRomances_lienzo_" + lienzoId + "_v1";
-    }
-
-    function cargarLienzoGuardado(lienzoId) {
-        try {
-            const guardado = localStorage.getItem(claveLocalStorageLienzo(lienzoId));
-            if (!guardado) return;
-            const datos = JSON.parse(guardado);
-            if (datos.posiciones) {
-                Object.keys(LIENZOS_POSICIONES[lienzoId]).forEach(clave => {
-                    if (datos.posiciones[clave]) LIENZOS_POSICIONES[lienzoId][clave] = datos.posiciones[clave];
-                });
-            }
-            if (datos.visibles) {
-                Object.keys(LIENZOS_VISIBLES[lienzoId]).forEach(clave => {
-                    if (typeof datos.visibles[clave] === "boolean") LIENZOS_VISIBLES[lienzoId][clave] = datos.visibles[clave];
-                });
-            }
-        } catch (e) {
-            console.warn("No se pudo cargar el lienzo guardado:", lienzoId, e);
-        }
-    }
-
     function guardarPosicionesLibres() {
         if (UNIDADES_NUEVAS_DE_CERO.includes(unidadActualKey)) {
             // Todavía sin persistencia real en LocalStorage — el botón da el
@@ -6562,161 +6518,10 @@
             const textoOriginal = boton.innerText;
             boton.innerText = "¡Guardado!";
             setTimeout(() => { boton.innerText = textoOriginal; }, 1200);
-            return;
-        }
-        if (!lienzoActualId) return;
-        try {
-            localStorage.setItem(claveLocalStorageLienzo(lienzoActualId), JSON.stringify({
-                posiciones: LIENZOS_POSICIONES[lienzoActualId],
-                visibles: LIENZOS_VISIBLES[lienzoActualId]
-            }));
-            const boton = document.getElementById('btnGuardarLibre');
-            const textoOriginal = boton.innerText;
-            boton.innerText = "¡Guardado!";
-            setTimeout(() => { boton.innerText = textoOriginal; }, 1200);
-        } catch (e) {
-            console.warn("No se pudo guardar la configuración del editor libre:", e);
-            alert("No se pudo guardar (almacenamiento no disponible en este modo de navegación).");
         }
     }
 
-    // Renderiza cualquier lienzo: recibe el lienzoId y un objeto {clave: tabla}
-    // con las tarjetas disponibles (algunas pueden no estar visibles).
-    function renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma, claseExtraLienzo) {
-        lienzoActualId = lienzoId;
-        const visiblesMap = LIENZOS_VISIBLES[lienzoId];
-        const posicionesMap = LIENZOS_POSICIONES[lienzoId];
-        const claves = Object.keys(tarjetasPorClave).filter(c => visiblesMap[c]);
-
-        const panel = document.getElementById('contentTable');
-        const anchoLienzo = panel ? panel.clientWidth : 900;
-        const altoLienzo = panel ? panel.clientHeight : 600;
-
-        const claseEditor = editorLibreActivo ? " editor-activo" : "";
-        const claseExtra = claseExtraLienzo ? " " + claseExtraLienzo : "";
-        let html = `<div class="personas-lienzo${claseEditor}${claseExtra}" id="lienzoActivo" data-lienzo-id="${lienzoId}" style="height:${altoLienzo}px; width:${anchoLienzo}px;">`;
-        claves.forEach(clave => {
-            const tabla = tarjetasPorClave[clave];
-            if (!tabla) return;
-            const p = posicionesMap[clave];
-            const estiloTamano = p.tamanoManual ? `width:auto; height:${p.altoPx}px;` : `width:auto; height:auto;`;
-            // Caso especial: tarjeta sin tabla de datos real (ej. el reloj
-            // visual de NÚMEROS Y TIEMPO) — htmlPersonalizado se usa tal cual,
-            // sin pasar por renderTabla ni por el cálculo de color de género.
-            const contenidoInterno = tabla.htmlPersonalizado
-                ? tabla.htmlPersonalizado
-                : `<div class="tarjeta tarjeta-con-borde">${renderTabla(tabla.colorPorCelda ? tabla : tarjetaConColorDeGenero(tabla, idioma), idioma)}</div>`;
-            html += `<div class="tarjeta-libre${p.tamanoManual ? "" : " tarjeta-libre-auto"}" data-clave="${clave}" style="left:${p.leftPx}px; top:${p.topPx}px; ${estiloTamano}">
-                <div class="tarjeta-libre-contenido">
-                    ${contenidoInterno}
-                </div>
-                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
-            </div>`;
-        });
-        html += '</div>';
-        return html;
-    }
-
-    // Calcula la altura mínima real de una tarjeta-libre a partir de su
-    // contenido (para no dejar que el resize la achique por debajo de
-    // "1 ítem visible" de alto).
-    function medirMinimosTarjetaLibre(elTarjetaLibre) {
-        const contenido = elTarjetaLibre.querySelector('.tarjeta-libre-contenido');
-        const tabla = contenido.querySelector('table');
-        const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
-        const altoUnaFila = filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30;
-        const altoTitulo = 40; // título/caption aproximado
-        const altoMinimo = altoTitulo + altoUnaFila;
-        return { altoMinimo };
-    }
-
-    function inicializarArrastreLibre() {
-        const lienzo = document.getElementById('lienzoActivo');
-        if (!lienzo) return;
-        const lienzoId = lienzo.dataset.lienzoId;
-        const posicionesMap = LIENZOS_POSICIONES[lienzoId];
-
-        // Una vez que el lienzo ya está insertado en el DOM real, se corrige su
-        // tamaño al que el navegador efectivamente calculó para su contenedor
-        // padre (#contentTable) — elimina cualquier diferencia entre lo que se
-        // calculó "a mano" antes de insertar el HTML y la medida real.
-        const contenedor = lienzo.parentElement;
-        if (contenedor) {
-            lienzo.style.width = contenedor.clientWidth + "px";
-            lienzo.style.height = contenedor.clientHeight + "px";
-        }
-
-        const tarjetas = lienzo.querySelectorAll('.tarjeta-libre');
-
-        tarjetas.forEach(el => {
-            const clave = el.dataset.clave;
-            const zonaMover = el.querySelector('caption, .relojes-titulo');
-            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
-            if (!zonaMover) return;
-
-            zonaMover.addEventListener('pointerdown', (ev) => {
-                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
-                ev.preventDefault();
-                el.style.zIndex = 50;
-                const inicioX = ev.clientX, inicioY = ev.clientY;
-                const left0 = el.offsetLeft, top0 = el.offsetTop;
-                // Límites reales del lienzo, calculados con coordenadas de
-                // pantalla (getBoundingClientRect) en vez de clientWidth/
-                // offsetWidth — elimina cualquier diferencia de redondeo o de
-                // modelo de caja CSS entre cómo se mide el lienzo y cómo se
-                // mide la tarjeta, para que el límite derecho/inferior coincida
-                // exactamente con el visual (igual de sólido que arriba/izq).
-                const lienzoEl = document.getElementById('lienzoActivo');
-                const rectLienzo = lienzoEl.getBoundingClientRect();
-                const rectTarjeta = el.getBoundingClientRect();
-                const limiteX = rectLienzo.width - rectTarjeta.width;
-                const limiteY = rectLienzo.height - rectTarjeta.height;
-
-                function mover(e) {
-                    const dx = e.clientX - inicioX, dy = e.clientY - inicioY;
-                    el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
-                    el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
-                }
-                function soltar() {
-                    document.removeEventListener('pointermove', mover);
-                    document.removeEventListener('pointerup', soltar);
-                    const p = posicionesMap[clave];
-                    p.leftPx = el.offsetLeft;
-                    p.topPx = el.offsetTop;
-                }
-                document.addEventListener('pointermove', mover);
-                document.addEventListener('pointerup', soltar);
-            });
-
-            manijaResize.addEventListener('pointerdown', (ev) => {
-                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
-                ev.preventDefault();
-                el.style.zIndex = 50;
-                const { altoMinimo } = medirMinimosTarjetaLibre(el);
-                const inicioY = ev.clientY;
-                const h0 = el.offsetHeight;
-
-                function mover(e) {
-                    const dy = e.clientY - inicioY;
-                    const nuevoAlto = Math.max(altoMinimo, h0 + dy);
-                    el.style.height = nuevoAlto + "px";
-                }
-                function soltar() {
-                    document.removeEventListener('pointermove', mover);
-                    document.removeEventListener('pointerup', soltar);
-                    const p = posicionesMap[clave];
-                    p.altoPx = el.offsetHeight;
-                    p.tamanoManual = true;
-                    el.classList.remove("tarjeta-libre-auto");
-                }
-                document.addEventListener('pointermove', mover);
-                document.addEventListener('pointerup', soltar);
-            });
-        });
-    }
-
-    // Prende/apaga el editor de arrastre libre para el lienzo actualmente en
-    // pantalla (lienzoActualId).
+    // Prende/apaga el editor de arrastre libre para la unidad actual.
     function toggleEditorLibre() {
         if (!esModoLienzoActivo()) return; // protección: no debería poder activarse fuera de un lienzo real
         editorLibreActivo = !editorLibreActivo;
@@ -6727,7 +6532,6 @@
         document.getElementById('selectorTarjetasLibreWrap').style.display = (editorLibreActivo && !sinCajaDeTarjetasToggle) ? "inline-block" : "none";
         if (editorLibreActivo) {
             inicializarMenuTarjetasLibre();
-            recuperarTarjetasFueraDePantalla();
         }
         // Los 3 botones rápidos (placeholder, sin función todavía, navegación
         // entre unidades) son lo opuesto al editor: se ven con el lápiz
@@ -6751,44 +6555,6 @@
         if (mesa) {
             mesa.classList.toggle("editor-activo", editorLibreActivo);
         }
-    }
-
-    // Si una tarjeta del lienzo actual quedó fuera del área visible, se
-    // reubica en la esquina superior izquierda (zona de "spawn"), apilándose
-    // escalonada si hay varias para recuperar.
-    function recuperarTarjetasFueraDePantalla() {
-        if (!lienzoActualId) return;
-        const lienzoEl = document.getElementById('lienzoActivo');
-        if (!lienzoEl) return;
-        const visiblesMap = LIENZOS_VISIBLES[lienzoActualId];
-        const posicionesMap = LIENZOS_POSICIONES[lienzoActualId];
-        const rectLienzo = lienzoEl.getBoundingClientRect();
-        let huboCambios = false;
-        let offsetRecuperacion = 0;
-
-        Object.keys(posicionesMap).forEach(clave => {
-            if (!visiblesMap[clave]) return;
-            const p = posicionesMap[clave];
-            const elTarjeta = lienzoEl.querySelector(`.tarjeta-libre[data-clave="${clave}"]`);
-            const anchoTarjeta = elTarjeta ? elTarjeta.getBoundingClientRect().width : 0;
-            const altoTarjeta = elTarjeta ? elTarjeta.getBoundingClientRect().height : 0;
-
-            // Fuera de rango si la esquina superior-izquierda está afuera, O
-            // si la esquina inferior-derecha (considerando el tamaño real) se
-            // desborda — este segundo caso es el que antes no se detectaba,
-            // dejando tarjetas "ancladas" en una posición vieja que se veía
-            // recortada contra el borde, sin corregirse nunca sola.
-            const seDesbordaDerecha = p.leftPx + anchoTarjeta > rectLienzo.width;
-            const seDesbordaAbajo = p.topPx + altoTarjeta > rectLienzo.height;
-            if (p.leftPx < 0 || p.topPx < 0 || seDesbordaDerecha || seDesbordaAbajo) {
-                p.leftPx = Math.max(0, Math.min(p.leftPx, rectLienzo.width - anchoTarjeta));
-                p.topPx = Math.max(0, offsetRecuperacion);
-                offsetRecuperacion += 30;
-                huboCambios = true;
-            }
-        });
-
-        if (huboCambios) actualizarPantalla();
     }
 
     // Arma el menú "Tarjetas" para el lienzo actualmente en pantalla, marcando
@@ -6903,22 +6669,6 @@
             });
             return;
         }
-        if (!lienzoActualId) return;
-        const menu = document.getElementById('menuTarjetasLibre');
-        const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
-        const visiblesMap = LIENZOS_VISIBLES[lienzoActualId];
-        menu.innerHTML = "";
-        Object.keys(etiquetas).forEach(clave => {
-            const div = document.createElement('div');
-            const marca = visiblesMap[clave] ? "✓ " : "";
-            div.innerText = marca + etiquetas[clave];
-            div.onclick = () => {
-                visiblesMap[clave] = !visiblesMap[clave];
-                document.getElementById('menuTarjetasLibre').classList.remove("show");
-                actualizarPantalla();
-            };
-            menu.appendChild(div);
-        });
     }
 
     // LOS NÚMEROS Y EL TIEMPO: unidad nueva (sistema de mesa), reemplaza a
@@ -6946,6 +6696,7 @@
     function cambiarModoNumerosTiempoNuevo(nuevoModo) {
         modoNumerosTiempoNuevo = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        reproducirNombreSeleccion(TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma], idioma);
         document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma];
         document.getElementById('menuModoNumerosTiempoNuevo').classList.remove("show");
         const visibleGrupo = nuevoModo === "numeros" && !editorLibreActivo;
@@ -6986,67 +6737,6 @@
         return html;
     }
 
-    // Renderiza unidades "genéricas": pueden ser una sola tarjeta {headers, rows}
-    // o varias tarjetas en grilla (array de {titulo, headers, rows}), que se acomodan
-    // de izquierda a derecha y, si no entran, pasan a la fila de abajo.
-    // Filtra según modoVistaUnidad: "reglas" muestra solo las tarjetas marcadas
-    // como `ancha` (las explicaciones de texto largo); "tarjetas" muestra el resto
-    // (tablas de vocabulario/formas). Si una unidad no tiene nada para el modo
-    // pedido (ej. todavía no tiene reglas escritas), se avisa en vez de verse vacío.
-    function renderGenerico(idioma, unidadKey) {
-        const unidadData = data[idioma][unidadKey];
-
-        if (Array.isArray(unidadData)) {
-            const filtradas = unidadData.filter(t => modoVistaUnidad === "reglas" ? t.ancha : !t.ancha);
-            if (filtradas.length === 0) {
-                const mensaje = modoVistaUnidad === "reglas"
-                    ? "Todavía no hay reglas escritas para esta unidad."
-                    : "Esta unidad todavía no tiene tarjetas, solo reglas.";
-                return `<div class="tarjeta tarjeta-con-borde tarjeta-vacia-mensaje"><p>${mensaje}</p></div>`;
-            }
-
-            // El modo Tarjetas (datos en tabla) usa el lienzo libre — mover por
-            // título, redimensionar altura, mostrar/ocultar desde el selector.
-            // El modo Reglas (texto largo explicativo) se queda fijo, en su
-            // grilla normal de lectura — no tiene sentido arrastrar párrafos.
-            if (modoVistaUnidad === "tarjetas") {
-                const lienzoId = unidadKey + "__" + idioma;
-                registrarLienzoDesdeArray(lienzoId, filtradas);
-                const tarjetasPorClave = {};
-                filtradas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
-                return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma);
-            }
-
-            let html = '<div class="tarjetas-grid">';
-            filtradas.forEach(tablaData => {
-                let claseExtra = tablaData.vacia ? " vacia" : " tarjeta-con-borde";
-                if (tablaData.ancha) claseExtra += " tarjeta-ancha";
-                html += `<div class="tarjeta${claseExtra}">${renderTabla(tablaData, idioma)}</div>`;
-            });
-            html += "</div>";
-            return html;
-        }
-
-        // Unidad de una sola tarjeta (ej. COLORES llega acá si no tuviera su
-        // propio render especial): no aplica el filtro, siempre se muestra.
-        return `<div class="tarjeta tarjeta-con-borde">${renderTabla(unidadData, idioma)}</div>`;
-    }
-
-    // Registra (o re-registra) un lienzo genérico a partir de un array de
-    // tarjetas filtradas — usa el título de cada tarjeta como etiqueta visible
-    // en el selector. Las claves son posicionales (t0, t1, t2...) porque el
-    // array ya viene filtrado y puede variar de tamaño entre idiomas.
-    function registrarLienzoDesdeArray(unidadKey, filtradas) {
-        const etiquetas = {};
-        const posicionesIniciales = {};
-        filtradas.forEach((t, i) => {
-            const clave = "t" + i;
-            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
-        });
-        registrarLienzo(unidadKey, etiquetas, posicionesIniciales);
-    }
-
     // Devuelve el HTML interno (sin contenedor) para una unidad + idioma dados,
     // o null si no hay contenido para esa combinación.
     function renderUnidad(idioma, unidadKey) {
@@ -7083,7 +6773,7 @@
             const esConjugacion = Array.isArray(unidadData) && unidadData.length > 0 && unidadData[0].filas;
             return esConjugacion ? renderTiemposAuxiliar(idioma) : renderReglasAuxiliares(idioma);
         }
-        return renderGenerico(idioma, unidadKey);
+        return null; // clave de unidad no reconocida (no debería ocurrir con las unidades vivas)
     }
 
     function actualizarPantalla() {
@@ -7098,14 +6788,6 @@
         const html = renderUnidad(idioma, unidadActualKey);
         if (html !== null) {
             contentTable.innerHTML = html;
-            // El lienzo de arrastre libre necesita engancharse a los eventos
-            // recién creados, después de insertar el HTML — aplica a CUALQUIER
-            // unidad que esté usando el sistema de lienzo en este momento, no
-            // solo a Personas (bug viejo: esto quedó hardcodeado a una sola
-            // unidad cuando el sistema todavía era un experimento).
-            if (esModoLienzoActivo()) {
-                inicializarArrastreLibre();
-            }
             return;
         }
         // En VERBOS AUXILIARES, null puede significar "esta posición no existe en
