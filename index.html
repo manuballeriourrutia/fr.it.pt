@@ -780,11 +780,13 @@
             <div onclick="cambiarModoPersonasNuevo('articulos')">Artículos</div>
         </div>
     </div>
-    <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
-        <div id="menuModoCulturaTipica" class="dropdown-content">
-            <div onclick="cambiarModoCulturaTipica('local')">Local</div>
-            <div onclick="cambiarModoCulturaTipica('comportamiento')">Comportamiento</div>
+    <div class="dropdown" id="selectorModoCulturaWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoCultura" onclick="toggleDropdown('menuModoCultura')">Local</button>
+        <div id="menuModoCultura" class="dropdown-content">
+            <div onclick="cambiarModoCultura('local')">Local</div>
+            <div onclick="cambiarModoCultura('actividades')">Actividades</div>
+            <div onclick="cambiarModoCultura('propia')">Propia</div>
+            <div onclick="cambiarModoCultura('recepcion')">Frases de recepción</div>
         </div>
     </div>
 </header>
@@ -821,13 +823,12 @@
 <script>
     const unidades = {
         "GEOGRAFÍA Y CLIMA": { "FRANCÉS": "GÉOGRAPHIE ET MÉTÉO", "ITALIANO": "GEOGRAFIA E METEO", "PORTUGUÉS": "GEOGRAFIA E TEMPO" },
-        "FRASES DE RECEPCIÓN": { "FRANCÉS": "PHRASES DE RÉCEPTION", "ITALIANO": "FRASI DI RECEPTION", "PORTUGUÉS": "FRASES DE RECEÇÃO" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📜", "ITALIANO": "VOCABULARIO 📜", "PORTUGUÉS": "VOCABULARIO 📜" },
         "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
         "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
-        "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
+        "CULTURA": { "FRANCÉS": "CULTURA 🌍", "ITALIANO": "CULTURA 🌍", "PORTUGUÉS": "CULTURA 🌍" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX 🌈", "ITALIANO": "TEMPI VERBALI 🌈", "PORTUGUÉS": "TEMPOS VERBAIS 🌈" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" }
     };
@@ -2731,100 +2732,6 @@
         return String(texto).replace(/#(masc|fem)$/, "");
     }
 
-    // FRASES DE RECEPCIÓN: a diferencia de las unidades anteriores, esto NO es
-    // gramática nueva — es vocabulario y frases hechas de uso diario en el
-    // mostrador del hotel, aplicando lo que ya está cubierto como gramática pura
-    // en otras unidades (cortesía/vous ya está en PRONOMBRES SUJETO, posesivos y
-    // fusiones ya están en sus unidades, etc.). Cada idioma con su propio registro
-    // de cortesía real verificado: FR usa vous/Lei equivalente; IT usa Lei
-    // (mayúscula, 3ª persona femenina) como fórmula de cortesía; PT usa você.
-    const frasesRecepcionFrances = [
-        { titulo: "Bienvenida y trato formal", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Bienvenue à l'hôtel...", "Bienvenido al hotel..."],
-            ["Vous avez une réservation?", "¿Tiene una reserva?"],
-            ["Comment s'est passé votre voyage?", "¿Cómo estuvo su viaje?"],
-            ["Je reste à votre disposition.", "Quedo a su disposición."],
-            ["Je vous en prie.", "Por nada / un placer (respuesta a gracias)."]
-        ]},
-        { titulo: "Peticiones atenuadas (cortesía)", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Je voudrais...", "Desearía... (petición suave)"],
-            ["Pourriez-vous...?", "¿Podría usted...?"],
-            ["Patientez un instant, s'il vous plaît.", "Aguarde un instante, por favor."]
-        ]},
-        { titulo: "Reacciones naturales de escucha", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["D'accord.", "De acuerdo."],
-            ["En effet.", "Efectivamente / así es."],
-            ["Tout à fait.", "Exacto / por completo."],
-            ["Je m'en occupe tout de suite.", "Me ocupo de eso de inmediato."]
-        ]},
-        { titulo: "Atenuar una mala noticia", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
-            ["Malheureusement...", "Desafortunadamente..."],
-            ["Je suis navré(e) pour ce désagrément.", "Lamento mucho este inconveniente."],
-            ["Ne vous inquiétez pas, on va régler ça.", "No se preocupe, vamos a solucionar eso."]
-        ]},
-        { titulo: "Aplicado: gramática que ya conocés", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Estas frases usan reglas que ya viste en otras unidades: \"vous\" como cortesía (PRONOMBRES SUJETO), \"je voudrais\"/\"pourriez-vous\" como condicional de petición (TIEMPOS VERBALES), y la respuesta \"si\" en vez de \"oui\" ante pregunta negativa (SINTAXIS) — por ejemplo: \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une.\""]
-        ]}
-    ];
-
-    const frasesRecepcionItaliano = [
-        { titulo: "Bienvenida y trato formal", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Benvenuto/a al nostro hotel...", "Bienvenido a nuestro hotel..."],
-            ["Lei ha una prenotazione?", "¿Usted tiene una reserva?"],
-            ["Com'è andato il viaggio?", "¿Cómo estuvo el viaje?"],
-            ["Resto a Sua disposizione.", "Quedo a su disposición."],
-            ["Non c'è di che / Prego.", "De nada / por nada (respuesta a gracias)."]
-        ]},
-        { titulo: "Peticiones atenuadas (cortesía)", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Vorrei...", "Desearía... (petición suave)"],
-            ["Potrebbe...?", "¿Podría usted...?"],
-            ["Un attimo, per favore.", "Un instante, por favor."]
-        ]},
-        { titulo: "Reacciones naturales de escucha", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["D'accordo.", "De acuerdo."],
-            ["Infatti.", "Efectivamente / así es."],
-            ["Esatto / Esattamente.", "Exacto."],
-            ["Mi occupo subito di questo.", "Me ocupo de eso de inmediato."]
-        ]},
-        { titulo: "Atenuar una mala noticia", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
-            ["Purtroppo...", "Desafortunadamente..."],
-            ["Mi scuso per l'inconveniente.", "Le pido disculpas por el inconveniente."],
-            ["Non si preoccupi, risolviamo subito.", "No se preocupe, lo resolvemos enseguida."]
-        ]},
-        { titulo: "Aplicado: gramática que ya conocés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Estas frases usan reglas que ya viste en otras unidades: \"Lei\" como cortesía formal, con mayúscula y verbo en 3ª persona femenina, incluso dirigiéndose a un hombre (PRONOMBRES SUJETO) — \"Lei ha una prenotazione?\", \"Potrebbe attendere un attimo?\"."]
-        ]}
-    ];
-
-    const frasesRecepcionPortugues = [
-        { titulo: "Bienvenida y trato formal", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["Bem-vindo/a ao nosso hotel...", "Bienvenido a nuestro hotel..."],
-            ["Tem uma reserva?", "¿Tiene una reserva?"],
-            ["Como foi a viagem?", "¿Cómo estuvo el viaje?"],
-            ["Fico à sua disposição.", "Quedo a su disposición."],
-            ["De nada / Não tem de quê.", "De nada (respuesta a gracias)."]
-        ]},
-        { titulo: "Peticiones atenuadas (cortesía)", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["Gostaria de...", "Desearía... (petición suave)"],
-            ["Poderia...?", "¿Podría usted...?"],
-            ["Um momento, por favor.", "Un momento, por favor."]
-        ]},
-        { titulo: "Reacciones naturales de escucha", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["De acordo.", "De acuerdo."],
-            ["De facto.", "Efectivamente / así es."],
-            ["Exatamente.", "Exacto."],
-            ["Vou tratar disso de imediato.", "Me ocupo de eso de inmediato."]
-        ]},
-        { titulo: "Atenuar una mala noticia", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
-            ["Infelizmente...", "Desafortunadamente..."],
-            ["Lamento muito este inconveniente.", "Lamento mucho este inconveniente."],
-            ["Não se preocupe, vamos resolver isso.", "No se preocupe, vamos a resolver eso."]
-        ]},
-        { titulo: "Aplicado: gramática que ya conocés", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Estas frases usan reglas que ya viste en otras unidades: \"você\" como forma práctica de cortesía (PRONOMBRES SUJETO), y el pronombre sujeto se omite con frecuencia (\"tem uma reserva?\" en vez de \"você tem uma reserva?\")."]
-        ]}
-    ];
-
     // VOCABULARIO HOTEL: vocabulario técnico de incidentes de habitación (quejas
     // más comunes en recepción) — vocabulario puntual, no gramática. Verificado
     // con fuentes reales de cada idioma.
@@ -2960,75 +2867,10 @@
         }));
     }
 
-    // CULTURA TÍPICA: 2 modos — "Local" (Chamonix/la zona, costumbres prácticas de
-    // montaña/hotel) y "Comportamiento" (qué hacer / qué no hacer, verificado con
-    // fuentes reales de cada país — no son estereotipos, son normas de etiqueta
-    // documentadas en fuentes locales). Útil para entender al huésped Y para
-    // comportarse bien una vez instalada en el país.
-    const culturaLocalFrances = [
-        { titulo: "Chamonix: costumbres prácticas", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El \"quart d'heure de politesse\" (cuarto de hora de cortesía): si te invitan a las 20h, llegar justo a horario puede sorprender — unos minutos tarde es lo normal en lo social. En lo profesional (turnos, reuniones), en cambio, la puntualidad estricta es la norma."],
-            ["", "Saludar con \"bonjour\" al entrar a cualquier comercio u oficina es muy importante — no hacerlo se nota como descortés, aunque sea solo de paso."]
-        ]},
-        { titulo: "Propinas y cuenta en restaurantes", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El servicio suele estar incluido en el precio (\"service compris\"). Una propina extra no es obligatoria, pero un 5% aproximado se aprecia si el servicio fue bueno."]
-        ]}
-    ];
-    const culturaComportamientoFrances = [
-        { titulo: "Hacer", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Saludar con \"bonjour\"/\"bonsoir\" siempre al entrar a un lugar, y \"au revoir\" al salir, incluso en interacciones breves."],
-            ["", "Hablar en voz baja en espacios públicos (transporte, restaurantes) — es la norma social, no timidez."]
-        ]},
-        { titulo: "No hacer", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "No tutear (\"tu\") a un huésped o a un desconocido — siempre \"vous\" hasta que la otra persona invite a pasar a \"tu\"."],
-            ["", "No hablar fuerte por teléfono en lugares públicos — se considera maleducado, no solo informal."]
-        ]}
-    ];
-
-    const culturaLocalItaliano = [
-        { titulo: "Chamonix: costumbres prácticas (lado italiano)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Chamonix recibe mucho turismo italiano por la cercanía con el Valle de Aosta — entender bien al huésped italiano que cruza la frontera es frecuente en el día a día."],
-            ["", "La formalidad italiana de trato (\"Lei\") se mantiene igual de importante con un huésped, sea cual sea su edad."]
-        ]},
-        { titulo: "Café: la regla más conocida", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Nunca pedir cappuccino después de una comida — para un italiano, equivale a pedir cereales con leche después de la cena. Después de comer, lo normal es un espresso."]
-        ]}
-    ];
-    const culturaComportamientoItaliano = [
-        { titulo: "Hacer", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Usar \"Lei\" con cualquier huésped adulto, sin importar la edad — es la forma de respeto estándar, no algo reservado solo para personas mayores."],
-            ["", "Mantener un tono cordial y caluroso en el trato — la calidez en la comunicación se valora mucho."]
-        ]},
-        { titulo: "No hacer", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "No ofrecer ni sugerir cappuccino o bebidas con leche después de una comida — un italiano lo va a notar como algo fuera de lugar."],
-            ["", "No esperar que el cliente deje una propina grande — un 10% es ya generoso; un 20% se vería como ostentoso, no como elogio."]
-        ]}
-    ];
-
-    const culturaLocalPortugues = [
-        { titulo: "Chamonix: costumbres prácticas (lado portugués)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Hay una comunidad portuguesa importante en la región de Haute-Savoie por motivos históricos de migración — no es raro encontrar huéspedes o colegas de trabajo de origen portugués."],
-            ["", "Usar \"você\" con cortesía hacia el huésped, como ya vimos en PRONOMBRES — nunca \"tu\" con un desconocido."]
-        ]},
-        { titulo: "Restaurantes: el \"couvert\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "El \"couvert\" (panecillos, aceitunas, paté que traen a la mesa antes de pedir) NO es gratis — si se consume, se cobra. Es útil saberlo para explicarle a un huésped que pregunte."]
-        ]}
-    ];
-    const culturaComportamientoPortugues = [
-        { titulo: "Hacer", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "Dejar una propina de 5-10% si el servicio fue bueno — se aprecia, aunque no es obligatoria."],
-            ["", "Aceptar con gratitud si te ofrecen comida o bebida — rechazar de plano puede sentirse como un desplante."]
-        ]},
-        { titulo: "No hacer", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "No asumir que el \"couvert\" es gratis — explicar esto a un huésped extranjero puede evitar una sorpresa incómoda en la cuenta."],
-            ["", "No levantarse de la mesa a media comida sin avisar — se considera de mala educación."]
-        ]}
-    ];
-
     const data = {
-        "FRANCÉS": { "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -3067,14 +2909,14 @@
                 document.getElementById('btnModoVista').innerText = "Tarjetas";
                 modoGeografiaClima = "clima";
                 document.getElementById('btnModoGeografiaClima').innerText = "Clima";
-                modoCulturaTipica = "local";
-                document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
                 modoVocabularioNuevo = "Lugares del hotel";
                 document.getElementById('btnModoVocabularioNuevo').innerText = "Lugares del hotel";
                 modoPersonasNuevo = "personas";
                 document.getElementById('btnModoPersonasNuevo').innerText = "Personas";
+                modoCultura = "local";
+                document.getElementById('btnModoCultura').innerText = "Local";
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -3102,7 +2944,7 @@
     // viejo sistema) — los 3 botones de navegación rápida entre unidades
     // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
     // arme una unidad nueva, se agrega a esta lista.
-    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -3113,10 +2955,10 @@
         if (unidadActualKey === "VOCABULARIO NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "PARTÍCULAS") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
+        if (unidadActualKey === "CULTURA") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
-        if (unidadActualKey === "CULTURA TÍPICA") return false; // texto fijo
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
         return modoVistaUnidad === "tarjetas";
     }
@@ -3148,9 +2990,6 @@
         const visibleGeografiaClima = unidadActualKey === "GEOGRAFÍA Y CLIMA";
         document.getElementById('selectorModoGeografiaClimaWrap').style.display = visibleGeografiaClima ? "inline-block" : "none";
 
-        const visibleCulturaTipica = unidadActualKey === "CULTURA TÍPICA";
-        document.getElementById('selectorModoCulturaTipicaWrap').style.display = visibleCulturaTipica ? "inline-block" : "none";
-
         const visibleNumerosTiempoNuevo = unidadActualKey === "LOS NÚMEROS Y EL TIEMPO";
         document.getElementById('selectorModoNumerosTiempoNuevoWrap').style.display = visibleNumerosTiempoNuevo ? "inline-block" : "none";
 
@@ -3162,6 +3001,9 @@
 
         const visiblePersonasNuevo = unidadActualKey === "PERSONAS NUEVO";
         document.getElementById('selectorModoPersonasNuevoWrap').style.display = visiblePersonasNuevo ? "inline-block" : "none";
+
+        const visibleCultura = unidadActualKey === "CULTURA";
+        document.getElementById('selectorModoCulturaWrap').style.display = visibleCultura ? "inline-block" : "none";
 
         // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
         // activo: Personas → Artículos → francés, o unidades genéricas en
@@ -3191,7 +3033,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -5678,6 +5520,131 @@
         },
     };
 
+    // CULTURA (unidad nueva): 4 temas — "Local" y "Actividades" (siempre sobre
+    // Francia/Chamonix, traducido al idioma + español), "Propia de cada idioma"
+    // (ficha técnica del país de esa lengua, escrita en español: fechas
+    // patrias/religiosas, gastronomía, flora y fauna, hacer/no hacer — NO se
+    // traduce, cambia el contenido entero según la bandera elegida), y "Frases
+    // de recepción" (francés + el idioma de esa bandera). Arranca vacía en los
+    // 4 temas a propósito — el contenido se agrega después, tarjeta por tarjeta.
+    const CULTURA_POR_IDIOMA = {
+        "FRANCÉS": { local: [], actividades: [], propia: [], recepcion: [] },
+        "ITALIANO": { local: [], actividades: [], propia: [], recepcion: [] },
+        "PORTUGUÉS": { local: [], actividades: [], propia: [], recepcion: [] }
+    };
+
+    let modoCultura = "local";
+    const culturaEstado = {};
+
+    function cambiarModoCultura(nuevoModo) {
+        modoCultura = nuevoModo;
+        const etiquetas = { local: 'Local', actividades: 'Actividades', propia: 'Propia', recepcion: 'Frases de recepción' };
+        document.getElementById('btnModoCultura').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoCultura').classList.remove("show");
+        actualizarPantalla();
+    }
+
+    function renderCultura(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+        const tarjetas = CULTURA_POR_IDIOMA[idioma][modoCultura];
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        tarjetas.forEach((t, i) => {
+            const id = idioma + "__" + modoCultura + "__t" + i;
+            if (!culturaEstado[id]) {
+                culturaEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+            }
+            const e = culturaEstado[id];
+            if (!e.visible) return;
+            const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+            const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            const final = t.colorPorCelda ? t : tarjetaConColorDeGenero(t, idioma);
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreCultura());
+        return null;
+    }
+
+    function inicializarArrastreCultura() {
+        const tarjetasEl = document.querySelectorAll('#mesaDeTarjetas .tarjeta-libre');
+        tarjetasEl.forEach(el => {
+            const id = el.dataset.clave;
+            const e = culturaEstado[id];
+            if (!e) return;
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const tabla = el.querySelector('table');
+                    const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                    const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
     // PERSONAS (unidad nueva): 2 temas (Personas / Artículos), cada uno
     // multi-tarjeta con su propia caja de "Tarjetas" — mismo patrón que "La
     // hora y el tiempo". El estado de posición se indexa por idioma + tema +
@@ -6772,6 +6739,28 @@
             });
             return;
         }
+        if (unidadActualKey === "CULTURA") {
+            const menu = document.getElementById('menuTarjetasLibre');
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            const tarjetas = CULTURA_POR_IDIOMA[idioma][modoCultura];
+            menu.innerHTML = "";
+            tarjetas.forEach((t, i) => {
+                const id = idioma + "__" + modoCultura + "__t" + i;
+                if (!culturaEstado[id]) {
+                    culturaEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+                }
+                const e = culturaEstado[id];
+                const div = document.createElement('div');
+                div.innerText = (e.visible ? "✓ " : "") + (t.titulo || ("Tarjeta " + (i + 1)));
+                div.onclick = () => {
+                    e.visible = !e.visible;
+                    document.getElementById('menuTarjetasLibre').classList.remove("show");
+                    actualizarPantalla();
+                };
+                menu.appendChild(div);
+            });
+            return;
+        }
         if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
         const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
@@ -6802,11 +6791,6 @@
         actualizarPantalla();
     }
 
-    // CULTURA TÍPICA: mismo patrón de selector que GEOGRAFÍA Y CLIMA — "Local"
-    // (Chamonix/la zona) y "Comportamiento" (hacer/no hacer, verificado con
-    // fuentes reales de etiqueta de cada país).
-    let modoCulturaTipica = "local";
-
     // LOS NÚMEROS Y EL TIEMPO: unidad nueva (sistema de mesa), reemplaza a
     // futuro a NÚMEROS Y TIEMPO vieja. 2 temas: Los números / La hora y el
     // tiempo. Por ahora sin contenido real, solo el esqueleto.
@@ -6818,25 +6802,6 @@
         document.getElementById('menuModoNumerosTiempoNuevo').classList.remove("show");
         const visibleGrupo = nuevoModo === "numeros" && !editorLibreActivo;
         document.getElementById('selectorGrupoNumerosNuevoWrap').style.display = visibleGrupo ? "inline-block" : "none";
-        actualizarPantalla();
-    }
-
-    function renderCulturaTipica(idioma) {
-        const datos = data[idioma]["CULTURA TÍPICA"];
-        const tarjetas = modoCulturaTipica === "local" ? datos.local : datos.comportamiento;
-        let html = '<div class="tarjetas-grid">';
-        tarjetas.forEach(tablaData => {
-            const claseExtra = tablaData.ancha ? " tarjeta-ancha" : "";
-            html += `<div class="tarjeta tarjeta-con-borde${claseExtra}">${renderTabla(tablaData, idioma)}</div>`;
-        });
-        html += '</div>';
-        return html;
-    }
-
-    function cambiarModoCulturaTipica(nuevoModo) {
-        modoCulturaTipica = nuevoModo;
-        document.getElementById('btnModoCulturaTipica').innerText = nuevoModo === 'comportamiento' ? 'Comportamiento' : 'Local';
-        document.getElementById('menuModoCulturaTipica').classList.remove("show");
         actualizarPantalla();
     }
 
@@ -6952,14 +6917,14 @@
         if (unidadKey === "PERSONAS NUEVO") {
             return renderPersonasNuevo(idioma);
         }
+        if (unidadKey === "CULTURA") {
+            return renderCultura(idioma);
+        }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
 
         if (unidadKey === "GEOGRAFÍA Y CLIMA") {
             return renderGeografiaClima(idioma);
-        }
-        if (unidadKey === "CULTURA TÍPICA") {
-            return renderCulturaTipica(idioma);
         }
         if (unidadKey === "TIEMPOS VERBALES") {
             return renderTiemposVerbales(idioma);
