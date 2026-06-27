@@ -275,10 +275,13 @@
         /* Color por género/número: ayuda a reconocer de un vistazo si una palabra es
            masculina, femenina, singular de género indistinto (ej. l', con vocal) o
            plural, para razonar mejor las terminaciones al conjugar/declinar. */
-        .genero-masc { color: #1ba3c6; font-weight: 600; }
-        .genero-fem { color: #e0529c; font-weight: 600; }
-        .genero-indistinto { color: #8b5cf6; font-weight: 600; }
-        .genero-plural { color: #2fa84f; font-weight: 600; }
+        .genero-masc { color: #7ab8de; font-weight: 600; }
+        .genero-fem { color: #eda0c0; font-weight: 600; }
+        .genero-indistinto { color: #b5a3e0; font-weight: 600; }
+        .genero-plural { color: #c5d4a0; font-weight: 600; }
+        /* Reservado para idiomas futuros con un tercer género gramatical real
+           (ej. alemán: der/die/das) — no se usa todavía en FR/IT/PT. */
+        .genero-neutro { color: #e08a2e; font-weight: 600; }
         /* Estaciones del año: paleta propia, distinta de la de género, para no
            mezclar significados. Verde claro=primavera, amarillo/naranja=verano,
            marrón/naranja oscuro=otoño, celeste=invierno. */
@@ -872,6 +875,24 @@
     // aplicarColorDeUnidad(). TIEMPOS VERBALES y VERBOS AUXILIARES quedan
     // siempre afuera de este sistema — se tratan aparte, en su momento.
     const colorPorUnidad = {
+        "REGLAS": {
+            // Unidad neutra a propósito — cada tarjeta lleva el color de SU
+            // unidad de origen (ver obtenerColorPorOrigenRegla), así que el
+            // gris general acá es solo para selectores/fondo, nunca compite
+            // con los colores reales de cada tarjeta.
+            color: "#8a8a86",
+            sombra: "rgba(138, 138, 134, 0.25)",
+            fondoPagina: "#e8e8e6",
+            panelBg: "#ffffff",
+            textoColor: "#2c2c2e",
+            tituloTarjetaColor: "#8a8a86",
+            particulas: [
+                { color: "#a9744a", forma: "normal" },
+                { color: "#6b8a9a", forma: "normal" },
+                { color: "#b8862e", forma: "normal" },
+                { color: "#9a9a96", forma: "normal" }
+            ]
+        },
         "PARTÍCULAS": {
             color: "#a9744a",
             sombra: "rgba(169, 116, 74, 0.35)",
@@ -1038,6 +1059,60 @@
         }
     };
 
+    // PERSONAS y ARTÍCULOS comparten exactamente la misma identidad (a
+    // propósito, confirmado): círculos celeste (masculino) + triángulos rosa
+    // (femenino), áreas equilibradas entre ambas formas, mismo fondo gris
+    // azulado neutro.
+    const IDENTIDAD_PERSONAS_ARTICULOS = {
+        color: "#6b8a9a",
+        sombra: "rgba(107, 138, 154, 0.3)",
+        fondoPagina: "#eef0ee",
+        panelBg: "#ffffff",
+        textoColor: "#2c2c2e",
+        tituloTarjetaColor: "#6b8a9a",
+        particulas: [
+            { color: "#7ab8de", forma: "normal" },
+            { color: "#eda0c0", forma: "triangulo" }
+        ]
+    };
+    colorPorTema["PERSONAS NUEVO__personas"] = IDENTIDAD_PERSONAS_ARTICULOS;
+    colorPorTema["PERSONAS NUEVO__articulos"] = IDENTIDAD_PERSONAS_ARTICULOS;
+
+    // REGLAS es neutra (gris) en sí misma, pero cada tarjeta lleva el color
+    // de SU unidad/tema de origen real — la etiqueta entre corchetes del
+    // título (ej. "[PARTÍCULAS] Cantidad...") ya identifica de dónde viene.
+    // Este mapa traduce esa etiqueta a la clave de unidad__tema que usa
+    // colorPorTema/colorPorUnidad, así el color se LEE, nunca se duplica:
+    // si más adelante cambia el color de Partículas, las tarjetas de REGLAS
+    // que vienen de Partículas se actualizan solas, sin tocar nada acá.
+    const ORIGEN_REGLA_A_CLAVE_UNIDAD = {
+        "ADVERBIOS": "PARTÍCULAS",
+        "CONECTORES LÓGICOS": "PARTÍCULAS",
+        "PERSONAS": "PERSONAS NUEVO__personas",
+        "POSESIVOS": "PERSONAS NUEVO__articulos",
+        "PRONOMBRES": "PERSONAS NUEVO__personas",
+        "ARTÍCULOS": "PERSONAS NUEVO__articulos",
+        "HORA Y TIEMPO": "LOS NÚMEROS Y EL TIEMPO__horaytiempo",
+        "PREPOSICIONES DE TIEMPO": "LOS NÚMEROS Y EL TIEMPO__horaytiempo",
+        "FRASES DE RECEPCIÓN": "CULTURA__recepcion"
+    };
+
+    // Color gris neutro para tarjetas de REGLAS cuya unidad de origen todavía
+    // no tiene identidad propia definida (ej. CULTURA hoy).
+    const COLOR_NEUTRO_REGLA_SIN_ORIGEN = { color: "#9a9a96", sombra: "rgba(154, 154, 150, 0.25)" };
+
+    // Dada la etiqueta de origen de una tarjeta de REGLAS (ej. "PARTÍCULAS"),
+    // devuelve {color, sombra} reales — buscando primero por unidad__tema
+    // exacto, después por unidad entera (igual lógica que obtenerPaletaActiva,
+    // pero para una clave fija en vez de la unidad actualmente en pantalla).
+    function obtenerColorPorOrigenRegla(etiqueta) {
+        const claveDestino = ORIGEN_REGLA_A_CLAVE_UNIDAD[etiqueta];
+        if (!claveDestino) return COLOR_NEUTRO_REGLA_SIN_ORIGEN;
+        const paleta = colorPorTema[claveDestino] || colorPorUnidad[claveDestino];
+        if (!paleta) return COLOR_NEUTRO_REGLA_SIN_ORIGEN;
+        return { color: paleta.color, sombra: paleta.sombra };
+    }
+
     // Devuelve la paleta activa en este momento: primero busca por tema
     // (unidad + tema actual), después por unidad entera, y null si ninguna
     // de las dos tiene identidad propia todavía (entonces se usa el color de
@@ -1055,6 +1130,7 @@
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return modoGeografiaClimaNuevo;
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return modoNumerosTiempoNuevo;
         if (unidadActualKey === "VERBOS AUXILIARES") return auxiliarActualKey === "REGLAS" ? "reglas" : "auxiliar";
+        if (unidadActualKey === "PERSONAS NUEVO") return modoPersonasNuevo;
         return "";
     }
 
@@ -1131,6 +1207,13 @@
     // redondo/cuadrado parejo de fábrica.
     function aplicarFormaParticula(p, forma) {
         const tamBase = parseFloat(p.dataset.tamBase);
+        // Limpieza centralizada: cualquier forma especial (como "triangulo")
+        // que use border-left/right/bottom en vez de width/height reales debe
+        // resetear esto al volver a una forma normal — sin esto, quedaría un
+        // triángulo fantasma superpuesto al nuevo círculo/cuadrado/etc.
+        p.style.borderLeft = '0';
+        p.style.borderRight = '0';
+        p.style.borderBottom = '0';
         if (forma === "aguja") {
             p.style.width = (tamBase * 0.4) + 'px';
             p.style.height = (tamBase * 2.2) + 'px';
@@ -1166,6 +1249,20 @@
             p.style.height = tamBase + 'px';
             p.style.borderRadius = '50%';
             p.style.boxShadow = `0 0 4px 1px ${p.style.background}66`;
+        } else if (forma === "triangulo") {
+            // Un triángulo CSS no usa width/height reales del elemento — el
+            // color que ya viene puesto en background se traslada al
+            // border-bottom, y el elemento en sí queda transparente.
+            const sizeTri = tamBase * 1.25; // misma área visual que un círculo del mismo tamBase
+            const colorTriangulo = p.style.background;
+            p.style.width = '0';
+            p.style.height = '0';
+            p.style.background = 'transparent';
+            p.style.borderLeft = (sizeTri * 0.5) + 'px solid transparent';
+            p.style.borderRight = (sizeTri * 0.5) + 'px solid transparent';
+            p.style.borderBottom = sizeTri + 'px solid ' + colorTriangulo;
+            p.style.borderRadius = '0';
+            p.style.boxShadow = 'none';
         } else {
             p.style.width = tamBase + 'px';
             p.style.height = tamBase + 'px';
@@ -2865,6 +2962,7 @@
         const t = String(texto).toLowerCase();
         if (t.includes("plural")) return "genero-plural";
         if (t.includes("ambos") || t.includes("indistinto") || t.includes("vocal")) return "genero-indistinto";
+        if (t.includes("neutro") || t.includes("neutre") || t.includes("neutral")) return "genero-neutro";
         if (t.includes("fem")) return "genero-fem";
         if (t.includes("masc")) return "genero-masc";
         return null;
@@ -3916,7 +4014,10 @@
         const reglas = REGLAS_POR_IDIOMA[idioma] || [];
         let html = '<div class="reglas-columna">';
         reglas.forEach(tabla => {
-            html += `<div class="tarjeta tarjeta-con-borde tarjeta-ancha">${renderTabla(tabla, idioma)}</div>`;
+            const matchEtiqueta = String(tabla.titulo || "").match(/^\[([^\]]+)\]/);
+            const { color, sombra } = matchEtiqueta ? obtenerColorPorOrigenRegla(matchEtiqueta[1]) : COLOR_NEUTRO_REGLA_SIN_ORIGEN;
+            const estiloBorde = `background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), conic-gradient(${color}, ${color}); box-shadow: 0 0 8px ${sombra}, 0 3px 8px rgba(0,0,0,0.05);`;
+            html += `<div class="tarjeta tarjeta-con-borde tarjeta-ancha" style="${estiloBorde}">${renderTabla(tabla, idioma)}</div>`;
         });
         html += '</div>';
         return html;
@@ -5759,6 +5860,7 @@
         reproducirNombreSeleccion(TEMAS_PERSONAS[nuevoModo][idioma], idioma);
         document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo][idioma];
         document.getElementById('menuModoPersonasNuevo').classList.remove("show");
+        aplicarColorDeUnidad(idioma);
         actualizarPantalla();
     }
 
