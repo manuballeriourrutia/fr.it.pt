@@ -108,6 +108,24 @@
         
         .dropdown { position: relative; display: inline-block; }
         .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+
+        /* Anillo arcoíris (exclusivo de TIEMPOS VERBALES): se agrega como clase
+           al propio .dropdown existente (idioma, unidad, regularidad, verbo
+           ya viven dentro de uno) — sin envolver nada nuevo en el DOM.
+           Degradado cónico de los 7 colores de tiempo verbal (sin el negro
+           del Présent, reservado para texto). El botón real queda intacto,
+           con su fondo blanco de siempre — el anillo es puro padding + fondo
+           del contenedor, nunca toca border-color. */
+        .dropdown.anillo-arcoiris {
+            padding: 2.5px;
+            border-radius: 999px;
+            background: conic-gradient(from 0deg, #e8c91e, #e8821e, #d63b2f, #e85ca8, #7b3fd6, #2f7fe0, #4caf3a, #e8c91e);
+        }
+        .dropdown.anillo-arcoiris .dropbtn,
+        .dropdown.anillo-arcoiris .flagbtn {
+            border: none;
+            box-shadow: none;
+        }
         .dropbtn-chico { min-width: 0; padding: 10px 18px; }
 
         /* Botón circular de bandera, reemplaza al selector de idioma en texto */
@@ -861,6 +879,16 @@
             color: "#a9744a",
             sombra: "rgba(169, 116, 74, 0.35)",
             particulas: ["#a9744a", "#8a6a4a", "#c08552", "#6b4f3a", "#d4a373"]
+        },
+        "TIEMPOS VERBALES": {
+            // Sin un color único real: los selectores usan el anillo arcoíris
+            // (CSS aparte, ver .anillo-arcoiris) y cada tarjeta ya tiene su
+            // propio color por tiempo verbal (ver colorPorPosicionTiempo). Este
+            // valor es solo respaldo para cualquier elemento residual que siga
+            // leyendo la variable de color general (ej. la manija de resize).
+            color: "#3a3a3a",
+            sombra: "rgba(58, 58, 58, 0.25)",
+            particulas: ["#d63b2f", "#e8821e", "#e8c91e", "#e85ca8", "#4caf3a", "#2f7fe0", "#7b3fd6"]
         }
     };
     // Color de partícula neutro para cualquier unidad sin paleta propia
@@ -877,6 +905,21 @@
         document.documentElement.style.setProperty('--color-borde-idioma', color);
         document.documentElement.style.setProperty('--sombra-borde-idioma', sombra);
         actualizarColorParticulasFondo();
+        actualizarAnilloArcoiris();
+    }
+
+    // El anillo arcoíris (degradado de los 7 colores de tiempo verbal) vive
+    // SOLO en TIEMPOS VERBALES, sobre sus 4 selectores propios — idioma,
+    // unidad, regularidad y verbo. En cualquier otra unidad se quita, y esos
+    // selectores vuelven a su borde normal de color de unidad/idioma.
+    const IDS_BOTONES_ANILLO_ARCOIRIS = ['btnIdioma', 'btnUnidad', 'btnRegularidad', 'btnVerbo'];
+    function actualizarAnilloArcoiris() {
+        const activo = unidadActualKey === "TIEMPOS VERBALES";
+        IDS_BOTONES_ANILLO_ARCOIRIS.forEach(id => {
+            const boton = document.getElementById(id);
+            if (!boton || !boton.parentElement) return;
+            boton.parentElement.classList.toggle('anillo-arcoiris', activo);
+        });
     }
 
     // Crea las partículas de fondo UNA sola vez (posición/tamaño/velocidad
@@ -3154,7 +3197,8 @@
         let html = '<div class="tarjetas-grid-tiempos">';
         tiempos.forEach((t, i) => {
             const color = colorPorPosicionTiempo[i] || "#888";
-            html += '<div class="tarjeta-tiempo tarjeta-con-borde">';
+            const estiloBorde = `border-color: ${color}; box-shadow: 0 0 8px ${color}59, 0 3px 8px rgba(0,0,0,0.05);`;
+            html += `<div class="tarjeta-tiempo tarjeta-con-borde" style="${estiloBorde}">`;
             html += `<div class="tarjeta-tiempo-header"><div class="tarjeta-tiempo-nombre" style="color: ${color};">${t.tiempo}</div><div class="tarjeta-tiempo-funcion">${t.funcion.toLowerCase()}</div></div>`;
             html += "<table>";
             t.filas.forEach(fila => {
