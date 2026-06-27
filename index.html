@@ -176,11 +176,6 @@
             line-height: 1.3;
         }
         .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
-        /* Excepción: la zona de TIEMPOS VERBALES/VERBOS AUXILIARES mantiene el
-           color de bandera del idioma en sus botones y menús — "mundo aparte",
-           no se toca con el cambio de texto a negro del resto de la app. */
-        #btnRegularidad, #btnVerbo, #btnAuxiliar { color: var(--color-idioma); }
-        #menuRegularidad div, #menuVerbo div, #menuAuxiliar div { color: var(--color-idioma); }
         .dropdown-content div .traduccion-unidad { border-bottom: none; }
         .dropdown-content div:last-child { border-bottom: none; }
         .dropdown-content div:hover { background-color: #f8f8f8; }
@@ -965,6 +960,81 @@
                 { color: "#b8c2c8", forma: "normal" },
                 { color: "#6fa8c9", forma: "normal" }
             ]
+        },
+        "LA GEOGRAFÍA Y EL CLIMA__actividades": {
+            // Energía y movimiento, a propósito distinto de los tonos
+            // sobrios/naturales del resto de la unidad — celeste intenso de
+            // cielo de altura + blanco nieve + naranja vibrante de
+            // equipamiento/carteles de pista. Partículas más rápidas que el
+            // resto (simulan viento), mezclando copos con chispitas.
+            color: "#e0622f",
+            sombra: "rgba(224, 98, 47, 0.35)",
+            fondoPagina: "#e8f1f7",
+            panelBg: "#ffffff",
+            textoColor: "#2c3e44",
+            tituloTarjetaColor: "#1a7fae",
+            velocidadMin: 2.5,
+            velocidadMax: 5,
+            particulas: [
+                { color: "#ffffff", forma: "copo" },
+                { color: "#ffffff", forma: "copo" },
+                { color: "#e0622f", forma: "normal" },
+                { color: "#f0a830", forma: "normal" },
+                { color: "#1a7fae", forma: "normal" }
+            ]
+        },
+        "LOS NÚMEROS Y EL TIEMPO__numeros": {
+            // Azul/gris ordenado y geométrico — refleja el orden numérico,
+            // sin nada orgánico (a diferencia del resto de unidades).
+            // Cuadraditos cayendo de forma prolija y simétrica.
+            color: "#3a5a8a",
+            sombra: "rgba(58, 90, 138, 0.3)",
+            fondoPagina: "#e8edf5",
+            panelBg: "#ffffff",
+            textoColor: "#2c2c2e",
+            tituloTarjetaColor: "#3a5a8a",
+            particulas: [
+                { color: "#3a5a8a", forma: "cuadrado" },
+                { color: "#5a7aa8", forma: "cuadrado" },
+                { color: "#8a9ab0", forma: "cuadrado" },
+                { color: "#c0c8d4", forma: "cuadrado" }
+            ]
+        },
+        "LOS NÚMEROS Y EL TIEMPO__horaytiempo": {
+            // Dorado/ámbar de reloj antiguo — granitos finos cayendo, como
+            // un reloj de arena, mucha cantidad pero chiquitos.
+            color: "#b8862e",
+            sombra: "rgba(184, 134, 46, 0.35)",
+            fondoPagina: "#f0e6d2",
+            panelBg: "#fffcf5",
+            textoColor: "#3d2f17",
+            tituloTarjetaColor: "#8a6a1e",
+            particulas: [
+                { color: "#b8862e", forma: "grano" },
+                { color: "#d4a94a", forma: "grano" },
+                { color: "#8a6a1e", forma: "grano" },
+                { color: "#e8c878", forma: "grano" }
+            ]
+        },
+        "VERBOS AUXILIARES__reglas": {
+            // Look metálico (plata/bronce/oro mezclados) — distinto del
+            // arcoíris de AVOIR/ÊTRE/ALLER (que comparten paleta con TIEMPOS
+            // VERBALES, ver calcularDegradadoBordeUnidad). Partículas
+            // metálicas con brillo sutil, caída lenta y elegante.
+            color: "#8c7853",
+            sombra: "rgba(140, 120, 83, 0.3)",
+            fondoPagina: "#e8e6e2",
+            panelBg: "#fffdf8",
+            textoColor: "#2c2c2e",
+            tituloTarjetaColor: "#8c7853",
+            velocidadMin: 6,
+            velocidadMax: 10,
+            particulas: [
+                { color: "#d4af37", forma: "metalico" },
+                { color: "#c0c0c0", forma: "metalico" },
+                { color: "#8c7853", forma: "metalico" },
+                { color: "#b8b0a0", forma: "metalico" }
+            ]
         }
     };
 
@@ -983,6 +1053,8 @@
     // "qué tema está activo ahora". Devuelve "" si la unidad no tiene temas.
     function obtenerTemaActivoDeUnidad() {
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return modoGeografiaClimaNuevo;
+        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return modoNumerosTiempoNuevo;
+        if (unidadActualKey === "VERBOS AUXILIARES") return auxiliarActualKey === "REGLAS" ? "reglas" : "auxiliar";
         return "";
     }
 
@@ -1017,6 +1089,7 @@
     // con borde sólido y unidades con degradado multicolor.
     function calcularDegradadoBordeUnidad(colorSolido) {
         if (unidadActualKey === "TIEMPOS VERBALES") return DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES;
+        if (unidadActualKey === "VERBOS AUXILIARES" && auxiliarActualKey !== "REGLAS") return DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES;
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA" && modoGeografiaClimaNuevo === "climaestaciones") return DEGRADADO_NATURAL_CLIMA_ESTACIONES;
         return `conic-gradient(${colorSolido}, ${colorSolido})`;
     }
@@ -1078,6 +1151,21 @@
             p.style.height = tamBase + 'px';
             p.style.borderRadius = '50%';
             p.style.boxShadow = '0 0 3px 1px rgba(255,255,255,0.7), 0 0 0 1px rgba(140,170,190,0.4)';
+        } else if (forma === "cuadrado") {
+            p.style.width = tamBase + 'px';
+            p.style.height = tamBase + 'px';
+            p.style.borderRadius = '1px';
+            p.style.boxShadow = 'none';
+        } else if (forma === "grano") {
+            p.style.width = (tamBase * 0.5) + 'px';
+            p.style.height = (tamBase * 0.5) + 'px';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = 'none';
+        } else if (forma === "metalico") {
+            p.style.width = tamBase + 'px';
+            p.style.height = tamBase + 'px';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = `0 0 4px 1px ${p.style.background}66`;
         } else {
             p.style.width = tamBase + 'px';
             p.style.height = tamBase + 'px';
@@ -1091,6 +1179,8 @@
         if (!cont) return;
         const paleta = obtenerPaletaActiva();
         const entradas = paleta ? paleta.particulas : PARTICULAS_COLOR_NEUTRO;
+        const velMin = paleta && paleta.velocidadMin ? paleta.velocidadMin : 4;
+        const velMax = paleta && paleta.velocidadMax ? paleta.velocidadMax : 8;
         Array.from(cont.children).forEach((p, i) => {
             const entrada = entradas[i % entradas.length];
             // Retrocompatibilidad: una entrada puede ser un color suelto
@@ -1098,6 +1188,10 @@
             const esObjeto = typeof entrada === "object";
             p.style.background = esObjeto ? entrada.color : entrada;
             aplicarFormaParticula(p, esObjeto ? entrada.forma : null);
+            // La duración de animación no se puede hacer "transition" en CSS
+            // (no es una propiedad interpolable) — el cambio de velocidad es
+            // instantáneo, a diferencia del color/forma que sí son suaves.
+            p.style.animationDuration = (velMin + Math.random() * (velMax - velMin)) + 's';
         });
     }
 
@@ -2968,6 +3062,11 @@
                 document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura("local", idioma);
                 modoGeografiaClimaNuevo = "terreno";
                 document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${TEMAS_GEOGRAFIA_CLIMA.terreno[idioma]} ${TEMAS_GEOGRAFIA_CLIMA.terreno.emoji}`;
+                auxiliarActualKey = "REGLAS";
+                document.getElementById('btnAuxiliar').innerText = auxiliaresMeta["REGLAS"].nombre[idioma];
+                ["FRANCÉS", "ITALIANO", "PORTUGUÉS"].forEach(idiomaAux => {
+                    data[idiomaAux]["VERBOS AUXILIARES"] = obtenerContenidoAuxiliar(idiomaAux);
+                });
                 aplicarColorDeUnidad(idioma);
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
@@ -3185,6 +3284,7 @@
         ["FRANCÉS", "ITALIANO", "PORTUGUÉS"].forEach(idioma => {
             data[idioma]["VERBOS AUXILIARES"] = obtenerContenidoAuxiliar(idioma);
         });
+        aplicarColorDeUnidad(document.getElementById('btnIdioma').dataset.idioma);
         fijarAnchoPanel();
         actualizarPantalla();
     }
