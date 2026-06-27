@@ -828,7 +828,6 @@
         "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
         "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
-        "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX", "ITALIANO": "TEMPI VERBALI", "PORTUGUÉS": "TEMPOS VERBAIS" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES", "ITALIANO": "VERBI AUSILIARI", "PORTUGUÉS": "VERBOS AUXILIARES" }
@@ -2777,62 +2776,7 @@
         ]}
     ];
 
-    // PREPOSICIONES DE TIEMPO: verificado con fuentes gramaticales — el sistema de
-    // los 3 idiomas es funcionalmente paralelo (cada uno tiene su propia palabra para
-    // "acción que empezó y sigue", "duración con fin", "futuro: dentro de", "pasado:
-    // hace"), pero las palabras y matices de uso no son intercambiables 1 a 1.
-    const preposicionesTiempoFrances = [
-        { titulo: "Avant / Après", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["Avant", "Antes (de)", "avant le check-in"],
-            ["Après", "Después (de)", "après le dîner"]
-        ]},
-        { titulo: "Depuis — acción que empezó y sigue", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Depuis\" indica que algo empezó en el pasado y continúa ahora: j'habite ici depuis 2020 (vivo aquí desde 2020, y sigo viviendo)."]
-        ]},
-        { titulo: "Pendant — duración con principio y fin", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Pendant\" indica una duración definida, que puede estar terminada: j'ai travaillé ici pendant trois ans (trabajé aquí durante 3 años — ya no trabajo más ahí)."]
-        ]},
-        { titulo: "Dans / Il y a — futuro y pasado", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Dans\" + duración = futuro (dentro de): le train part dans dix minutes (el tren sale dentro de 10 minutos)."],
-            ["", "\"Il y a\" + duración = pasado (hace): je suis arrivé il y a une heure (llegué hace una hora)."]
-        ]}
-    ];
-
-    const preposicionesTiempoItaliano = [
-        { titulo: "Prima / Dopo", headers: ["Italiano", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["Prima (di)", "Antes (de)", "prima del check-in"],
-            ["Dopo", "Después (de)", "dopo la cena"]
-        ]},
-        { titulo: "Da — acción que empezó y sigue", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Da\" indica que algo empezó en el pasado y continúa ahora (equivalente al francés \"depuis\"): vivo qui dal 2020 (vivo aquí desde 2020, y sigo viviendo)."]
-        ]},
-        { titulo: "Per — duración con principio y fin", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Per\" indica una duración definida, ya terminada, usada con el passato prossimo: ho lavorato qui per tre anni (trabajé aquí durante 3 años — ya no trabajo más ahí)."]
-        ]},
-        { titulo: "Tra-Fra / Fa — futuro y pasado", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Tra\" o \"fra\" + duración = futuro (dentro de, equivalente al francés \"dans\"): il treno parte tra dieci minuti (el tren sale dentro de 10 minutos)."],
-            ["", "\"Fa\" + duración = pasado (hace, equivalente al francés \"il y a\"): sono arrivato un'ora fa (llegué hace una hora)."]
-        ]}
-    ];
-
-    const preposicionesTiempoPortugues = [
-        { titulo: "Antes (de) / Depois (de)", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
-            ["Antes (de)", "Antes (de)", "antes do check-in"],
-            ["Depois (de)", "Después (de)", "depois do jantar"]
-        ]},
-        { titulo: "Desde — desde un punto exacto", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Desde\" indica el punto exacto en que algo empezó: moro aqui desde 2020 (vivo aquí desde 2020 — marca el inicio puntual)."]
-        ]},
-        { titulo: "Há — cuánto tiempo pasó", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Há\" indica cuánto tiempo pasó desde que algo empezó (la cantidad, no el punto exacto): moro aqui há cinco anos (vivo aquí desde hace 5 años)."],
-            ["", "\"Desde\" + cantidad y \"há\" + cantidad pueden describir la misma situación con el mismo sentido (moro aqui há 5 anos = moro aqui desde há 5 anos), pero \"desde\" se usa naturalmente con una fecha o punto concreto (desde 2020), y \"há\" con una cantidad (há 5 anos)."]
-        ]},
-        { titulo: "Durante / Dentro de", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Durante\" indica una duración definida: trabalhei aqui durante três anos (trabajé aquí durante 3 años)."],
-            ["", "\"Dentro de\" + duración = futuro: o trem parte dentro de dez minutos (el tren sale dentro de 10 minutos)."]
-        ]}
-    ];
-
+    
     // ADVERBIOS DE CANTIDAD Y MODO: verificado con fuentes gramaticales — la
     // formación de los adverbios de modo (-ment/-mente) es muy paralela entre los
     // 3 idiomas (se toma el femenino del adjetivo + sufijo), pero el comportamiento
@@ -3157,9 +3101,9 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "PREPOSICIONES DE TIEMPO": preposicionesTiempoFrances, "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "PREPOSICIONES DE TIEMPO": preposicionesTiempoItaliano, "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "PREPOSICIONES DE TIEMPO": preposicionesTiempoPortugues, "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -6039,6 +5983,10 @@
     ];
 
     const tiempoRelativoNuevoFrances = [
+        { titulo: "Avant / Après", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["Avant", "Antes (de)", "avant le check-in"],
+            ["Après", "Después (de)", "après le dîner"]
+        ]},
         { titulo: "Días concretos respecto a hoy", headers: ["Francés", "Español"], columnasConSonido: [0], rows: [
             ["avant-hier", "anteayer"],
             ["hier", "ayer"],
@@ -6060,6 +6008,10 @@
     ];
 
     const tiempoRelativoNuevoItaliano = [
+        { titulo: "Prima / Dopo", headers: ["Italiano", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["Prima (di)", "Antes (de)", "prima del check-in"],
+            ["Dopo", "Después (de)", "dopo la cena"]
+        ]},
         { titulo: "Días concretos respecto a hoy", headers: ["Italiano", "Español"], columnasConSonido: [0], rows: [
             ["l'altro ieri", "anteayer"],
             ["ieri", "ayer"],
@@ -6081,6 +6033,10 @@
     ];
 
     const tiempoRelativoNuevoPortugues = [
+        { titulo: "Antes (de) / Depois (de)", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["Antes (de)", "Antes (de)", "antes do check-in"],
+            ["Depois (de)", "Después (de)", "depois do jantar"]
+        ]},
         { titulo: "Días concretos respecto a hoy", headers: ["Português", "Español"], columnasConSonido: [0], rows: [
             ["anteontem", "anteayer"],
             ["ontem", "ayer"],
