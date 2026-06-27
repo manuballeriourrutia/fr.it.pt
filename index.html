@@ -83,7 +83,7 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 1.5px solid #ccc;
+            border: 2.5px solid #ccc;
             background: var(--panel-bg);
             color: #999;
             display: flex;
@@ -107,7 +107,7 @@
         .editorbtn-marron { border-color: #a0522d; color: #8b4226; box-shadow: 0 0 10px #a0522d, 0 0 4px #a0522d; }
         
         .dropdown { position: relative; display: inline-block; }
-        .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; }
+        .dropbtn { background: var(--panel-bg); border: 2.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; }
 
         /* Anillo arcoíris (exclusivo de TIEMPOS VERBALES): se agrega como clase
            al propio .dropdown existente (idioma, unidad, regularidad, verbo
@@ -146,7 +146,7 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 1.5px solid var(--color-borde-idioma);
+            border: 2.5px solid var(--color-borde-idioma);
             background: var(--panel-bg);
             font-size: 30px;
             display: flex;
@@ -315,10 +315,10 @@
         /* Estaciones del año: paleta propia, distinta de la de género, para no
            mezclar significados. Verde claro=primavera, amarillo/naranja=verano,
            marrón/naranja oscuro=otoño, celeste=invierno. */
-        .estacion-primavera { color: #4caf50; font-weight: 600; }
-        .estacion-verano { color: #f5a623; font-weight: 600; }
-        .estacion-otono { color: #b25a1f; font-weight: 600; }
-        .estacion-invierno { color: #3b82c4; font-weight: 600; }
+        .estacion-primavera { color: #a5527a; font-weight: 600; }
+        .estacion-verano { color: #a5841a; font-weight: 600; }
+        .estacion-otono { color: #8a5230; font-weight: 600; }
+        .estacion-invierno { color: #2d7a9a; font-weight: 600; }
 
         /* COLORES: mismo tamaño que el resto de las unidades — el emoji se mantiene
            más grande que el texto para distinguirse, pero sin agrandar toda la tarjeta */
@@ -336,11 +336,26 @@
            .content-area, que ahora es invisible (solo estructural). */
         .tarjeta-con-borde {
             background: var(--panel-bg);
-            border: 1.5px solid var(--color-borde-idioma);
+            border: 2.5px solid var(--color-borde-idioma);
             border-radius: 16px;
             box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 3px 8px rgba(0,0,0,0.05);
             box-sizing: border-box;
             transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+        }
+
+        /* Tarjeta de Estaciones (dentro de Clima y Estaciones): borde propio
+           con degradado de las 4 estaciones — invierno→primavera→verano→
+           otoño en sentido horario — en vez del color general de la unidad.
+           Técnica de doble capa de fondo (border-box + padding-box) para que
+           el degradado se vea solo en el borde, sin tapar el panel blanco
+           de adentro ni cambiar el layout/tamaño de la tarjeta. */
+        .tarjeta-estaciones {
+            border: 2.5px solid transparent;
+            background-image:
+                linear-gradient(var(--panel-bg), var(--panel-bg)),
+                conic-gradient(from 0deg, #aee0f0, #e8b4d4, #e8c91e, #b8784a, #aee0f0);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
         /* Cuando una unidad tiene varias tarjetas, se acomodan en grilla: de izquierda a derecha, y de arriba a abajo */
@@ -6015,9 +6030,11 @@
             if (!e.visible) return;
             const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
             const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            const esTarjetaEstaciones = t.titulo && t.titulo.startsWith("Estaciones");
+            const claseTarjeta = "tarjeta tarjeta-con-borde" + (esTarjetaEstaciones ? " tarjeta-estaciones" : "");
             html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
                 <div class="tarjeta-libre-contenido">
-                    <div class="tarjeta tarjeta-con-borde">${renderTabla(t, idioma)}</div>
+                    <div class="${claseTarjeta}">${renderTabla(t, idioma)}</div>
                 </div>
                 <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
             </div>`;
