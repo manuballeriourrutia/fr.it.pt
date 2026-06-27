@@ -5741,7 +5741,11 @@
     // aparte. El selector de grupo vive en la barra de herramientas, al lado
     // del selector de tema — visible solo con el editor apagado.
     let grupoNumerosNuevoIndex = 0; // 0 = "0-9", el resto son los demás grupos
-    const numerosNuevoEstado = { left: 0, top: 0, alto: null, tamanoManual: false };
+    const numerosNuevoEstado = {
+        "FRANCÉS": { left: 0, top: 0, alto: null, tamanoManual: false },
+        "ITALIANO": { left: 0, top: 0, alto: null, tamanoManual: false },
+        "PORTUGUÉS": { left: 0, top: 0, alto: null, tamanoManual: false }
+    };
 
     function cambiarGrupoNumerosNuevo(i) {
         grupoNumerosNuevoIndex = i;
@@ -5960,7 +5964,7 @@
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
         tarjetas.forEach((t, i) => {
-            const id = "t" + i;
+            const id = idioma + "__t" + i;
             if (!particulasEstado[id]) {
                 particulasEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
             }
@@ -6293,9 +6297,9 @@
         const dias = idioma === "FRANCÉS" ? diasNuevoFrances : idioma === "ITALIANO" ? diasNuevoItaliano : diasNuevoPortugues;
         const meses = idioma === "FRANCÉS" ? mesesNuevoFrances : idioma === "ITALIANO" ? mesesNuevoItaliano : mesesNuevoPortugues;
 
-        const piezas = [{ id: "reloj", etiqueta: "Relojes", html: renderTarjetaRelojes(idioma) }];
+        const piezas = [{ id: "reloj__" + idioma, etiqueta: "Relojes", html: renderTarjetaRelojes(idioma) }];
         [...hora, ...tiempoRel, ...dias, ...meses].forEach((t, i) => {
-            piezas.push({ id: "t" + i, etiqueta: t.titulo, html: renderTabla(t, idioma) });
+            piezas.push({ id: idioma + "__t" + i, etiqueta: t.titulo, html: renderTabla(t, idioma) });
         });
         return piezas;
     }
@@ -6317,8 +6321,9 @@
     }
 
     const vocabularioNuevoEstado = {
-        colores: { left: 0, top: 0, alto: null, tamanoManual: false },
-        vocab: { left: null, top: 0, alto: null, tamanoManual: false }
+        "FRANCÉS": { colores: { left: 0, top: 0, alto: null, tamanoManual: false }, vocab: { left: null, top: 0, alto: null, tamanoManual: false } },
+        "ITALIANO": { colores: { left: 0, top: 0, alto: null, tamanoManual: false }, vocab: { left: null, top: 0, alto: null, tamanoManual: false } },
+        "PORTUGUÉS": { colores: { left: 0, top: 0, alto: null, tamanoManual: false }, vocab: { left: null, top: 0, alto: null, tamanoManual: false } }
     };
 
     // Calcula el color real de género de una palabra de vocabulario, y si hace
@@ -6365,8 +6370,8 @@
         }).join("") : "";
         const tablaVocabHtml = `<table><caption>${modoVocabularioNuevo}</caption><tr><th>${idioma === "FRANCÉS" ? "Francés" : idioma === "ITALIANO" ? "Italiano" : "Português"}</th><th>Español</th></tr>${filasVocab}</table>`;
 
-        const eC = vocabularioNuevoEstado.colores;
-        const eV = vocabularioNuevoEstado.vocab;
+        const eC = vocabularioNuevoEstado[idioma].colores;
+        const eV = vocabularioNuevoEstado[idioma].vocab;
         const estiloAltoColores = eC.tamanoManual ? `height:${eC.alto}px;` : `height:auto;`;
         const claseAutoColores = eC.tamanoManual ? "" : " tarjeta-libre-auto";
         // Vocabulario: si ya se redimensionó a mano, usa ese alto; si no,
@@ -6376,13 +6381,13 @@
         const claseAutoVocab = eV.tamanoManual ? "" : " tarjeta-libre-auto";
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
-        html += `<div class="tarjeta-libre${claseAutoColores}" data-clave="colores" style="left:${eC.left}px; top:${eC.top}px; width:auto; ${estiloAltoColores}">
+        html += `<div class="tarjeta-libre${claseAutoColores}" data-clave="colores__${idioma}" style="left:${eC.left}px; top:${eC.top}px; width:auto; ${estiloAltoColores}">
             <div class="tarjeta-libre-contenido">
                 <div class="tarjeta tarjeta-con-borde">${renderColores(idioma)}</div>
             </div>
             <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
         </div>`;
-        html += `<div class="tarjeta-libre${claseAutoVocab}" data-clave="vocab" style="left:${eV.left ?? 310}px; top:${eV.top}px; width:auto; ${estiloAltoVocab}">
+        html += `<div class="tarjeta-libre${claseAutoVocab}" data-clave="vocab__${idioma}" style="left:${eV.left ?? 310}px; top:${eV.top}px; width:auto; ${estiloAltoVocab}">
             <div class="tarjeta-libre-contenido">
                 <div class="tarjeta tarjeta-con-borde">${tablaVocabHtml}</div>
             </div>
@@ -6397,9 +6402,10 @@
     }
 
     function inicializarArrastreVocabularioNuevo() {
-        const elColores = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="colores"]');
-        const elVocab = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="vocab"]');
-        const eV = vocabularioNuevoEstado.vocab;
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        const elColores = document.querySelector(`#mesaDeTarjetas .tarjeta-libre[data-clave="colores__${idioma}"]`);
+        const elVocab = document.querySelector(`#mesaDeTarjetas .tarjeta-libre[data-clave="vocab__${idioma}"]`);
+        const eV = vocabularioNuevoEstado[idioma].vocab;
 
         // Si vocabulario todavía no tiene posición fijada (primera vez que se
         // ve), se mide Colores YA pintado en el DOM y se calcula un lugar fijo
@@ -6416,8 +6422,8 @@
 
         [elColores, elVocab].forEach(el => {
             if (!el) return;
-            const clave = el.dataset.clave;
-            const e = vocabularioNuevoEstado[clave];
+            const clave = el.dataset.clave.split("__")[0]; // "colores" o "vocab", sin el idioma
+            const e = vocabularioNuevoEstado[idioma][clave];
             const zonaMover = el.querySelector('caption');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
 
@@ -6488,11 +6494,11 @@
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
 
         if (modoNumerosTiempoNuevo === "numeros") {
-            const e = numerosNuevoEstado;
+            const e = numerosNuevoEstado[idioma];
             const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
             const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
             const html = `<div style="position:relative; width:100%; height:100%;">
-                <div class="tarjeta-libre${claseAuto}" data-clave="numeros" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre${claseAuto}" data-clave="numeros__${idioma}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
                     <div class="tarjeta-libre-contenido">
                         <div class="tarjeta tarjeta-con-borde">${renderTarjetaNumerosUnica(idioma)}</div>
                     </div>
@@ -6601,9 +6607,10 @@
     }
 
     function inicializarArrastreNumerosUnica() {
-        const el = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="numeros"]');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        const el = document.querySelector(`#mesaDeTarjetas .tarjeta-libre[data-clave="numeros__${idioma}"]`);
         if (!el) return;
-        const e = numerosNuevoEstado;
+        const e = numerosNuevoEstado[idioma];
         const zonaMover = el.querySelector('.numeros-tarjeta-unica-titulo');
         const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
 
@@ -6712,7 +6719,7 @@
     }
 
     function guardarPosicionesLibres() {
-        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
+        if (UNIDADES_NUEVAS_DE_CERO.includes(unidadActualKey)) {
             // Todavía sin persistencia real en LocalStorage — el botón da el
             // mismo feedback visual igual, mientras se termina de armar.
             const boton = document.getElementById('btnGuardarLibre');
@@ -6978,7 +6985,7 @@
             const tarjetas = PARTICULAS_POR_IDIOMA[idioma];
             menu.innerHTML = "";
             tarjetas.forEach((t, i) => {
-                const id = "t" + i;
+                const id = idioma + "__t" + i;
                 if (!particulasEstado[id]) {
                     particulasEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
                 }
