@@ -3925,8 +3925,11 @@
         document.getElementById('btnEditorLibre').style.display = visibleEditorLibre ? "inline-block" : "none";
         document.getElementById('btnGuardarLibre').style.display = (visibleEditorLibre && editorLibreActivo) ? "inline-block" : "none";
         // VOCABULARIO NUEVO no tiene caja de "Tarjetas" — sus 2 tarjetas
-        // (colores + vocabulario) están siempre visibles, sin selector.
-        const sinCajaDeTarjetas = unidadActualKey === "VOCABULARIO NUEVO";
+        // (colores + vocabulario) están siempre visibles, sin selector. El
+        // tema "numeros" de LOS NÚMEROS Y EL TIEMPO tampoco — es 1 sola
+        // tarjeta fija, sin nada para mostrar/ocultar.
+        const sinCajaDeTarjetas = unidadActualKey === "VOCABULARIO NUEVO"
+            || (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO" && modoNumerosTiempoNuevo === "numeros");
         document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo && !sinCajaDeTarjetas) ? "inline-block" : "none";
         // Botones rápidos (placeholder): solo en FANTASMA por ahora, visibles
         // cuando el editor está apagado — lo opuesto a Tarjetas/Guardar.
@@ -4311,7 +4314,7 @@
                 [12, 0, "É meio-dia"], [0, 0, "É meia-noite"]
             ]
         };
-        let html = '<div class="tarjeta tarjeta-con-borde tarjeta-relojes"><div class="relojes-titulo">Relojes</div><div class="relojes-grid">';
+        let html = '<div class="tarjeta-relojes"><div class="relojes-titulo">Relojes</div><div class="relojes-grid">';
         ejemplos[idioma].forEach(([h, m, frase]) => {
             html += renderRelojSVG(h, m, frase);
         });
@@ -6273,7 +6276,7 @@
             const id = el.dataset.clave;
             const e = numerosTiempoNuevoEstado[id];
             if (!e) return;
-            const zonaMover = el.querySelector('caption');
+            const zonaMover = el.querySelector('caption, .relojes-titulo');
             const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
 
             if (zonaMover) {
@@ -6708,7 +6711,9 @@
         editorLibreActivo = !editorLibreActivo;
         document.getElementById('btnEditorLibre').classList.toggle("activo", editorLibreActivo);
         document.getElementById('btnGuardarLibre').style.display = editorLibreActivo ? "inline-block" : "none";
-        document.getElementById('selectorTarjetasLibreWrap').style.display = (editorLibreActivo && unidadActualKey !== "VOCABULARIO NUEVO") ? "inline-block" : "none";
+        const sinCajaDeTarjetasToggle = unidadActualKey === "VOCABULARIO NUEVO"
+            || (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO" && modoNumerosTiempoNuevo === "numeros");
+        document.getElementById('selectorTarjetasLibreWrap').style.display = (editorLibreActivo && !sinCajaDeTarjetasToggle) ? "inline-block" : "none";
         if (editorLibreActivo) {
             inicializarMenuTarjetasLibre();
             recuperarTarjetasFueraDePantalla();
@@ -6778,9 +6783,10 @@
     // Arma el menú "Tarjetas" para el lienzo actualmente en pantalla, marcando
     // con ✓ las que ya están visibles.
     function inicializarMenuTarjetasLibre() {
-        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
+        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO" && modoNumerosTiempoNuevo === "horaytiempo") {
             const menu = document.getElementById('menuTarjetasLibre');
-            const tarjetas = numerosTiempoNuevoContenido[modoNumerosTiempoNuevo] || [];
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            const tarjetas = construirContenidoHoraYTiempo(idioma);
             menu.innerHTML = "";
             tarjetas.forEach(t => {
                 if (!numerosTiempoNuevoEstado[t.id]) {
