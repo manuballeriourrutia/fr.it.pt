@@ -126,6 +126,19 @@
             border: none;
             box-shadow: none;
         }
+        /* Anillo natural (Clima y Estaciones): mismo mecanismo que el arcoíris
+           de Tiempos Verbales, pero con tonos atmosféricos — gris, celeste,
+           azul — en vez de los 7 colores de tiempo verbal. */
+        .dropdown.anillo-clima {
+            padding: 2.5px;
+            border-radius: 999px;
+            background: conic-gradient(from 0deg, #8a97a0, #b8c2c8, #6fa8c9, #4a7a9a, #8a97a0);
+        }
+        .dropdown.anillo-clima .dropbtn,
+        .dropdown.anillo-clima .flagbtn {
+            border: none;
+            box-shadow: none;
+        }
         .dropbtn-chico { min-width: 0; padding: 10px 18px; }
 
         /* Botón circular de bandera, reemplaza al selector de idioma en texto */
@@ -942,6 +955,26 @@
                 { color: "#7a9a4e", forma: "hoja" },
                 { color: "#4a6a2e", forma: "hoja" }
             ]
+        },
+        "LA GEOGRAFÍA Y EL CLIMA__climaestaciones": {
+            // Paleta natural y sobria, a propósito sin los 4 colores de
+            // estación (esos quedan reservados para la tarjeta de Estaciones
+            // en sí, que ya tiene su propio color por fila — ver
+            // coloresEstaciones). El resto de la unidad usa solo tonos
+            // atmosféricos: gris, celeste, azul, blanco.
+            color: "#4a7a9a",
+            sombra: "rgba(74, 122, 154, 0.3)",
+            fondoPagina: "#dde8ec",
+            panelBg: "#fbfdfe",
+            textoColor: "#2c3e44",
+            tituloTarjetaColor: "#4a7a9a",
+            particulas: [
+                { color: "#ffffff", forma: "copo" },
+                { color: "#ffffff", forma: "copo" },
+                { color: "#9aa8b0", forma: "normal" },
+                { color: "#b8c2c8", forma: "normal" },
+                { color: "#6fa8c9", forma: "normal" }
+            ]
         }
     };
 
@@ -983,12 +1016,20 @@
     // unidad, regularidad y verbo. En cualquier otra unidad se quita, y esos
     // selectores vuelven a su borde normal de color de unidad/idioma.
     const IDS_BOTONES_ANILLO_ARCOIRIS = ['btnIdioma', 'btnUnidad', 'btnRegularidad', 'btnVerbo'];
+    const IDS_BOTONES_ANILLO_CLIMA = ['btnIdioma', 'btnUnidad', 'btnModoGeografiaClimaNuevo'];
     function actualizarAnilloArcoiris() {
-        const activo = unidadActualKey === "TIEMPOS VERBALES";
+        const esTiemposVerbales = unidadActualKey === "TIEMPOS VERBALES";
         IDS_BOTONES_ANILLO_ARCOIRIS.forEach(id => {
             const boton = document.getElementById(id);
             if (!boton || !boton.parentElement) return;
-            boton.parentElement.classList.toggle('anillo-arcoiris', activo);
+            boton.parentElement.classList.toggle('anillo-arcoiris', esTiemposVerbales);
+        });
+
+        const esClimaEstaciones = unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA" && modoGeografiaClimaNuevo === "climaestaciones";
+        IDS_BOTONES_ANILLO_CLIMA.forEach(id => {
+            const boton = document.getElementById(id);
+            if (!boton || !boton.parentElement) return;
+            boton.parentElement.classList.toggle('anillo-clima', esClimaEstaciones);
         });
     }
 
@@ -1033,18 +1074,27 @@
             p.style.width = (tamBase * 0.4) + 'px';
             p.style.height = (tamBase * 2.2) + 'px';
             p.style.borderRadius = '2px';
+            p.style.boxShadow = 'none';
         } else if (forma === "hoja") {
             p.style.width = (tamBase * 0.8) + 'px';
             p.style.height = (tamBase * 0.6) + 'px';
             p.style.borderRadius = '0% 100% 0% 100%';
+            p.style.boxShadow = 'none';
         } else if (forma === "pluma") {
             p.style.width = (tamBase * 0.6) + 'px';
             p.style.height = (tamBase * 1.5) + 'px';
             p.style.borderRadius = '40% 40% 50% 50%';
+            p.style.boxShadow = 'none';
+        } else if (forma === "copo") {
+            p.style.width = tamBase + 'px';
+            p.style.height = tamBase + 'px';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = '0 0 3px 1px rgba(255,255,255,0.7), 0 0 0 1px rgba(140,170,190,0.4)';
         } else {
             p.style.width = tamBase + 'px';
             p.style.height = tamBase + 'px';
             p.style.borderRadius = p.dataset.radioBase;
+            p.style.boxShadow = 'none';
         }
     }
 
