@@ -115,7 +115,7 @@
             color: #2ecc40;
             box-shadow: 0 0 10px #39ff14, 0 0 4px #39ff14;
         }
-        /* Botones placeholder de movimiento rápido (FANTASMA, sin función
+        /* Botones placeholder de navegación rápida entre unidades (sin función
            todavía) — el resplandor es siempre fijo, no es un estado on/off
            como el lápiz, es solo la estética del botón. */
         .editorbtn-magenta { border-color: #ff00ff; color: #d400d4; box-shadow: 0 0 10px #ff00ff, 0 0 4px #ff00ff; }
@@ -659,7 +659,7 @@
            días/meses a la izquierda (angosta, apiladas) y HORA a la derecha
            (ocupando el resto). Reemplaza la vieja grilla de 10 tarjetas. */
         /* Relojes visuales: grilla de 6 esferas SVG chicas con su frase debajo. */
-        .tarjeta-relojes { padding: 14px 16px; }
+        .tarjeta-relojes { padding: 0; }
         .relojes-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; text-align: center; margin-bottom: 8px; }
         .relojes-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .reloj-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -756,13 +756,6 @@
             <div onclick="cambiarModoPersonas('articulos')">Artículos</div>
         </div>
     </div>
-    <div class="dropdown" id="selectorModoFantasmaWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoFantasma" onclick="toggleDropdown('menuModoFantasma')">Tema A</button>
-        <div id="menuModoFantasma" class="dropdown-content">
-            <div onclick="cambiarModoFantasma('temaA')">Tema A</div>
-            <div onclick="cambiarModoFantasma('temaB')">Tema B</div>
-        </div>
-    </div>
     <div class="dropdown" id="selectorModoNumerosTiempoNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
         <div id="menuModoNumerosTiempoNuevo" class="dropdown-content">
@@ -833,7 +826,6 @@
         "FRASES DE RECEPCIÓN": { "FRANCÉS": "PHRASES DE RÉCEPTION", "ITALIANO": "FRASI DI RECEPTION", "PORTUGUÉS": "FRASES DE RECEÇÃO" },
         "ADVERBIOS DE CANTIDAD Y MODO": { "FRANCÉS": "ADVERBES DE QUANTITÉ ET DE MANIÈRE", "ITALIANO": "AVVERBI DI QUANTITÀ E MODO", "PORTUGUÉS": "ADVÉRBIOS DE QUANTIDADE E MODO" },
         "CONECTORES LÓGICOS": { "FRANCÉS": "CONNECTEURS LOGIQUES", "ITALIANO": "CONNETTIVI LOGICI", "PORTUGUÉS": "CONECTORES LÓGICOS" },
-        "FANTASMA": { "FRANCÉS": "FANTASMA", "ITALIANO": "FANTASMA", "PORTUGUÉS": "FANTASMA" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📚", "ITALIANO": "VOCABULARIO 📚", "PORTUGUÉS": "VOCABULARIO 📚" },
@@ -3827,8 +3819,6 @@
                 document.getElementById('btnModoCulturaTipica').innerText = "Local";
                 modoPersonas = "tarjetas";
                 document.getElementById('btnModoPersonas').innerText = "Personas";
-                modoFantasma = "temaA";
-                document.getElementById('btnModoFantasma').innerText = "Tema A";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -3856,12 +3846,17 @@
     // grilla propia de 8 tiempos; vocabulario se revisa aparte más adelante).
     const UNIDADES_SIN_LIENZO = ["TIEMPOS VERBALES", "VERBOS AUXILIARES"];
 
+    // Unidades construidas desde cero con el sistema de mesa (no migradas del
+    // viejo sistema) — los 3 botones de navegación rápida entre unidades
+    // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
+    // arme una unidad nueva, se agrega a esta lista.
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
+
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
     // modo "tarjetas" que no esté en la lista de exclusión.
     function esModoLienzoActivo() {
         if (unidadActualKey === null) return false; // pantalla inicial, sin unidad elegida todavía
-        if (unidadActualKey === "FANTASMA") return true; // unidad de prueba del sistema de mesa
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "VOCABULARIO NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
@@ -3903,9 +3898,6 @@
         const visibleCulturaTipica = unidadActualKey === "CULTURA TÍPICA";
         document.getElementById('selectorModoCulturaTipicaWrap').style.display = visibleCulturaTipica ? "inline-block" : "none";
 
-        const visibleFantasma = unidadActualKey === "FANTASMA";
-        document.getElementById('selectorModoFantasmaWrap').style.display = visibleFantasma ? "inline-block" : "none";
-
         const visibleNumerosTiempoNuevo = unidadActualKey === "LOS NÚMEROS Y EL TIEMPO";
         document.getElementById('selectorModoNumerosTiempoNuevoWrap').style.display = visibleNumerosTiempoNuevo ? "inline-block" : "none";
 
@@ -3931,9 +3923,9 @@
         const sinCajaDeTarjetas = unidadActualKey === "VOCABULARIO NUEVO"
             || (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO" && modoNumerosTiempoNuevo === "numeros");
         document.getElementById('selectorTarjetasLibreWrap').style.display = (visibleEditorLibre && editorLibreActivo && !sinCajaDeTarjetas) ? "inline-block" : "none";
-        // Botones rápidos (placeholder): solo en FANTASMA por ahora, visibles
+        // Botones rápidos (placeholder, navegación entre unidades): visibles
         // cuando el editor está apagado — lo opuesto a Tarjetas/Guardar.
-        const visibleRapidos = (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") && !editorLibreActivo;
+        const visibleRapidos = UNIDADES_NUEVAS_DE_CERO.includes(unidadActualKey) && !editorLibreActivo;
         ["btnRapido1", "btnRapido2", "btnRapido3"].forEach(id => {
             document.getElementById(id).style.display = visibleRapidos ? "inline-block" : "none";
         });
@@ -3946,7 +3938,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "FANTASMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -5806,22 +5798,9 @@
         return m;
     }
 
-    // ===== UNIDAD FANTASMA: prueba aislada del sistema de mesa de tarjetas.
-    // Una sola tarjeta de prueba (8 renglones de texto fijo, ancho natural,
-    // alto con tirador) — arranca en la esquina superior izquierda de la
-    // mesa, se puede arrastrar y redimensionar en alto, y nunca puede salir
-    // de los 4 bordes de la mesa (igual que un televisor: no hay píxeles
-    // fuera del marco). Cada tema (A/B) tiene su propia posición/tamaño
-    // independiente, sin persistencia en LocalStorage (es solo de prueba). =====
-    const fantasmaEstado = {
-        temaA: { left: 0, top: 0, alto: null, tamanoManual: false, visible: true },
-        temaB: { left: 0, top: 0, alto: null, tamanoManual: false, visible: true }
-    };
-
     // LOS NÚMEROS Y EL TIEMPO: estado por tarjeta, agrupado por tema. Cada
     // tarjeta tiene id, etiqueta (para el título/caption) y su propio estado
-    // de posición/tamaño/visibilidad — igual que fantasmaEstado, pero con
-    // varias tarjetas por tema en vez de 1 sola. Sin contenido real todavía.
+    // de posición/tamaño/visibilidad, con varias tarjetas por tema.
     // Contenido real de "La hora y el tiempo": relojes + hora + tiempo
     // relativo + días + meses — EXCLUYENDO las tarjetas "ancha" (explicaciones
     // largas), que ya viven en REGLAS bajo [HORA Y TIEMPO]. Se construye con
@@ -6339,33 +6318,6 @@
         });
     }
 
-    function renderFantasma() {
-        document.getElementById('mesaDeTarjetas').style.display = "block";
-        document.getElementById('contentTable').style.display = "none";
-        const m = posicionarMesaDeTarjetas();
-        const e = fantasmaEstado[modoFantasma];
-
-        const filas = Array(8).fill("Manu Ballerio Urrutia").map(t => `<tr><td>${t}</td></tr>`).join("");
-        const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
-        const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
-
-        let html = `<div style="position:relative; width:100%; height:100%;">`;
-        if (e.visible) {
-            html += `<div class="tarjeta-libre${claseAuto}" data-clave="fantasma" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
-                <div class="tarjeta-libre-contenido">
-                    <div class="tarjeta tarjeta-con-borde"><table><caption>Tarjeta de prueba</caption>${filas}</table></div>
-                </div>
-                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
-            </div>`;
-        }
-        html += '</div>';
-
-        document.getElementById('mesaDeTarjetas').innerHTML = html;
-        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
-        requestAnimationFrame(() => inicializarArrastreFantasma());
-        return null; // ya insertó su propio HTML directamente en mesaDeTarjetas, no en contentTable
-    }
-
     function inicializarArrastreNumerosUnica() {
         const el = document.querySelector('#mesaDeTarjetas .tarjeta-libre[data-clave="numeros"]');
         if (!el) return;
@@ -6414,72 +6366,6 @@
                     const dy = ev2.clientY - inicioY;
                     const maxAlto = rectMesa.height - el.offsetTop;
                     const nuevoAlto = Math.min(maxAlto, Math.max(80, h0 + dy));
-                    el.style.height = nuevoAlto + "px";
-                }
-                function soltar() {
-                    document.removeEventListener('pointermove', mover);
-                    document.removeEventListener('pointerup', soltar);
-                    e.alto = el.offsetHeight;
-                    e.tamanoManual = true;
-                    el.classList.remove("tarjeta-libre-auto");
-                }
-                document.addEventListener('pointermove', mover);
-                document.addEventListener('pointerup', soltar);
-            });
-        }
-    }
-
-    function inicializarArrastreFantasma() {
-        const el = document.querySelector('#mesaDeTarjetas .tarjeta-libre');
-        if (!el) return;
-        const e = fantasmaEstado[modoFantasma];
-        const zonaMover = el.querySelector('caption');
-        const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
-
-        if (zonaMover) {
-            zonaMover.addEventListener('pointerdown', (ev) => {
-                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
-                ev.preventDefault();
-                el.style.zIndex = 50;
-                const inicioX = ev.clientX, inicioY = ev.clientY;
-                const left0 = el.offsetLeft, top0 = el.offsetTop;
-                const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
-                const rectTarjeta = el.getBoundingClientRect();
-                const limiteX = rectMesa.width - rectTarjeta.width;
-                const limiteY = rectMesa.height - rectTarjeta.height;
-
-                function mover(ev2) {
-                    const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
-                    el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
-                    el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
-                }
-                function soltar() {
-                    document.removeEventListener('pointermove', mover);
-                    document.removeEventListener('pointerup', soltar);
-                    e.left = el.offsetLeft;
-                    e.top = el.offsetTop;
-                }
-                document.addEventListener('pointermove', mover);
-                document.addEventListener('pointerup', soltar);
-            });
-        }
-
-        if (manijaResize) {
-            manijaResize.addEventListener('pointerdown', (ev) => {
-                if (!editorLibreActivo) return; // el editor debe estar prendido para poder mover/redimensionar
-                ev.preventDefault();
-                el.style.zIndex = 50;
-                const tabla = el.querySelector('table');
-                const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
-                const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
-                const inicioY = ev.clientY;
-                const h0 = el.offsetHeight;
-                const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
-
-                function mover(ev2) {
-                    const dy = ev2.clientY - inicioY;
-                    const maxAlto = rectMesa.height - el.offsetTop;
-                    const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
                     el.style.height = nuevoAlto + "px";
                 }
                 function soltar() {
@@ -6544,7 +6430,7 @@
     }
 
     function guardarPosicionesLibres() {
-        if (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
+        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
             // Todavía sin persistencia real en LocalStorage — el botón da el
             // mismo feedback visual igual, mientras se termina de armar.
             const boton = document.getElementById('btnGuardarLibre');
@@ -6718,10 +6604,10 @@
             inicializarMenuTarjetasLibre();
             recuperarTarjetasFueraDePantalla();
         }
-        // Los 3 botones rápidos (placeholder, sin función todavía) son lo
-        // opuesto al editor: se ven con el lápiz apagado, se ocultan cuando
-        // se prende — por ahora en FANTASMA y LOS NÚMEROS Y EL TIEMPO.
-        if (unidadActualKey === "FANTASMA" || unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
+        // Los 3 botones rápidos (placeholder, sin función todavía, navegación
+        // entre unidades) son lo opuesto al editor: se ven con el lápiz
+        // apagado, se ocultan cuando se prende — en todas las unidades nuevas.
+        if (UNIDADES_NUEVAS_DE_CERO.includes(unidadActualKey)) {
             const displayRapidos = editorLibreActivo ? "none" : "inline-block";
             document.getElementById('btnRapido1').style.display = displayRapidos;
             document.getElementById('btnRapido2').style.display = displayRapidos;
@@ -6804,20 +6690,6 @@
             });
             return;
         }
-        if (unidadActualKey === "FANTASMA") {
-            const menu = document.getElementById('menuTarjetasLibre');
-            const e = fantasmaEstado[modoFantasma];
-            menu.innerHTML = "";
-            const div = document.createElement('div');
-            div.innerText = (e.visible ? "✓ " : "") + "Tarjeta de prueba";
-            div.onclick = () => {
-                e.visible = !e.visible;
-                document.getElementById('menuTarjetasLibre').classList.remove("show");
-                actualizarPantalla();
-            };
-            menu.appendChild(div);
-            return;
-        }
         if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
         const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
@@ -6852,18 +6724,6 @@
     // (Chamonix/la zona) y "Comportamiento" (hacer/no hacer, verificado con
     // fuentes reales de etiqueta de cada país).
     let modoCulturaTipica = "local";
-
-    // FANTASMA: unidad de prueba, vacía de contenido real, solo para validar
-    // el comportamiento del sistema de mesa de tarjetas (límites, drag,
-    // tirador de altura) antes de migrar las unidades reales.
-    let modoFantasma = "temaA";
-    function cambiarModoFantasma(nuevoModo) {
-        modoFantasma = nuevoModo;
-        const etiquetas = { temaA: 'Tema A', temaB: 'Tema B' };
-        document.getElementById('btnModoFantasma').innerText = etiquetas[nuevoModo];
-        document.getElementById('menuModoFantasma').classList.remove("show");
-        actualizarPantalla();
-    }
 
     // LOS NÚMEROS Y EL TIEMPO: unidad nueva (sistema de mesa), reemplaza a
     // futuro a NÚMEROS Y TIEMPO vieja. 2 temas: Los números / La hora y el
@@ -6995,9 +6855,6 @@
     // Devuelve el HTML interno (sin contenedor) para una unidad + idioma dados,
     // o null si no hay contenido para esa combinación.
     function renderUnidad(idioma, unidadKey) {
-        if (unidadKey === "FANTASMA") {
-            return renderFantasma();
-        }
         if (unidadKey === "LOS NÚMEROS Y EL TIEMPO") {
             return renderNumerosTiempoNuevo();
         }
