@@ -46,7 +46,7 @@
             animation-name: caer-particula-unidad;
             animation-timing-function: linear;
             animation-iteration-count: infinite;
-            transition: background-color 0.5s ease;
+            transition: background-color 0.5s ease, width 0.5s ease, height 0.5s ease, border-radius 0.5s ease;
         }
         @keyframes caer-particula-unidad {
             0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
@@ -107,7 +107,7 @@
         .editorbtn-marron { border-color: #a0522d; color: #8b4226; box-shadow: 0 0 10px #a0522d, 0 0 4px #a0522d; }
         
         .dropdown { position: relative; display: inline-block; }
-        .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+        .dropbtn { background: var(--panel-bg); border: 1.5px solid var(--color-borde-idioma); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; }
 
         /* Anillo arcoíris (exclusivo de TIEMPOS VERBALES): se agrega como clase
            al propio .dropdown existente (idioma, unidad, regularidad, verbo
@@ -279,7 +279,7 @@
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         th { background: var(--panel-bg); color: #666; font-size: 10px; text-transform: uppercase; position: sticky; top: 0; border-bottom: none; }
-        caption { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; padding-bottom: 8px; letter-spacing: 0.5px; }
+        caption { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--titulo-tarjeta-color, #888); padding-bottom: 8px; letter-spacing: 0.5px; transition: color 0.4s ease; }
         .emoji-cell { font-size: 20px; }
 
         /* Celdas de contenido con audio: indican con el cursor y un leve resalte
@@ -327,7 +327,7 @@
             border-radius: 16px;
             box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 3px 8px rgba(0,0,0,0.05);
             box-sizing: border-box;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
         }
 
         /* Cuando una unidad tiene varias tarjetas, se acomodan en grilla: de izquierda a derecha, y de arriba a abajo */
@@ -878,6 +878,10 @@
         "PARTÍCULAS": {
             color: "#a9744a",
             sombra: "rgba(169, 116, 74, 0.35)",
+            fondoPagina: "#ecdfc8",
+            panelBg: "#fffaf2",
+            textoColor: "#3d2c1d",
+            tituloTarjetaColor: "#8a6a4a",
             particulas: ["#a9744a", "#8a6a4a", "#c08552", "#6b4f3a", "#d4a373"]
         },
         "TIEMPOS VERBALES": {
@@ -888,6 +892,7 @@
             // leyendo la variable de color general (ej. la manija de resize).
             color: "#3a3a3a",
             sombra: "rgba(58, 58, 58, 0.25)",
+            fondoPagina: "#ffffff",
             particulas: ["#d63b2f", "#e8821e", "#e8c91e", "#e85ca8", "#4caf3a", "#2f7fe0", "#7b3fd6"]
         }
     };
@@ -897,13 +902,62 @@
 
     // Aplica el color de la unidad actual (o el de idioma, si esa unidad
     // todavía no tiene paleta propia) a las 3 variables CSS globales.
+    const FONDO_PAGINA_POR_DEFECTO = "#faf6ef";
+    const PANEL_BG_POR_DEFECTO = "#ffffff";
+    const TEXTO_COLOR_POR_DEFECTO = "#2c2c2e";
+    const TITULO_TARJETA_COLOR_POR_DEFECTO = "#888";
+    // Identidad visual por TEMA — para unidades donde cada tema define su
+    // propia paleta (en vez de un único color para toda la unidad). La clave
+    // es "UNIDAD__tema" exactamente como se usa internamente (ver
+    // modoGeografiaClimaNuevo, etc.). Si el tema activo no tiene entrada acá,
+    // se cae a colorPorUnidad como respaldo (y de ahí, al color de idioma).
+    const colorPorTema = {
+        "LA GEOGRAFÍA Y EL CLIMA__terreno": {
+            color: "#6b6862",
+            sombra: "rgba(107, 104, 98, 0.3)",
+            fondoPagina: "#e8e5df",
+            panelBg: "#fcfbf9",
+            textoColor: "#3d3a35",
+            tituloTarjetaColor: "#5e7a5e",
+            particulas: [
+                { color: "#5e7a5e", forma: "aguja" },
+                { color: "#7a9a6e", forma: "aguja" },
+                { color: "#4a6b4a", forma: "aguja" },
+                { color: "#6b8c5e", forma: "aguja" },
+                { color: "#3f5c3f", forma: "aguja" }
+            ]
+        }
+    };
+
+    // Devuelve la paleta activa en este momento: primero busca por tema
+    // (unidad + tema actual), después por unidad entera, y null si ninguna
+    // de las dos tiene identidad propia todavía (entonces se usa el color de
+    // idioma como respaldo final, en aplicarColorDeUnidad).
+    function obtenerPaletaActiva() {
+        const claveTema = unidadActualKey + "__" + obtenerTemaActivoDeUnidad();
+        return colorPorTema[claveTema] || colorPorUnidad[unidadActualKey] || null;
+    }
+
+    // Cada unidad con temas guarda su selección en su propia variable global
+    // (modoGeografiaClimaNuevo, modoCultura, etc.) — esta función las
+    // centraliza para no repetir el mapeo en cada lugar que necesite saber
+    // "qué tema está activo ahora". Devuelve "" si la unidad no tiene temas.
+    function obtenerTemaActivoDeUnidad() {
+        if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return modoGeografiaClimaNuevo;
+        return "";
+    }
+
     function aplicarColorDeUnidad(idioma) {
-        const paleta = colorPorUnidad[unidadActualKey];
+        const paleta = obtenerPaletaActiva();
         const color = paleta ? paleta.color : colorTextoPorIdioma[idioma];
         const sombra = paleta ? paleta.sombra : sombraBordePorIdioma[idioma];
         document.documentElement.style.setProperty('--color-idioma', color);
         document.documentElement.style.setProperty('--color-borde-idioma', color);
         document.documentElement.style.setProperty('--sombra-borde-idioma', sombra);
+        document.documentElement.style.setProperty('--bg-color', paleta && paleta.fondoPagina ? paleta.fondoPagina : FONDO_PAGINA_POR_DEFECTO);
+        document.documentElement.style.setProperty('--panel-bg', paleta && paleta.panelBg ? paleta.panelBg : PANEL_BG_POR_DEFECTO);
+        document.documentElement.style.setProperty('--text-color', paleta && paleta.textoColor ? paleta.textoColor : TEXTO_COLOR_POR_DEFECTO);
+        document.documentElement.style.setProperty('--titulo-tarjeta-color', paleta && paleta.tituloTarjetaColor ? paleta.tituloTarjetaColor : TITULO_TARJETA_COLOR_POR_DEFECTO);
         actualizarColorParticulasFondo();
         actualizarAnilloArcoiris();
     }
@@ -934,6 +988,7 @@
             const p = document.createElement('span');
             p.className = 'particula-unidad';
             const tam = 3 + Math.random() * 5;
+            p.dataset.tamBase = tam; // tamaño "normal" de fábrica, para volver a él si la forma activa no es especial
             p.style.left = (Math.random() * 100) + '%';
             p.style.width = tam + 'px';
             p.style.height = tam + 'px';
@@ -950,13 +1005,34 @@
     // unidad activa — nunca las recrea, así el cambio de tono se ve como una
     // transición suave (background-color con transition) y no como un
     // parpadeo/corte del fondo.
+    // Aplica la silueta correspondiente a una partícula: "aguja" la vuelve
+    // fina y alargada (como una hoja de pino cayendo girando), cualquier otro
+    // valor (incluido undefined) la devuelve a su tamaño base normal,
+    // redondo/cuadrado parejo de fábrica.
+    function aplicarFormaParticula(p, forma) {
+        const tamBase = parseFloat(p.dataset.tamBase);
+        if (forma === "aguja") {
+            p.style.width = (tamBase * 0.4) + 'px';
+            p.style.height = (tamBase * 2.2) + 'px';
+            p.style.borderRadius = '2px';
+        } else {
+            p.style.width = tamBase + 'px';
+            p.style.height = tamBase + 'px';
+        }
+    }
+
     function actualizarColorParticulasFondo() {
         const cont = document.getElementById('particulasFondo');
         if (!cont) return;
-        const paleta = colorPorUnidad[unidadActualKey];
-        const colores = paleta ? paleta.particulas : PARTICULAS_COLOR_NEUTRO;
+        const paleta = obtenerPaletaActiva();
+        const entradas = paleta ? paleta.particulas : PARTICULAS_COLOR_NEUTRO;
         Array.from(cont.children).forEach((p, i) => {
-            p.style.background = colores[i % colores.length];
+            const entrada = entradas[i % entradas.length];
+            // Retrocompatibilidad: una entrada puede ser un color suelto
+            // (string, forma normal) o un objeto {color, forma}.
+            const esObjeto = typeof entrada === "object";
+            p.style.background = esObjeto ? entrada.color : entrada;
+            aplicarFormaParticula(p, esObjeto ? entrada.forma : null);
         });
     }
 
@@ -2817,7 +2893,6 @@
             div.onclick = () => {
                 reproducirNombreSeleccion(unidades[u][idioma], idioma);
                 unidadActualKey = u;
-                aplicarColorDeUnidad(idioma);
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros[idioma];
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -2828,6 +2903,7 @@
                 document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura("local", idioma);
                 modoGeografiaClimaNuevo = "terreno";
                 document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${TEMAS_GEOGRAFIA_CLIMA.terreno[idioma]} ${TEMAS_GEOGRAFIA_CLIMA.terreno.emoji}`;
+                aplicarColorDeUnidad(idioma);
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -5842,6 +5918,7 @@
         reproducirNombreSeleccion(t[idioma], idioma);
         document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t[idioma]} ${t.emoji}`;
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
+        aplicarColorDeUnidad(idioma);
         actualizarPantalla();
     }
 
