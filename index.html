@@ -790,11 +790,12 @@
         </div>
     </div>
     <div class="dropdown" id="selectorModoGeografiaClimaNuevoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="toggleDropdown('menuModoGeografiaClimaNuevo')">Clima</button>
+        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="toggleDropdown('menuModoGeografiaClimaNuevo')">Terreno</button>
         <div id="menuModoGeografiaClimaNuevo" class="dropdown-content">
-            <div onclick="cambiarModoGeografiaClimaNuevo('clima')">Clima</div>
-            <div onclick="cambiarModoGeografiaClimaNuevo('geografia')">Geografía</div>
-            <div onclick="cambiarModoGeografiaClimaNuevo('estaciones')">Estaciones</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('terreno')">Terreno</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('florafauna')">Flora y Fauna</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('climaestaciones')">Clima y Estaciones</div>
+            <div onclick="cambiarModoGeografiaClimaNuevo('actividades')">Actividades</div>
         </div>
     </div>
 </header>
@@ -2926,8 +2927,8 @@
                 document.getElementById('btnModoPersonasNuevo').innerText = "Personas";
                 modoCultura = "local";
                 document.getElementById('btnModoCultura').innerText = "Local";
-                modoGeografiaClimaNuevo = "clima";
-                document.getElementById('btnModoGeografiaClimaNuevo').innerText = "Clima";
+                modoGeografiaClimaNuevo = "terreno";
+                document.getElementById('btnModoGeografiaClimaNuevo').innerText = "Terreno";
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -5862,32 +5863,35 @@
 
     const GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA = {
         "FRANCÉS": {
-            clima: climaNuevoGeoFrances,
-            geografia: geografiaNuevoGeoFrances,
-            estaciones: estacionesNuevoGeoFrances
+            terreno: [],
+            florafauna: geografiaNuevoGeoFrances,
+            climaestaciones: [...climaNuevoGeoFrances, ...estacionesNuevoGeoFrances],
+            actividades: []
         },
         "ITALIANO": {
-            clima: climaNuevoGeoItaliano,
-            geografia: geografiaNuevoGeoItaliano,
-            estaciones: estacionesNuevoGeoItaliano
+            terreno: [],
+            florafauna: geografiaNuevoGeoItaliano,
+            climaestaciones: [...climaNuevoGeoItaliano, ...estacionesNuevoGeoItaliano],
+            actividades: []
         },
         "PORTUGUÉS": {
-            clima: climaNuevoGeoPortugues,
-            geografia: geografiaNuevoGeoPortugues,
-            estaciones: estacionesNuevoGeoPortugues
+            terreno: [],
+            florafauna: geografiaNuevoGeoPortugues,
+            climaestaciones: [...climaNuevoGeoPortugues, ...estacionesNuevoGeoPortugues],
+            actividades: []
         },
     };
 
-    // "La Geografía y el Clima" (unidad nueva): 3 temas (clima/geografía/
-    // estaciones), cada uno multi-tarjeta con su propia caja de "Tarjetas" —
-    // mismo patrón que Partículas/Personas. Arranca con todas las tarjetas
-    // ocultas, igual que el resto del sistema nuevo.
-    let modoGeografiaClimaNuevo = "clima";
+    // "La Geografía y el Clima" (unidad nueva): 4 temas (Terreno/Flora y
+    // Fauna/Clima y Estaciones/Actividades), cada uno multi-tarjeta con su
+    // propia caja de "Tarjetas" — mismo patrón que Partículas/Personas.
+    // Arranca con todas las tarjetas ocultas, igual que el resto del sistema.
+    let modoGeografiaClimaNuevo = "terreno";
     const geografiaClimaNuevoEstado = {};
 
     function cambiarModoGeografiaClimaNuevo(nuevoModo) {
         modoGeografiaClimaNuevo = nuevoModo;
-        const etiquetas = { clima: 'Clima', geografia: 'Geografía', estaciones: 'Estaciones' };
+        const etiquetas = { terreno: 'Terreno', florafauna: 'Flora y Fauna', climaestaciones: 'Clima y Estaciones', actividades: 'Actividades' };
         document.getElementById('btnModoGeografiaClimaNuevo').innerText = etiquetas[nuevoModo];
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
         actualizarPantalla();
