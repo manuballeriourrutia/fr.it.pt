@@ -740,14 +740,6 @@
             <div onclick="cambiarModoVista('reglas')">Reglas</div>
         </div>
     </div>
-    <div class="dropdown" id="selectorModoGeografiaClimaWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClima" onclick="toggleDropdown('menuModoGeografiaClima')">Clima</button>
-        <div id="menuModoGeografiaClima" class="dropdown-content">
-            <div onclick="cambiarModoGeografiaClima('clima')">Clima</div>
-            <div onclick="cambiarModoGeografiaClima('estaciones')">Estaciones</div>
-            <div onclick="cambiarModoGeografiaClima('geografia')">Geografía</div>
-        </div>
-    </div>
     <div class="dropdown" id="selectorModoNumerosTiempoNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
         <div id="menuModoNumerosTiempoNuevo" class="dropdown-content">
@@ -831,7 +823,6 @@
 
 <script>
     const unidades = {
-        "GEOGRAFÍA Y CLIMA": { "FRANCÉS": "GÉOGRAPHIE ET MÉTÉO", "ITALIANO": "GEOGRAFIA E METEO", "PORTUGUÉS": "GEOGRAFIA E TEMPO" },
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📜", "ITALIANO": "VOCABULARIO 📜", "PORTUGUÉS": "VOCABULARIO 📜" },
@@ -895,7 +886,6 @@
     // en vez de ver COLORES por defecto al abrir o recargar la app.
     let unidadActualKey = null;
     let modoVistaUnidad = "tarjetas"; // "tarjetas" o "reglas" — selector nuevo dentro de cada unidad genérica
-    let modoGeografiaClima = "clima"; // "clima" o "geografia" — selector dentro de GEOGRAFÍA Y CLIMA
 
     const tarjetaReferencia = { vacia: true, titulo: "Espacio disponible" };
 
@@ -2542,142 +2532,6 @@
     }
 
 
-    // CLIMA: 4 tarjetas por idioma — sustantivos, hace/está/hay, pronóstico, frases de
-    // recepción de hotel. Sesgo de montaña (nieve, niebla, helada) porque la persona
-    // trabaja en recepción en Chamonix. Portugués es siempre de Portugal (pt-PT),
-    // ej. "está a nevar" en vez de "está nevando" (que sería brasileño).
-    const climaFrances = [
-        { titulo: "Sustantivos", headers: ["", "Francés"], rows: [
-            ["☀️", "Le soleil"], ["🌧️", "La pluie"], ["❄️", "La neige"], ["💨", "Le vent"],
-            ["🌫️", "Le brouillard"], ["🧊", "Le gel"], ["⛈️", "L'orage"], ["🧊", "La grêle"],
-            ["☁️", "Le ciel"], ["☁️", "Le nuage"]
-        ]},
-        { titulo: "Hace / Está / Hay", headers: ["", "Francés"], rows: [
-            ["🥶", "Il fait froid"], ["🥵", "Il fait chaud"], ["☁️", "Le ciel est couvert"],
-            ["🌫️", "Il y a du brouillard"], ["🧊", "Il gèle"], ["💨", "Il y a du vent"]
-        ]},
-        { titulo: "Pronóstico", headers: ["", "Francés"], rows: [
-            ["❄️", "Il va neiger"], ["🌧️", "Il va pleuvoir"], ["☀️", "Demain il fera beau"], ["🧊", "Cette nuit il va geler"]
-        ]},
-        { titulo: "Frases de recepción", headers: ["", "Francés"], rows: [
-            ["💬", "Quel temps fait-il aujourd'hui ?"], ["👁️", "Il y a une bonne visibilité aujourd'hui"],
-            ["🚫", "Les pistes sont fermées à cause du vent"], ["❄️", "Aujourd'hui il neige en altitude"]
-        ]}
-    ];
-
-    const climaItaliano = [
-        { titulo: "Sostantivi", headers: ["", "Italiano"], rows: [
-            ["☀️", "Il sole"], ["🌧️", "La pioggia"], ["❄️", "La neve"], ["💨", "Il vento"],
-            ["🌫️", "La nebbia"], ["🧊", "Il gelo"], ["⛈️", "Il temporale"], ["🧊", "La grandine"],
-            ["☁️", "Il cielo"], ["☁️", "La nuvola"]
-        ]},
-        { titulo: "Fa / È / C'è", headers: ["", "Italiano"], rows: [
-            ["🥶", "Fa freddo"], ["🥵", "Fa caldo"], ["☁️", "Il cielo è coperto"],
-            ["🌫️", "C'è nebbia"], ["🧊", "Sta gelando"], ["💨", "C'è vento"]
-        ]},
-        { titulo: "Previsioni", headers: ["", "Italiano"], rows: [
-            ["❄️", "Nevicherà"], ["🌧️", "Pioverà"], ["☀️", "Domani farà bel tempo"], ["🧊", "Stanotte gelerà"]
-        ]},
-        { titulo: "Frasi per la reception", headers: ["", "Italiano"], rows: [
-            ["💬", "Che tempo fa oggi?"], ["👁️", "Oggi c'è buona visibilità"],
-            ["🚫", "Le piste sono chiuse per il vento"], ["❄️", "Oggi nevica in quota"]
-        ]}
-    ];
-
-    const climaPortugues = [
-        { titulo: "Substantivos", headers: ["", "Portugués"], rows: [
-            ["☀️", "O sol"], ["🌧️", "A chuva"], ["❄️", "A neve"], ["💨", "O vento"],
-            ["🌫️", "O nevoeiro"], ["🧊", "A geada"], ["⛈️", "A tempestade"], ["🧊", "O granizo"],
-            ["☁️", "O céu"], ["☁️", "A nuvem"]
-        ]},
-        { titulo: "Está / Há", headers: ["", "Portugués"], rows: [
-            ["🥶", "Está frio"], ["🥵", "Está calor"], ["☁️", "O céu está nublado"],
-            ["🌫️", "Há nevoeiro"], ["🧊", "Está a gear"], ["💨", "Está ventoso"]
-        ]},
-        { titulo: "Previsão", headers: ["", "Portugués"], rows: [
-            ["❄️", "Vai nevar"], ["🌧️", "Vai chover"], ["☀️", "Amanhã estará bom tempo"], ["🧊", "Esta noite vai gear"]
-        ]},
-        { titulo: "Frases de recepção", headers: ["", "Portugués"], rows: [
-            ["💬", "Como está o tempo hoje?"], ["👁️", "Hoje há boa visibilidade"],
-            ["🚫", "As pistas estão fechadas devido ao vento"], ["❄️", "Hoje neva em altitude"]
-        ]}
-    ];
-
-    // GEOGRAFÍA: flora y fauna, con criterio de doble contexto — lo típico de
-    // Chamonix (donde se va a vivir) + lo típico del país de cada idioma en
-    // general (para entender una charla aunque no sea específicamente sobre
-    // Chamonix). Verificado con fuentes reales de cada zona — no son listas
-    // intercambiables entre idiomas, cada zona tiene su propia fauna/flora real.
-    const geografiaFrances = [
-        { titulo: "Fauna de Chamonix / los Alpes", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["le chamois||el rebeco/gamuza", ""], ["la marmotte||la marmota", ""], ["le bouquetin||el íbice/cabra montés", ""],
-            ["le cerf||el ciervo", ""], ["le chevreuil||el corzo", ""], ["l'aigle royal#masc||el águila real", ""],
-            ["le gypaète barbu||el quebrantahuesos", ""], ["le tétras-lyre||el urogallo", ""], ["l'écureuil roux#masc||la ardilla roja", ""],
-            ["la vipère||la víbora", ""]
-        ]},
-        { titulo: "Flora de Chamonix / los Alpes", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["l'edelweiss#fem||el edelweiss", ""], ["la gentiane||la genciana", ""], ["le rhododendron||el rododendro", ""],
-            ["le sapin||el abeto", ""], ["le hêtre||el haya", ""], ["l'épicéa#masc||la pícea", ""],
-            ["la myrtille||el arándano", ""], ["le mélèze||el alerce", ""]
-        ]},
-        { titulo: "Fauna típica de Francia (en general)", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["le coq||el gallo (símbolo nacional)", ""], ["le renard||el zorro", ""], ["le sanglier||el jabalí", ""],
-            ["le loup||el lobo", ""], ["l'ours brun#masc||el oso pardo", ""], ["le lièvre||la liebre", ""],
-            ["la loutre||la nutria", ""]
-        ]},
-        { titulo: "Flora típica de Francia (en general)", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["le chêne||el roble", ""], ["la lavande||la lavanda", ""], ["le tournesol||el girasol", ""],
-            ["la vigne||la vid", ""], ["le platane||el plátano (árbol)", ""], ["le coquelicot||la amapola", ""]
-        ]}
-    ];
-
-    const geografiaItaliano = [
-        { titulo: "Fauna de Chamonix / las Alpes", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["il camoscio||el rebeco/gamuza", ""], ["la marmotta||la marmota", ""], ["lo stambecco||el íbice/cabra montés", ""],
-            ["il cervo||el ciervo", ""], ["il capriolo||el corzo", ""], ["l'aquila reale#fem||el águila real", ""],
-            ["il gipeto||el quebrantahuesos", ""], ["il fagiano di monte||el urogallo", ""], ["lo scoiattolo rosso||la ardilla roja", ""],
-            ["la vipera||la víbora", ""]
-        ]},
-        { titulo: "Flora de Chamonix / las Alpes", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["la stella alpina||el edelweiss", ""], ["la genziana||la genciana", ""], ["il rododendro||el rododendro", ""],
-            ["l'abete#masc||el abeto", ""], ["il faggio||el haya", ""], ["il mirtillo||el arándano", ""],
-            ["il larice||el alerce", ""]
-        ]},
-        { titulo: "Fauna típica de Italia (en general)", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["il lupo||el lobo (símbolo nacional)", ""], ["l'orso bruno#masc||el oso pardo", ""], ["la lince||el lince", ""],
-            ["il cinghiale||el jabalí", ""], ["la volpe||el zorro", ""], ["la lepre||la liebre", ""],
-            ["la lontra||la nutria", ""]
-        ]},
-        { titulo: "Flora típica de Italia (en general)", headers: ["Italiano", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["l'ulivo#masc||el olivo", ""], ["il cipresso||el ciprés", ""], ["l'alloro#masc||el laurel", ""],
-            ["la vite||la vid", ""], ["il pino marittimo||el pino marítimo", ""], ["il castagno||el castaño", ""]
-        ]}
-    ];
-
-    const geografiaPortugues = [
-        { titulo: "Fauna de Chamonix / os Alpes", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["a camurça||el rebeco/gamuza", ""], ["a marmota||la marmota", ""], ["a cabra-montesa||el íbice/cabra montés", ""],
-            ["o veado||el ciervo", ""], ["o corço||el corzo", ""], ["a águia-real||el águila real", ""],
-            ["o quebra-ossos||el quebrantahuesos", ""], ["o galo-lira||el urogallo", ""], ["o esquilo-vermelho||la ardilla roja", ""],
-            ["a víbora||la víbora", ""]
-        ]},
-        { titulo: "Flora de Chamonix / os Alpes", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["o edelweiss||el edelweiss", ""], ["a genciana||la genciana", ""], ["o rododendro||el rododendro", ""],
-            ["o abeto||el abeto", ""], ["a faia||el haya", ""], ["o mirtilo||el arándano", ""],
-            ["o lariço||el alerce", ""]
-        ]},
-        { titulo: "Fauna típica de Portugal (en general)", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["o lince-ibérico||el lince ibérico", ""], ["o lobo-ibérico||el lobo ibérico", ""], ["a raposa||el zorro", ""],
-            ["o javali||el jabalí", ""], ["o veado||el ciervo", ""], ["a lebre||la liebre", ""],
-            ["a sardinha||la sardina", ""]
-        ]},
-        { titulo: "Flora típica de Portugal (en general)", headers: ["Português", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
-            ["o sobreiro||el alcornoque (árbol nacional)", ""], ["a oliveira||el olivo", ""], ["a azinheira||la encina", ""],
-            ["o zimbro||el enebro", ""], ["a vinha||la vid", ""], ["o medronheiro||el madroño", ""]
-        ]}
-    ];
-
-
     // Francés e italiano usan sistema binario (cerca/lejos); portugués es ternario
     // (este=cerca de quien habla, esse=cerca de quien escucha, aquele=lejos de ambos),
     // así que su tabla de demostrativos tiene una columna más.
@@ -2773,39 +2627,9 @@
     // curiosidad de que "segunda-feira" significa literalmente "segundo día"
     // porque la semana se cuenta a partir del domingo. Meses: todos masculinos
     // en los 3 idiomas, sin plural.
-            const estacionesFrances = [
-        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Francés", "Meses"], columnasConSonido: [0],
-          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
-          rows: [
-            ["le printemps", "marzo, abril, mayo"],
-            ["l'été", "junio, julio, agosto"],
-            ["l'automne", "septiembre, octubre, noviembre"],
-            ["l'hiver", "diciembre, enero, febrero"]
-        ]}
-    ];
-
-            const estacionesItaliano = [
-        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Italiano", "Meses"], columnasConSonido: [0],
-          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
-          rows: [
-            ["la primavera", "marzo, abril, mayo"],
-            ["l'estate", "junio, julio, agosto"],
-            ["l'autunno", "septiembre, octubre, noviembre"],
-            ["l'inverno", "diciembre, enero, febrero"]
-        ]}
-    ];
-
-            const estacionesPortugues = [
-        { titulo: "Estaciones (hemisferio norte — ¡invertidas respecto a Argentina!)", headers: ["Português", "Meses"], columnasConSonido: [0],
-          colorPorCelda: (fila, i, indiceFila) => i === 0 ? coloresEstaciones[indiceFila] : null,
-          rows: [
-            ["a primavera", "marzo, abril, mayo"],
-            ["o verão", "junio, julio, agosto"],
-            ["o outono", "septiembre, octubre, noviembre"],
-            ["o inverno", "diciembre, enero, febrero"]
-        ]}
-    ];
-
+            
+            
+            
     // FUSIONES ANTICHOQUES: contracción de preposición + artículo. Cada idioma tiene su
     // propia lógica real, sin forzar una tabla común: francés distingue por sonido inicial
     // (vocal/h muda vs consonante) en 4 categorías; italiano agrega una 5ª fila para los
@@ -2878,9 +2702,9 @@
     }
 
     const data = {
-        "FRANCÉS": { "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
@@ -2917,8 +2741,6 @@
                 unidadActualKey = u;
                 modoVistaUnidad = "tarjetas";
                 document.getElementById('btnModoVista').innerText = "Tarjetas";
-                modoGeografiaClima = "clima";
-                document.getElementById('btnModoGeografiaClima').innerText = "Clima";
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -2969,7 +2791,6 @@
         if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "CULTURA") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return true; // unidad nueva, sistema de mesa
-        if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
         return modoVistaUnidad === "tarjetas";
@@ -2998,9 +2819,6 @@
         if (visibleAuxiliar) {
             inicializarMenuAuxiliares();
         }
-
-        const visibleGeografiaClima = unidadActualKey === "GEOGRAFÍA Y CLIMA";
-        document.getElementById('selectorModoGeografiaClimaWrap').style.display = visibleGeografiaClima ? "inline-block" : "none";
 
         const visibleNumerosTiempoNuevo = unidadActualKey === "LOS NÚMEROS Y EL TIEMPO";
         document.getElementById('selectorModoNumerosTiempoNuevoWrap').style.display = visibleNumerosTiempoNuevo ? "inline-block" : "none";
@@ -3048,7 +2866,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -3467,31 +3285,6 @@
                 return limpiarMarcaGenero(celda);
             }))
         };
-    }
-
-    // GEOGRAFÍA Y CLIMA: selector interno clima/geografía (botón junto al
-    // nombre de la unidad). Clima usa el render genérico de siempre (grilla con
-    // emojis agrandados); geografía muestra las 4 tarjetas (fauna/flora de
-    // Chamonix + fauna/flora del país) en grilla, con color de género por
-    // artículo, igual criterio que VOCABULARIO.
-    function renderGeografiaClima(idioma) {
-        const datos = data[idioma]["GEOGRAFÍA Y CLIMA"];
-        const tarjetas = modoGeografiaClima === "clima" ? datos.clima
-            : modoGeografiaClima === "estaciones" ? datos.estaciones
-            : datos.geografia;
-        const lienzoId = "GEOGRAFÍA Y CLIMA__" + modoGeografiaClima + "__" + idioma;
-        const etiquetas = {};
-        const posicionesIniciales = {};
-        tarjetas.forEach((t, i) => {
-            const clave = "t" + i;
-            etiquetas[clave] = t.titulo || ("Tarjeta " + (i + 1));
-            posicionesIniciales[clave] = { leftPx: 0, topPx: 0 };
-        });
-        registrarLienzo(lienzoId, etiquetas, posicionesIniciales);
-        const tarjetasPorClave = {};
-        tarjetas.forEach((t, i) => { tarjetasPorClave["t" + i] = t; });
-        const claseExtra = modoGeografiaClima === "clima" ? "clima-grid" : null;
-        return renderLienzoGenerico(lienzoId, tarjetasPorClave, idioma, claseExtra);
     }
 
     // ===== MOTOR GENÉRICO DE LIENZOS (arrastre + redimensión de altura libre) =====
@@ -7037,18 +6830,6 @@
         });
     }
 
-
-    // Selector clima/estaciones/geografía: clona el patrón de Tarjetas/Reglas.
-    function cambiarModoGeografiaClima(nuevoModo) {
-        modoGeografiaClima = nuevoModo;
-        const etiquetas = { clima: 'Clima', estaciones: 'Estaciones', geografia: 'Geografía' };
-        document.getElementById('btnModoGeografiaClima').innerText = etiquetas[nuevoModo];
-        document.getElementById('menuModoGeografiaClima').classList.remove("show");
-        actualizarModoPantalla();
-        fijarAnchoPanel();
-        actualizarPantalla();
-    }
-
     // LOS NÚMEROS Y EL TIEMPO: unidad nueva (sistema de mesa), reemplaza a
     // futuro a NÚMEROS Y TIEMPO vieja. 2 temas: Los números / La hora y el
     // tiempo. Por ahora sin contenido real, solo el esqueleto.
@@ -7184,9 +6965,6 @@
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
 
-        if (unidadKey === "GEOGRAFÍA Y CLIMA") {
-            return renderGeografiaClima(idioma);
-        }
         if (unidadKey === "TIEMPOS VERBALES") {
             return renderTiemposVerbales(idioma);
         }
