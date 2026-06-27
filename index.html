@@ -829,6 +829,7 @@
         "LOS NÚMEROS Y EL TIEMPO": { "FRANCÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "ITALIANO": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳", "PORTUGUÉS": "LOS NÚMEROS 🎱 Y EL TIEMPO ⏳" },
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📚", "ITALIANO": "VOCABULARIO 📚", "PORTUGUÉS": "VOCABULARIO 📚" },
+        "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
@@ -3850,7 +3851,7 @@
     // viejo sistema) — los 3 botones de navegación rápida entre unidades
     // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
     // arme una unidad nueva, se agrega a esta lista.
-    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -3859,6 +3860,7 @@
         if (unidadActualKey === null) return false; // pantalla inicial, sin unidad elegida todavía
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "VOCABULARIO NUEVO") return true; // unidad nueva, sistema de mesa
+        if (unidadActualKey === "PARTÍCULAS") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
@@ -3938,7 +3940,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -5772,6 +5774,286 @@
         </div>`;
     }
 
+    // ===== Contenido propio e independiente de PARTÍCULAS — junta el
+    // contenido real de ADVERBIOS DE CANTIDAD Y MODO + CONECTORES LÓGICOS
+    // (que ya incluía sintaxis fusionada), copiado tal cual, SIN depender de
+    // las constantes viejas, para que esta unidad sea autosuficiente. =====
+    const particulasAdverbiosFrances = [
+        { titulo: "Cantidad: con sustantivo (+ de)", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["beaucoup de", "mucho/a/os/as (+ sustantivo)", "beaucoup de clients"],
+            ["un peu de", "un poco de", "un peu de patience"],
+            ["assez de", "suficiente/bastante", "assez de chambres"],
+            ["trop de", "demasiado/a/os/as", "trop de bruit"]
+        ]},
+        { titulo: "Cantidad: con verbo o adjetivo (sin de)", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sin sustantivo, se usan solas (sin \"de\"): elle travaille beaucoup (ella trabaja mucho), c'est assez clair (es bastante claro). Son siempre invariables, nunca cambian de forma."]
+        ]},
+        { titulo: "Modo: formación en -ment", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino y se agrega \"-ment\": lente → lentement, douce → doucement."],
+            ["", "Si el adjetivo termina en vocal (e, i, u), se usa el masculino: rapide → rapidement, vrai → vraiment, poli → poliment."]
+        ]},
+        { titulo: "Excepciones clave: bien / mal", headers: ["Francés", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["bien", "bien (no \"bonnement\")", "elle parle bien"],
+            ["mal", "mal (no \"mauvaisement\")", "il dort mal"]
+        ]}
+    ];
+
+    const particulasConectoresFrances = [
+        { titulo: "Las 7 conjunciones de coordinación", headers: ["Francés", "Español", "Función"], columnasConSonido: [0], rows: [
+            ["Mais", "Pero", "oposición"],
+            ["Ou", "O", "alternativa"],
+            ["Et", "Y", "suma/adición"],
+            ["Donc", "Entonces/por lo tanto", "consecuencia"],
+            ["Or", "Sin embargo/ahora bien", "contraste lógico"],
+            ["Ni", "Ni", "exclusión"],
+            ["Car", "Porque/pues", "causa"]
+        ]},
+        { titulo: "\"Car\" vs \"parce que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Ambos significan \"porque\", pero \"car\" es más formal y se usa más en lo escrito; \"parce que\" es el más neutro y usado en el habla diaria."],
+            ["", "\"Car\" NUNCA puede ir al inicio de una oración (siempre conecta dos partes ya empezadas); \"parce que\" sí puede ir al inicio."]
+        ]},
+        { titulo: "\"Or\": el más particular", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Or\" no es lo mismo que \"mais\" — introduce un dato nuevo que contrasta con lo que se esperaba: \"il avait dit qu'il viendrait, or il n'est pas venu\" (había dicho que vendría, sin embargo no vino)."]
+        ]}
+    ];
+
+    const particulasSintaxisFrances = [
+        { titulo: "Afirmación: orden básico", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Le client réserve une chambre\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "Negación: siempre 2 palabras", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El francés SIEMPRE necesita dos palabras para negar, rodeando al verbo: \"ne\" antes y \"pas/jamais/plus/rien/personne\" después: il ne vient pas, je ne mange jamais, elle ne voit personne."],
+            ["", "\"Ne\" se convierte en \"n'\" ante vocal o h muda. En el habla informal se suele omitir \"ne\" (je sais pas), pero en lo escrito y formal siempre se incluye."]
+        ]},
+        { titulo: "Interrogación: 3 niveles de registro", headers: ["Nivel", "Francés", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["Informal (entonación)", "Sujeto + Verbo + ?", "Vous avez une réservation ?"],
+            ["Neutro", "Est-ce que + Sujeto + Verbo", "Est-ce que vous avez une réservation ?"],
+            ["Formal (inversión)", "Verbo-Sujeto", "Avez-vous une réservation ?"]
+        ]},
+        { titulo: "Atención: \"si\", no \"oui\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Para responder afirmativamente a una pregunta NEGATIVA, se usa \"si\" en vez de \"oui\": \"Vous n'avez pas de réservation?\" — \"Si, j'en ai une\" (¿No tiene reserva? — Sí, tengo una)."]
+        ]}
+    ];
+
+    const particulasAdverbiosItaliano = [
+        { titulo: "Cantidad: variable (adjetivo) vs invariable (adverbio)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés y el portugués, en italiano \"molto\", \"poco\", \"troppo\", \"tanto\" CAMBIAN de género/número cuando acompañan a un sustantivo (son adjetivos): ho molta fame, ho molti amici."],
+            ["", "Cuando modifican un verbo, adjetivo u otro adverbio, son adverbios y quedan siempre invariables: sono molto stanco/stanca, mi sono divertito molto."]
+        ]},
+        { titulo: "Lista de cantidad", headers: ["Italiano", "Español", "Ejemplo (adverbio)"], columnasConSonido: [2], rows: [
+            ["molto", "mucho", "è molto simpatico"],
+            ["poco", "poco", "ho dormito poco"],
+            ["abbastanza", "bastante/suficiente", "è abbastanza chiaro"],
+            ["troppo", "demasiado", "lavori troppo"]
+        ]},
+        { titulo: "Modo: formación en -mente", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino singular y se agrega \"-mente\": lenta → lentamente, attenta → attentamente."],
+            ["", "Si el adjetivo termina en -e, se agrega directamente: felice → felicemente. Si termina en -le o -re (precedido de vocal), se pierde la -e final: facile → facilmente, singolare → singolarmente."]
+        ]},
+        { titulo: "Excepciones clave: bene / male", headers: ["Italiano", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["bene", "bien (no \"buonamente\")", "parla bene"],
+            ["male", "mal (no \"cattivamente\")", "dorme male"]
+        ]}
+    ];
+
+    const particulasConectoresItaliano = [
+        { titulo: "Equivalentes de las 7 conjunciones francesas", headers: ["Italiano", "Español", "Función"], columnasConSonido: [0], rows: [
+            ["Ma", "Pero", "oposición"],
+            ["O", "O", "alternativa"],
+            ["E", "Y", "suma/adición"],
+            ["Quindi / Dunque / Perciò", "Entonces/por lo tanto", "consecuencia"],
+            ["Né", "Ni", "exclusión"],
+            ["Perché / Poiché", "Porque/pues", "causa"]
+        ]},
+        { titulo: "\"Perché\" no puede ir al inicio (salvo respuesta)", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que \"car\" en francés, \"perché\" causal no inicia una oración nueva — conecta una ya empezada: \"Resto a casa perché piove\" (me quedo en casa porque llueve)."],
+            ["", "La única excepción es cuando responde directamente a una pregunta con \"Perché...?\": \"Perché non vieni?\" — \"Perché sono stanco\" (¿Por qué no venís? — Porque estoy cansado)."]
+        ]},
+        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El italiano no tiene una conjunción de coordinación equivalente a \"or\". El contraste lógico (\"sin embargo, resulta que...\") se cubre con adverbios como \"tuttavia\" o \"eppure\": \"aveva detto che sarebbe venuto, eppure non è venuto\"."]
+        ]}
+    ];
+
+    const particulasSintaxisItaliano = [
+        { titulo: "Afirmación: orden básico", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"Il cliente prenota una camera\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Si el elemento negativo (nessuno, niente, mai) va DESPUÉS del verbo, se necesita \"non\" antes: non è venuto nessuno, non ho visto niente."],
+            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"non\" se omite: nessuno è venuto, niente mi spaventa."]
+        ]},
+        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés, el italiano no tiene un sistema de inversión obligatorio — alcanza con la entonación ascendente (y el signo de pregunta al escribir): \"Ha una prenotazione?\" (mismo orden que la afirmación, solo cambia el tono)."],
+            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Chi, Cosa, Dove, Quando, Come, Perché — \"Dove è la sua camera?\" (¿dónde está su habitación?)."]
+        ]}
+    ];
+
+    const particulasAdverbiosPortugues = [
+        { titulo: "Cantidad: con sustantivo o verbo/adjetivo", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["muito", "mucho/a/os/as", "muitos hóspedes"],
+            ["pouco", "poco/a/os/as", "pouco tempo"],
+            ["bastante", "bastante/suficiente", "bastante calmo"],
+            ["demasiado", "demasiado/a/os/as", "demasiado caro"]
+        ]},
+        { titulo: "Invariables como adverbio", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del italiano, en portugués estas palabras son siempre invariables cuando funcionan como adverbio (modifican verbo/adjetivo): ela trabalha muito, está bastante cansada — sin cambiar de forma."],
+            ["", "Cuando acompañan directamente a un sustantivo sí concuerdan en género/número, igual que en italiano: muitos hóspedes, muita gente, poucas chaves."]
+        ]},
+        { titulo: "Modo: formación en -mente", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se toma el adjetivo en femenino y se agrega \"-mente\": lenta → lentamente, rápida → rapidamente."],
+            ["", "Para adjetivos uniformes (terminados en -e, -l, -z, -s) se agrega directamente, sin cambio: feliz → felizmente, simples → simplesmente."]
+        ]},
+        { titulo: "Excepciones clave: bem / mal", headers: ["Português", "Español", "Ejemplo"], columnasConSonido: [2], rows: [
+            ["bem", "bien (no \"boamente\")", "ela fala bem"],
+            ["mal", "mal (no \"mamente\")", "ele dorme mal"]
+        ]}
+    ];
+
+    const particulasConectoresPortugues = [
+        { titulo: "Equivalentes de las 7 conjunciones francesas", headers: ["Português", "Español", "Función"], columnasConSonido: [0], rows: [
+            ["Mas", "Pero", "oposición"],
+            ["Ou", "O", "alternativa"],
+            ["E", "Y", "suma/adición"],
+            ["Logo / Portanto / Por isso", "Entonces/por lo tanto", "consecuencia"],
+            ["Nem", "Ni", "exclusión"],
+            ["Porque", "Porque", "causa"]
+        ]},
+        { titulo: "\"Pois\": dos significados según posición", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Antes del verbo, al inicio de la oración subordinada, \"pois\" funciona como \"porque\" (causa): \"Não saí, pois chovia\" (no salí, porque llovía)."],
+            ["", "Después del verbo, en medio o al final de la oración, \"pois\" cambia de sentido y funciona como \"por lo tanto/entonces\" (consecuencia): \"Estudei muito, fui bem na prova, pois\" (estudié mucho, por lo tanto me fue bien en la prueba)."]
+        ]},
+        { titulo: "Sin equivalente exacto de \"or\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que en italiano, el portugués no tiene una conjunción de coordinación equivalente a \"or\" francés. El contraste lógico se cubre con \"no entanto\" o \"contudo\": \"tinha dito que viria, no entanto não veio\"."]
+        ]}
+    ];
+
+    const particulasSintaxisPortugues = [
+        { titulo: "Afirmación: orden básico", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Sujeto + Verbo + Objeto, igual que en español: \"O cliente reserva um quarto\" (el cliente reserva una habitación)."]
+        ]},
+        { titulo: "Negación: 1 o 2 palabras, según el orden", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Misma regla que el italiano: si el elemento negativo (ninguém, nada, nunca) va DESPUÉS del verbo, se necesita \"não\" antes: não veio ninguém, não vi nada."],
+            ["", "Si el elemento negativo va ANTES del verbo (como sujeto), \"não\" se omite: ninguém veio, nada me assusta."]
+        ]},
+        { titulo: "Interrogación: entonación o palabra interrogativa", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Igual que en italiano, alcanza con la entonación ascendente: \"Tem uma reserva?\" (mismo orden que la afirmación, solo cambia el tono)."],
+            ["", "Para preguntas parciales se usa una palabra interrogativa al inicio: Quem, O que, Onde, Quando, Como, Porque — \"Onde está o seu quarto?\" (¿dónde está su habitación?)."]
+        ]}
+    ];
+
+    const PARTICULAS_POR_IDIOMA = {
+        "FRANCÉS": [...particulasAdverbiosFrances, ...particulasConectoresFrances, ...particulasSintaxisFrances],
+        "ITALIANO": [...particulasAdverbiosItaliano, ...particulasConectoresItaliano, ...particulasSintaxisItaliano],
+        "PORTUGUÉS": [...particulasAdverbiosPortugues, ...particulasConectoresPortugues, ...particulasSintaxisPortugues]
+    };
+
+    // PARTÍCULAS: todo junto, sin selector de tema — mismo patrón multi-
+    // tarjeta que "La hora y el tiempo", con su propia caja de "Tarjetas"
+    // para mostrar/ocultar cada una individualmente.
+    const particulasEstado = {};
+
+    function renderParticulas(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+        const tarjetas = PARTICULAS_POR_IDIOMA[idioma];
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        tarjetas.forEach((t, i) => {
+            const id = "t" + i;
+            if (!particulasEstado[id]) {
+                particulasEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
+            }
+            const e = particulasEstado[id];
+            if (!e.visible) return;
+            const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+            const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            const final = t.colorPorCelda ? t : tarjetaConColorDeGenero(t, idioma);
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreParticulas());
+        return null;
+    }
+
+    function inicializarArrastreParticulas() {
+        const tarjetasEl = document.querySelectorAll('#mesaDeTarjetas .tarjeta-libre');
+        tarjetasEl.forEach(el => {
+            const id = el.dataset.clave;
+            const e = particulasEstado[id];
+            if (!e) return;
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const tabla = el.querySelector('table');
+                    const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                    const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
+
     function obtenerMesaDeTarjetas() {
         const barra = document.querySelector('.header-izquierda');
         const altoBarra = barra ? barra.getBoundingClientRect().bottom : 84;
@@ -6690,6 +6972,28 @@
             });
             return;
         }
+        if (unidadActualKey === "PARTÍCULAS") {
+            const menu = document.getElementById('menuTarjetasLibre');
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            const tarjetas = PARTICULAS_POR_IDIOMA[idioma];
+            menu.innerHTML = "";
+            tarjetas.forEach((t, i) => {
+                const id = "t" + i;
+                if (!particulasEstado[id]) {
+                    particulasEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
+                }
+                const e = particulasEstado[id];
+                const div = document.createElement('div');
+                div.innerText = (e.visible ? "✓ " : "") + (t.titulo || ("Tarjeta " + (i + 1)));
+                div.onclick = () => {
+                    e.visible = !e.visible;
+                    document.getElementById('menuTarjetasLibre').classList.remove("show");
+                    actualizarPantalla();
+                };
+                menu.appendChild(div);
+            });
+            return;
+        }
         if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
         const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
@@ -6863,6 +7167,9 @@
         }
         if (unidadKey === "VOCABULARIO NUEVO") {
             return renderVocabularioNuevo(idioma);
+        }
+        if (unidadKey === "PARTÍCULAS") {
+            return renderParticulas(idioma);
         }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
