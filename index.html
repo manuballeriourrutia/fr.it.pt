@@ -828,7 +828,6 @@
         "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
         "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
-        "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX", "ITALIANO": "TEMPI VERBALI", "PORTUGUÉS": "TEMPOS VERBAIS" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES", "ITALIANO": "VERBI AUSILIARI", "PORTUGUÉS": "VERBOS AUXILIARES" }
     };
@@ -2732,80 +2731,6 @@
         return String(texto).replace(/#(masc|fem)$/, "");
     }
 
-    
-    const pronombresFrances = [
-        { titulo: "Y — lugar o \"à + cosa\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Y\" reemplaza un complemento de lugar (¿dónde?) o un complemento con \"à\" cuando es una cosa, nunca una persona: Je vais à l'hôtel → J'y vais. Il pense à son travail → Il y pense."],
-            ["", "Nunca reemplaza personas — para eso se usa el pronombre tónico: Il pense à sa femme → Il pense à elle (no \"il y pense\")."]
-        ]},
-        { titulo: "EN — origen, cantidad o \"de + cosa\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"En\" reemplaza un complemento de lugar de origen (¿de dónde?), un complemento con \"de\" cuando es cosa, o una cantidad: Je viens de l'hôtel → J'en viens. Il parle de ce problème → Il en parle. Tu veux du café? → Oui, j'en veux."],
-            ["", "Tampoco reemplaza personas — se usa \"de\" + pronombre tónico: Il parle de Marie → Il parle d'elle (no \"il en parle\")."]
-        ]},
-        { titulo: "Relativos: \"qui\" y \"que\"", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Qui\" reemplaza al sujeto de la oración relativa (persona o cosa): la cliente qui arrive (la clienta que llega)."],
-            ["", "\"Que\" reemplaza al complemento objeto directo: la chambre que je préfère (la habitación que prefiero). Para complementos con preposición se usa \"dont\" (de) u otras formas según la preposición."]
-        ]}
-    ];
-
-    
-    const pronombresItaliano = [
-        { titulo: "CI — equivalente de \"y\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Ci\" funciona igual que el francés \"y\": reemplaza un lugar o un complemento con \"a\" cuando es cosa, nunca persona. Vado in albergo → Ci vado. Penso al lavoro → Ci penso."],
-            ["", "Para personas se usa el pronombre tónico: Penso a mia moglie → Penso a lei (no \"ci penso\")."]
-        ]},
-        { titulo: "NE — equivalente de \"en\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Ne\" funciona igual que el francés \"en\": reemplaza origen, complemento con \"di\", o cantidad. Vengo dall'albergo → Ne vengo. Parlo di questo problema → Ne parlo. Vuoi del caffè? → Sì, ne voglio."],
-            ["", "Tampoco reemplaza personas — se usa \"di\" + pronombre tónico: Parlo di Maria → Parlo di lei (no \"ne parlo\")."]
-        ]},
-        { titulo: "Relativos: \"che\" y \"cui\"", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Che\" sustituye sujeto o complemento objeto directo, sin preposición: la cliente che arriva (la clienta que llega)."],
-            ["", "\"Cui\" sustituye cualquier complemento con preposición simple (di, a, da, in, con, su, per, tra): la camera in cui dormo (la habitación en la que duermo)."]
-        ]}
-    ];
-
-    
-    const pronombresPortugues = [
-        { titulo: "No existe un equivalente de \"y\"/\"en\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "A diferencia del francés (y/en) y el italiano (ci/ne), el portugués NO tiene una partícula gramatical especial para lugar o cantidad."],
-            ["", "Se resuelve con palabras normales: \"lá\"/\"ali\" para lugar (Vais ao hotel? Sim, vou lá), o repitiendo/omitiendo la cosa en vez de sustituirla por una partícula."]
-        ]},
-        { titulo: "Relativos: \"que\", \"quem\", \"cujo\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
-            ["", "\"Que\" es el relativo universal — sirve para personas o cosas, como sujeto o complemento directo: o quarto que reservei (la habitación que reservé)."],
-            ["", "\"Quem\" se refiere solo a personas y siempre va con preposición: a pessoa de quem falei (la persona de quien hablé). \"Cujo/cuja\" expresa posesión y nunca lleva artículo después: o hóspede cujo passaporte ficou aqui."]
-        ]}
-    ];
-
-    
-    // ADVERBIOS DE CANTIDAD Y MODO: verificado con fuentes gramaticales — la
-    // formación de los adverbios de modo (-ment/-mente) es muy paralela entre los
-    // 3 idiomas (se toma el femenino del adjetivo + sufijo), pero el comportamiento
-    // de los adverbios de cantidad NO lo es: en italiano, palabras como "molto" o
-    // "poco" cambian de forma cuando acompañan a un sustantivo (son adjetivos) pero
-    // quedan invariables cuando modifican un verbo/adjetivo (ahí son adverbios) —
-    // en francés y portugués, en cambio, son siempre invariables como adverbios.
-    
-    
-    
-    // CONECTORES LÓGICOS: verificado con fuentes gramaticales — la equivalencia
-    // básica funciona bien entre los 3 idiomas, pero "or" francés (oposición/
-    // contraste lógico, distinto de "mais") NO tiene equivalente exacto de
-    // coordinación en italiano ni portugués: ahí se cubre con adverbios/conectores
-    // de otra categoría (tuttavia/eppure, no entanto/contudo), no con una
-    // conjunción de coordinación propiamente dicha.
-    
-    
-    
-    // SINTAXIS: afirmación, negación e interrogación. Verificado con fuentes
-    // gramaticales — el punto más importante NO es paralelo entre los 3: francés
-    // SIEMPRE necesita 2 palabras para negar (ne...pas, ne...jamais), mientras que
-    // italiano y portugués comparten la misma regla de "concordancia negativa":
-    // una sola palabra negativa basta si va antes del verbo (nessuno è venuto /
-    // ninguém veio), pero se necesitan 2 si el elemento negativo va después del
-    // verbo (non è venuto nessuno / não veio ninguém).
-    
-    
-    
     // FRASES DE RECEPCIÓN: a diferencia de las unidades anteriores, esto NO es
     // gramática nueva — es vocabulario y frases hechas de uso diario en el
     // mostrador del hotel, aplicando lo que ya está cubierto como gramática pura
@@ -3101,9 +3026,9 @@
     ];
 
     const data = {
-        "FRANCÉS": { "PRONOMBRES": [...pronombresFrances], "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
-        "ITALIANO": { "PRONOMBRES": [...pronombresItaliano], "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
-        "PORTUGUÉS": { "PRONOMBRES": [...pronombresPortugues], "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
+        "FRANCÉS": { "FRASES DE RECEPCIÓN": frasesRecepcionFrances, "GEOGRAFÍA Y CLIMA": { clima: climaFrances, geografia: geografiaFrances, estaciones: estacionesFrances }, "CULTURA TÍPICA": { local: culturaLocalFrances, comportamiento: culturaComportamientoFrances }, "TIEMPOS VERBALES": verbos[verboActualKey]["FRANCÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("FRANCÉS"), },
+        "ITALIANO": { "FRASES DE RECEPCIÓN": frasesRecepcionItaliano, "GEOGRAFÍA Y CLIMA": { clima: climaItaliano, geografia: geografiaItaliano, estaciones: estacionesItaliano }, "CULTURA TÍPICA": { local: culturaLocalItaliano, comportamiento: culturaComportamientoItaliano }, "TIEMPOS VERBALES": verbos[verboActualKey]["ITALIANO"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("ITALIANO"), },
+        "PORTUGUÉS": { "FRASES DE RECEPCIÓN": frasesRecepcionPortugues, "GEOGRAFÍA Y CLIMA": { clima: climaPortugues, geografia: geografiaPortugues, estaciones: estacionesPortugues }, "CULTURA TÍPICA": { local: culturaLocalPortugues, comportamiento: culturaComportamientoPortugues }, "TIEMPOS VERBALES": verbos[verboActualKey]["PORTUGUÉS"], "VERBOS AUXILIARES": obtenerContenidoAuxiliar("PORTUGUÉS"), }
     };
 
     // Abre/cierra el dropdown pedido, y cierra cualquier otro que haya quedado
