@@ -741,11 +741,8 @@
         </div>
     </div>
     <div class="dropdown" id="selectorModoNumerosTiempoNuevoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
-        <div id="menuModoNumerosTiempoNuevo" class="dropdown-content">
-            <div onclick="cambiarModoNumerosTiempoNuevo('numeros')">Los números</div>
-            <div onclick="cambiarModoNumerosTiempoNuevo('horaytiempo')">La hora y el tiempo</div>
-        </div>
+        <button class="dropbtn dropbtn-chico" id="btnModoNumerosTiempoNuevo" onclick="inicializarMenuNumerosTiempoNuevo(); toggleDropdown('menuModoNumerosTiempoNuevo')">Los números</button>
+        <div id="menuModoNumerosTiempoNuevo" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorGrupoNumerosNuevoWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnGrupoNumerosNuevo" onclick="inicializarMenuGrupoNumerosNuevo(); toggleDropdown('menuGrupoNumerosNuevo')">10 – 19</button>
@@ -766,29 +763,16 @@
         </div>
     </div>
     <div class="dropdown" id="selectorModoPersonasNuevoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoPersonasNuevo" onclick="toggleDropdown('menuModoPersonasNuevo')">Personas</button>
-        <div id="menuModoPersonasNuevo" class="dropdown-content">
-            <div onclick="cambiarModoPersonasNuevo('personas')">Personas</div>
-            <div onclick="cambiarModoPersonasNuevo('articulos')">Artículos</div>
-        </div>
+        <button class="dropbtn dropbtn-chico" id="btnModoPersonasNuevo" onclick="inicializarMenuPersonasNuevo(); toggleDropdown('menuModoPersonasNuevo')">Personas</button>
+        <div id="menuModoPersonasNuevo" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorModoCulturaWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoCultura" onclick="toggleDropdown('menuModoCultura')">Local 🇫🇷</button>
-        <div id="menuModoCultura" class="dropdown-content">
-            <div onclick="cambiarModoCultura('local')">Local 🇫🇷</div>
-            <div onclick="cambiarModoCultura('actividades')">Actividades ⛷️🍫</div>
-            <div onclick="cambiarModoCultura('propia')" id="opcionCulturaPropia">Propia 🇫🇷</div>
-            <div onclick="cambiarModoCultura('recepcion')">Frases de recepción 📘</div>
-        </div>
+        <button class="dropbtn dropbtn-chico" id="btnModoCultura" onclick="inicializarMenuCultura(); toggleDropdown('menuModoCultura')">Local 🇫🇷</button>
+        <div id="menuModoCultura" class="dropdown-content"></div>
     </div>
     <div class="dropdown" id="selectorModoGeografiaClimaNuevoWrap" style="display: none;">
-        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="toggleDropdown('menuModoGeografiaClimaNuevo')">Terreno 🏔️</button>
-        <div id="menuModoGeografiaClimaNuevo" class="dropdown-content">
-            <div onclick="cambiarModoGeografiaClimaNuevo('terreno')">Terreno 🏔️</div>
-            <div onclick="cambiarModoGeografiaClimaNuevo('florafauna')">Flora y Fauna 🐐🌲🦅</div>
-            <div onclick="cambiarModoGeografiaClimaNuevo('climaestaciones')">Clima y Estaciones ❄️🌸☀️🍂</div>
-            <div onclick="cambiarModoGeografiaClimaNuevo('actividades')">Actividades ⛷️</div>
-        </div>
+        <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="inicializarMenuGeografiaClimaNuevo(); toggleDropdown('menuModoGeografiaClimaNuevo')">Terreno 🏔️</button>
+        <div id="menuModoGeografiaClimaNuevo" class="dropdown-content"></div>
     </div>
 </header>
 
@@ -2742,15 +2726,15 @@
                 modoVistaUnidad = "tarjetas";
                 document.getElementById('btnModoVista').innerText = "Tarjetas";
                 modoNumerosTiempoNuevo = "numeros";
-                document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
+                document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros[idioma];
                 modoVocabularioNuevo = "Lugares del hotel";
                 document.getElementById('btnModoVocabularioNuevo').innerText = "Lugares del hotel";
                 modoPersonasNuevo = "personas";
-                document.getElementById('btnModoPersonasNuevo').innerText = "Personas";
+                document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS.personas[idioma];
                 modoCultura = "local";
-                document.getElementById('btnModoCultura').innerText = "Local 🇫🇷";
+                document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura("local", idioma);
                 modoGeografiaClimaNuevo = "terreno";
-                document.getElementById('btnModoGeografiaClimaNuevo').innerText = "Terreno 🏔️";
+                document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${TEMAS_GEOGRAFIA_CLIMA.terreno[idioma]} ${TEMAS_GEOGRAFIA_CLIMA.terreno.emoji}`;
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -2993,9 +2977,17 @@
         document.documentElement.style.setProperty('--color-borde-idioma', colorTextoPorIdioma[nuevoIdioma]);
         document.documentElement.style.setProperty('--sombra-borde-idioma', sombraBordePorIdioma[nuevoIdioma]);
         inicializarMenuUnidades();
-        document.getElementById('opcionCulturaPropia').innerText = 'Propia ' + banderaPorIdioma[nuevoIdioma];
-        if (unidadActualKey === "CULTURA" && modoCultura === "propia") {
-            document.getElementById('btnModoCultura').innerText = 'Propia ' + banderaPorIdioma[nuevoIdioma];
+        if (unidadActualKey === "CULTURA") {
+            inicializarMenuCultura();
+        }
+        if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") {
+            inicializarMenuNumerosTiempoNuevo();
+        }
+        if (unidadActualKey === "PERSONAS NUEVO") {
+            inicializarMenuPersonasNuevo();
+        }
+        if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") {
+            inicializarMenuGeografiaClimaNuevo();
         }
         if (unidadActualKey === "TIEMPOS VERBALES") {
             inicializarMenuVerbos();
@@ -5270,11 +5262,41 @@
     let modoCultura = "local";
     const culturaEstado = {};
 
+    // Nombre de cada tema de CULTURA en los 3 idiomas + su emoji fijo. "Propia"
+    // lleva la bandera del idioma elegido en vez de un emoji fijo (se agrega
+    // al armar el botón/menú). El español (clave del objeto) es la traducción
+    // que se muestra chica y gris debajo de cada opción del menú.
+    const TEMAS_CULTURA = {
+        local: { FRANCÉS: "Local", ITALIANO: "Locale", PORTUGUÉS: "Local", emoji: "🇫🇷" },
+        actividades: { FRANCÉS: "Activités", ITALIANO: "Attività", PORTUGUÉS: "Atividades", emoji: "⛷️🍫" },
+        propia: { FRANCÉS: "Propre", ITALIANO: "Propria", PORTUGUÉS: "Própria", emoji: null },
+        recepcion: { FRANCÉS: "Phrases de réception", ITALIANO: "Frasi di reception", PORTUGUÉS: "Frases de receção", emoji: "📘" }
+    };
+    const ESPAÑOL_TEMA_CULTURA = { local: "Local", actividades: "Actividades", propia: "Propia", recepcion: "Frases de recepción" };
+
+    function etiquetaTemaCultura(clave, idioma) {
+        const t = TEMAS_CULTURA[clave];
+        const emoji = t.emoji || banderaPorIdioma[idioma];
+        return `${t[idioma]} ${emoji}`;
+    }
+
+    function inicializarMenuCultura() {
+        const menu = document.getElementById('menuModoCultura');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        menu.innerHTML = "";
+        Object.keys(TEMAS_CULTURA).forEach(clave => {
+            const div = document.createElement('div');
+            div.innerHTML = `${etiquetaTemaCultura(clave, idioma)}<div class="traduccion-unidad">${ESPAÑOL_TEMA_CULTURA[clave]}</div>`;
+            div.onclick = () => cambiarModoCultura(clave);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura(modoCultura, idioma);
+    }
+
     function cambiarModoCultura(nuevoModo) {
         modoCultura = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        const etiquetas = { local: 'Local 🇫🇷', actividades: 'Actividades ⛷️🍫', propia: 'Propia ' + banderaPorIdioma[idioma], recepcion: 'Frases de recepción 📘' };
-        document.getElementById('btnModoCultura').innerText = etiquetas[nuevoModo];
+        document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura(nuevoModo, idioma);
         document.getElementById('menuModoCultura').classList.remove("show");
         actualizarPantalla();
     }
@@ -5387,10 +5409,28 @@
     let modoPersonasNuevo = "personas";
     const personasNuevoEstado = {};
 
+    const TEMAS_PERSONAS = {
+        personas: { FRANCÉS: "Personnes", ITALIANO: "Persone", PORTUGUÉS: "Pessoas", es: "Personas" },
+        articulos: { FRANCÉS: "Articles", ITALIANO: "Articoli", PORTUGUÉS: "Artigos", es: "Artículos" }
+    };
+
+    function inicializarMenuPersonasNuevo() {
+        const menu = document.getElementById('menuModoPersonasNuevo');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        menu.innerHTML = "";
+        Object.keys(TEMAS_PERSONAS).forEach(clave => {
+            const div = document.createElement('div');
+            div.innerHTML = `${TEMAS_PERSONAS[clave][idioma]}<div class="traduccion-unidad">${TEMAS_PERSONAS[clave].es}</div>`;
+            div.onclick = () => cambiarModoPersonasNuevo(clave);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[modoPersonasNuevo][idioma];
+    }
+
     function cambiarModoPersonasNuevo(nuevoModo) {
         modoPersonasNuevo = nuevoModo;
-        const etiquetas = { personas: 'Personas', articulos: 'Artículos' };
-        document.getElementById('btnModoPersonasNuevo').innerText = etiquetas[nuevoModo];
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo][idioma];
         document.getElementById('menuModoPersonasNuevo').classList.remove("show");
         actualizarPantalla();
     }
@@ -5687,10 +5727,33 @@
     let modoGeografiaClimaNuevo = "terreno";
     const geografiaClimaNuevoEstado = {};
 
+    const TEMAS_GEOGRAFIA_CLIMA = {
+        terreno: { FRANCÉS: "Terrain", ITALIANO: "Terreno", PORTUGUÉS: "Terreno", es: "Terreno", emoji: "🏔️" },
+        florafauna: { FRANCÉS: "Flore et Faune", ITALIANO: "Flora e Fauna", PORTUGUÉS: "Flora e Fauna", es: "Flora y Fauna", emoji: "🐐🌲🦅" },
+        climaestaciones: { FRANCÉS: "Climat et Saisons", ITALIANO: "Clima e Stagioni", PORTUGUÉS: "Clima e Estações", es: "Clima y Estaciones", emoji: "❄️🌸☀️🍂" },
+        actividades: { FRANCÉS: "Activités", ITALIANO: "Attività", PORTUGUÉS: "Atividades", es: "Actividades", emoji: "⛷️" }
+    };
+
+    function inicializarMenuGeografiaClimaNuevo() {
+        const menu = document.getElementById('menuModoGeografiaClimaNuevo');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        menu.innerHTML = "";
+        Object.keys(TEMAS_GEOGRAFIA_CLIMA).forEach(clave => {
+            const t = TEMAS_GEOGRAFIA_CLIMA[clave];
+            const div = document.createElement('div');
+            div.innerHTML = `${t[idioma]} ${t.emoji}<div class="traduccion-unidad">${t.es}</div>`;
+            div.onclick = () => cambiarModoGeografiaClimaNuevo(clave);
+            menu.appendChild(div);
+        });
+        const tActual = TEMAS_GEOGRAFIA_CLIMA[modoGeografiaClimaNuevo];
+        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${tActual[idioma]} ${tActual.emoji}`;
+    }
+
     function cambiarModoGeografiaClimaNuevo(nuevoModo) {
         modoGeografiaClimaNuevo = nuevoModo;
-        const etiquetas = { terreno: 'Terreno 🏔️', florafauna: 'Flora y Fauna 🐐🌲🦅', climaestaciones: 'Clima y Estaciones ❄️🌸☀️🍂', actividades: 'Actividades ⛷️' };
-        document.getElementById('btnModoGeografiaClimaNuevo').innerText = etiquetas[nuevoModo];
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
+        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t[idioma]} ${t.emoji}`;
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
         actualizarPantalla();
     }
@@ -6839,10 +6902,28 @@
     // futuro a NÚMEROS Y TIEMPO vieja. 2 temas: Los números / La hora y el
     // tiempo. Por ahora sin contenido real, solo el esqueleto.
     let modoNumerosTiempoNuevo = "numeros";
+    const TEMAS_NUMEROS_TIEMPO = {
+        numeros: { FRANCÉS: "Les nombres", ITALIANO: "I numeri", PORTUGUÉS: "Os números", es: "Los números" },
+        horaytiempo: { FRANCÉS: "L'heure et le temps", ITALIANO: "L'ora e il tempo", PORTUGUÉS: "A hora e o tempo", es: "La hora y el tiempo" }
+    };
+
+    function inicializarMenuNumerosTiempoNuevo() {
+        const menu = document.getElementById('menuModoNumerosTiempoNuevo');
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        menu.innerHTML = "";
+        Object.keys(TEMAS_NUMEROS_TIEMPO).forEach(clave => {
+            const div = document.createElement('div');
+            div.innerHTML = `${TEMAS_NUMEROS_TIEMPO[clave][idioma]}<div class="traduccion-unidad">${TEMAS_NUMEROS_TIEMPO[clave].es}</div>`;
+            div.onclick = () => cambiarModoNumerosTiempoNuevo(clave);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[modoNumerosTiempoNuevo][idioma];
+    }
+
     function cambiarModoNumerosTiempoNuevo(nuevoModo) {
         modoNumerosTiempoNuevo = nuevoModo;
-        const etiquetas = { numeros: 'Los números', horaytiempo: 'La hora y el tiempo' };
-        document.getElementById('btnModoNumerosTiempoNuevo').innerText = etiquetas[nuevoModo];
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma];
         document.getElementById('menuModoNumerosTiempoNuevo').classList.remove("show");
         const visibleGrupo = nuevoModo === "numeros" && !editorLibreActivo;
         document.getElementById('selectorGrupoNumerosNuevoWrap').style.display = visibleGrupo ? "inline-block" : "none";
