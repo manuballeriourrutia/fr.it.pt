@@ -781,6 +781,13 @@
             <div onclick="cambiarModoVocabularioNuevo('Tiempo libre y servicios del hotel')">Tiempo libre y servicios del hotel</div>
         </div>
     </div>
+    <div class="dropdown" id="selectorModoPersonasNuevoWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoPersonasNuevo" onclick="toggleDropdown('menuModoPersonasNuevo')">Personas</button>
+        <div id="menuModoPersonasNuevo" class="dropdown-content">
+            <div onclick="cambiarModoPersonasNuevo('personas')">Personas</div>
+            <div onclick="cambiarModoPersonasNuevo('articulos')">Artículos</div>
+        </div>
+    </div>
     <div class="dropdown" id="selectorModoCulturaTipicaWrap" style="display: none;">
         <button class="dropbtn dropbtn-chico" id="btnModoCulturaTipica" onclick="toggleDropdown('menuModoCulturaTipica')">Local</button>
         <div id="menuModoCulturaTipica" class="dropdown-content">
@@ -830,6 +837,7 @@
         "REGLAS": { "FRANCÉS": "REGLAS 📖", "ITALIANO": "REGLAS 📖", "PORTUGUÉS": "REGLAS 📖" },
         "VOCABULARIO NUEVO": { "FRANCÉS": "VOCABULARIO 📚", "ITALIANO": "VOCABULARIO 📚", "PORTUGUÉS": "VOCABULARIO 📚" },
         "PARTÍCULAS": { "FRANCÉS": "PARTÍCULAS ♻️", "ITALIANO": "PARTÍCULAS ♻️", "PORTUGUÉS": "PARTÍCULAS ♻️" },
+        "PERSONAS NUEVO": { "FRANCÉS": "PERSONAS 🧍", "ITALIANO": "PERSONAS 🧍", "PORTUGUÉS": "PERSONAS 🧍" },
         "CULTURA TÍPICA": { "FRANCÉS": "CULTURE TYPIQUE", "ITALIANO": "CULTURA TIPICA", "PORTUGUÉS": "CULTURA TÍPICA" },
         "PREPOSICIONES DE TIEMPO": { "FRANCÉS": "PRÉPOSITIONS DE TEMPS", "ITALIANO": "PREPOSIZIONI DI TEMPO", "PORTUGUÉS": "PREPOSIÇÕES DE TEMPO" },
         "PRONOMBRES": { "FRANCÉS": "PRONOMS", "ITALIANO": "PRONOMI", "PORTUGUÉS": "PRONOMES" },
@@ -3824,6 +3832,8 @@
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = "Los números";
                 modoVocabularioNuevo = "Lugares del hotel";
                 document.getElementById('btnModoVocabularioNuevo').innerText = "Lugares del hotel";
+                modoPersonasNuevo = "personas";
+                document.getElementById('btnModoPersonasNuevo').innerText = "Personas";
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
                 editorLibreActivo = false;
@@ -3851,7 +3861,7 @@
     // viejo sistema) — los 3 botones de navegación rápida entre unidades
     // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
     // arme una unidad nueva, se agrega a esta lista.
-    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS"];
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -3861,6 +3871,7 @@
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "VOCABULARIO NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "PARTÍCULAS") return true; // unidad nueva, sistema de mesa
+        if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "COLORES") return true; // tarjeta única, mismo sistema que el resto
         if (unidadActualKey === "PERSONAS") return true; // los 3 modos usan lienzo
         if (unidadActualKey === "GEOGRAFÍA Y CLIMA") return true; // los 3 sub-modos (clima/estaciones/geografía) usan lienzo
@@ -3909,6 +3920,9 @@
         const visibleVocabularioNuevo = unidadActualKey === "VOCABULARIO NUEVO";
         document.getElementById('selectorModoVocabularioNuevoWrap').style.display = visibleVocabularioNuevo ? "inline-block" : "none";
 
+        const visiblePersonasNuevo = unidadActualKey === "PERSONAS NUEVO";
+        document.getElementById('selectorModoPersonasNuevoWrap').style.display = visiblePersonasNuevo ? "inline-block" : "none";
+
         const visiblePersonas = unidadActualKey === "PERSONAS";
         document.getElementById('selectorModoPersonasWrap').style.display = visiblePersonas ? "inline-block" : "none";
 
@@ -3940,7 +3954,7 @@
 
         // El selector Tarjetas/Reglas aplica a las unidades "genéricas" — las que
         // NO tienen su propio render especial de pantalla completa.
-        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS"];
+        const unidadesConRenderEspecial = ["TIEMPOS VERBALES", "VERBOS AUXILIARES", "GEOGRAFÍA Y CLIMA", "CULTURA TÍPICA", "PERSONAS", "LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO"];
         const visibleModoVista = unidadActualKey !== null && !unidadesConRenderEspecial.includes(unidadActualKey);
         document.getElementById('selectorModoVistaWrap').style.display = visibleModoVista ? "inline-block" : "none";
     }
@@ -6058,6 +6072,566 @@
     }
 
 
+    // ===== Contenido propio e independiente de PERSONAS (unidad nueva) —
+    // 2 temas: Personas (sujeto/tónico/reflexivo + género, sin las
+    // explicaciones 'ancha' que ya viven en REGLAS) y Artículos (11 piezas:
+    // definidos/indefinidos/partitivos/demostrativos/posiciones/fusiones/
+    // COD/COI/posesivos). Copiado tal cual, SIN depender de las constantes
+    // viejas, para que esta unidad sea autosuficiente. =====
+    const posicionesPersonasNuevoFrances = [
+        { titulo: "Demostrativos — Singular", headers: ["", "Cerca (-ci)", "Lejos (-là)"],
+          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
+          rows: [
+            ["Masc.", "celui-ci", "celui-là"], ["Fem.", "celle-ci", "celle-là"]
+        ]},
+        { titulo: "Demostrativos — Plural", headers: ["", "Cerca (-ci)", "Lejos (-là)"],
+          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
+          rows: [
+            ["Masc.", "ceux-ci", "ceux-là"], ["Fem.", "celles-ci", "celles-là"]
+        ]},
+        { titulo: "Mapa de posiciones", headers: ["", ""], rows: [
+            ["⬆️", "Devant"], ["⬇️", "Derrière"], ["↔️", "À côté de"], ["🔼", "Sur"],
+            ["📦", "Dans"], ["🔽", "Sous"], ["↕️", "Entre"], ["👀", "En face de"],
+            ["📍", "Près de"], ["🌍", "Loin de"], ["⏫", "Au-dessus de"], ["⏬", "Au-dessous de"], ["🔄", "Autour de"]
+        ]}
+    ];
+
+    const codCoiPersonasNuevoFrances = [
+        { titulo: "COD — Complement d'Objet Direct", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["le (masc.)", "Je le vois", "Yo lo veo"],
+            ["la (fem.)", "Je la cherche", "Yo la busco"],
+            ["l' (ambos, + vocal)", "Je l'adore", "Yo lo/la amo"],
+            ["les (plural)", "Je les trouve", "Yo los/las encuentro"]
+        ]},
+        { titulo: "COI — Complement d'Objet Indirect", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["lui (él / ella)", "Je lui donne la clé", "Yo le doy la llave (a él/ella)"],
+            ["leur (ellos / ellas)", "Je leur parle du climat", "Yo les hablo del clima (a ellos/ellas)"]
+        ]}
+    ];
+
+    const fusionesPersonasNuevoFrances = [
+        { titulo: "À / Hacia... (destinos)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Vocal o H muda", "à l'", "à l'hôtel"],
+            ["Consonante masc.", "au", "au comptoir"],
+            ["Consonante fem.", "à la", "à la chambre"],
+            ["Plurales", "aux", "aux voitures"]
+        ]},
+        { titulo: "De / Desde... (orígenes)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Vocal o H muda", "de l'", "de l'hôtel"],
+            ["Consonante masc.", "du", "du comptoir"],
+            ["Consonante fem.", "de la", "de la chambre"],
+            ["Plurales", "des", "des voitures"]
+        ]}
+    ];
+
+    const personasPersonasNuevoFrances = [
+        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
+            ["je", "moi", "me (m')"],
+            ["tu", "toi", "te (t')"],
+            ["il / elle", "lui / elle", "se (s')"],
+            ["nous", "nous", "nous"],
+            ["vous", "vous", "vous"],
+            ["ils / elles", "eux / elles", "se (s')"]
+        ]},
+        { titulo: "Terminaciones típicamente masculinas", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc.", "-age", "le garage"],
+            ["Masc.", "-ment", "le gouvernement"],
+            ["Masc.", "-isme", "le tourisme"],
+            ["Masc.", "-eau", "le bureau"],
+            ["Masc.", "-eur (cosas concretas)", "un ordinateur"]
+        ]},
+        { titulo: "Terminaciones típicamente femeninas", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Fem.", "-tion / -sion", "la réception"],
+            ["Fem.", "-ance / -ence", "la confiance"],
+            ["Fem.", "-ure", "la voiture"],
+            ["Fem.", "-té", "la réalité"],
+            ["Fem.", "-eur (cosas abstractas)", "la couleur"]
+        ]},
+        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc.", "Días de la semana", "le lundi"],
+            ["Masc.", "Meses y estaciones", "le printemps"],
+            ["Masc.", "Idiomas", "le français"],
+            ["Masc.", "Colores", "le rouge"],
+            ["Fem.", "Países terminados en -e", "la France"],
+            ["Masc.", "Resto de países", "le Mexique"]
+        ]}
+    ];
+
+    const articulosPersonasNuevoFrances = [
+        { titulo: "Definidos — \"el/la/los/las\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "le", "le passeport"],
+            ["Fem. sing.", "la", "la chambre"],
+            ["Sing. + vocal o h muda", "l'", "l'hôtel"],
+            ["Plural (ambos géneros)", "les", "les clients"]
+        ]},
+        { titulo: "Indefinidos — \"un/una/unos/unas\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "un", "un passeport"],
+            ["Fem. sing.", "une", "une chambre"],
+            ["Plural (ambos géneros)", "des", "des clients"]
+        ]},
+        { titulo: "Partitivos — cantidad no precisa", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "du", "du café"],
+            ["Fem. sing.", "de la", "de la confiture"],
+            ["Sing. + vocal o h muda", "de l'", "de l'eau"],
+            ["Plural (ambos géneros)", "des", "des céréales"]
+        ]},
+        { titulo: "Uso del partitivo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Se usa para comida y bebida no contable (du pain, de la confiture), y con faire para deportes/instrumentos (faire du tennis)."],
+            ["", "En negación, el partitivo y el indefinido se reducen siempre a de/d' (je ne veux pas de café, pas d'eau)."]
+        ]}
+    ];
+
+    const posesivosPersonasNuevoFrances = [
+        { titulo: "Formas (según el objeto poseído, no el poseedor)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Plural"], columnasConSonido: [1, 2, 3], rows: [
+            ["yo", "mon", "ma", "mes"],
+            ["tú", "ton", "ta", "tes"],
+            ["él/ella", "son", "sa", "ses"],
+            ["nosotros", "notre", "notre", "nos"],
+            ["ustedes/vosotros", "votre", "votre", "vos"],
+            ["ellos/ellas", "leur", "leur", "leurs"]
+        ]},
+        { titulo: "El posesivo reemplaza al artículo", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "En francés NUNCA se usa artículo + posesivo juntos: se dice \"mon passeport\", nunca \"le mon passeport\"."],
+            ["", "El posesivo se acuerda con el género y número de lo que se posee, no con quien posee — \"sa chambre\" puede ser la habitación de él o de ella, da igual."]
+        ]},
+        { titulo: "Excepción clave: vocal o h muda", headers: ["", "Francés"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Si el objeto poseído es femenino singular y empieza con vocal o h muda, se usa la forma masculina (mon, ton, son) en vez de la femenina: \"mon arrivée\" (no \"ma arrivée\"), \"son histoire\"."],
+            ["", "Con partes del cuerpo, el francés suele evitar el posesivo y usa el artículo definido: \"j'ai mal à la tête\" (no \"à ma tête\")."]
+        ]}
+    ];
+
+    const posicionesPersonasNuevoItaliano = [
+        { titulo: "Dimostrativi — Singolare", headers: ["", "Vicino", "Lontano"],
+          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
+          rows: [
+            ["Masc.", "questo", "quello"], ["Fem.", "questa", "quella"]
+        ]},
+        { titulo: "Dimostrativi — Plurale", headers: ["", "Vicino", "Lontano"],
+          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
+          rows: [
+            ["Masc.", "questi", "quelli"], ["Fem.", "queste", "quelle"]
+        ]},
+        { titulo: "Mappa delle posizioni", headers: ["", ""], rows: [
+            ["⬆️", "Davanti a"], ["⬇️", "Dietro (a)"], ["↔️", "Accanto a"], ["🔼", "Sopra"],
+            ["📦", "Dentro"], ["🔽", "Sotto"], ["↕️", "Tra / Fra"], ["👀", "Di fronte a"],
+            ["📍", "Vicino a"], ["🌍", "Lontano da"], ["⏫", "Al di sopra di"], ["⏬", "Al di sotto di"], ["🔄", "Intorno a"]
+        ]}
+    ];
+
+    const codCoiPersonasNuevoItaliano = [
+        { titulo: "COD — Complemento Oggetto Diretto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["lo (masc.)", "Lo vedo", "Yo lo veo"],
+            ["la (fem.)", "La cerco", "Yo la busco"],
+            ["li (masc. plural)", "Li trovo", "Yo los encuentro"],
+            ["le (fem. plural)", "Le adoro", "Yo las amo"]
+        ]},
+        { titulo: "COI — Complemento di Termine", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["gli (a él / a ellos)", "Gli do la chiave", "Yo le doy la llave (a él) / les doy (a ellos)"],
+            ["le (a ella)", "Le parlo del meteo", "Yo le hablo del clima (a ella)"]
+        ]}
+    ];
+
+    const fusionesPersonasNuevoItaliano = [
+        { titulo: "A... (destinazioni)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["+ vocal (con apóstrofe)", "all'", "all'hotel"],
+            ["Masc. estándar", "al", "al bancone"],
+            ["Masc. especial (x/y/z, gn/pn/ps, s+cons.)", "allo", "allo zaino"],
+            ["Femenino", "alla", "alla camera"],
+            ["Plural masculino", "ai", "ai clienti"],
+            ["Plural femenino", "alle", "alle macchine"]
+        ]},
+        { titulo: "Di... (origini)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["+ vocal (con apóstrofe)", "dell'", "dell'hotel"],
+            ["Masc. estándar", "del", "del bancone"],
+            ["Masc. especial (x/y/z, gn/pn/ps, s+cons.)", "dello", "dello zaino"],
+            ["Femenino", "della", "della camera"],
+            ["Plural masculino", "dei", "dei clienti"],
+            ["Plural femenino", "delle", "delle macchine"]
+        ]}
+    ];
+
+    const personasPersonasNuevoItaliano = [
+        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
+            ["io", "me", "mi"],
+            ["tu", "te", "ti"],
+            ["lui / lei", "lui / lei", "si"],
+            ["noi", "noi", "ci"],
+            ["voi", "voi", "vi"],
+            ["loro", "loro", "si"]
+        ]},
+        { titulo: "Regla general", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc.", "-o", "il tavolo"],
+            ["Fem.", "-a", "la sedia"],
+            ["Indistinto", "-e (puede ser ambos)", "il/la cliente"]
+        ]},
+        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc.", "Días de la semana", "il lunedì"],
+            ["Masc.", "Idiomas", "l'italiano"],
+            ["Masc.", "Colores", "il rosso"],
+            ["Fem.", "La mayoría de las estaciones/meses", "la primavera"],
+            ["Fem.", "Excepción notable: la mano", "la mano (es femenino aunque termina en -o)"]
+        ]}
+    ];
+
+    const articulosPersonasNuevoItaliano = [
+        { titulo: "Definidos — \"il/lo/la/i/gli/le\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "il", "il passaporto"],
+            ["Masc. sing. + s+cons./gn/pn/ps/x/y/z", "lo", "lo zaino"],
+            ["Masc. sing. + vocal", "l'", "l'hotel"],
+            ["Fem. sing.", "la (l' ante vocal)", "la camera"],
+            ["Masc. plural", "i", "i passaporti"],
+            ["Masc. plural (de los casos de \"lo\")", "gli", "gli zaini"],
+            ["Fem. plural (ambos géneros con \"l'\")", "le", "le camere"]
+        ]},
+        { titulo: "Indefinidos — \"un/uno/una\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. (consonante o vocal)", "un", "un passaporto"],
+            ["Masc. + s+cons./gn/pn/ps/x/y/z", "uno", "uno zaino"],
+            ["Fem. (consonante)", "una", "una camera"],
+            ["Fem. + vocal", "un'", "un'idea"]
+        ]},
+        { titulo: "Partitivos — cantidad no precisa", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "del", "del pane"],
+            ["Masc. sing. + s+cons./gn/pn/ps/x/y/z", "dello", "dello zucchero"],
+            ["Fem. sing.", "della", "della marmellata"],
+            ["Masc. plural", "dei", "dei clienti"],
+            ["Masc. plural (de los casos de \"dello\")", "degli", "degli zaini"],
+            ["Fem. plural", "delle", "delle camere"]
+        ]},
+        { titulo: "A diferencia del francés", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "El indefinido no tiene plural propio — el partitivo plural (dei, degli, delle) cumple ese rol, con el sentido de \"algunos/algunas\"."]
+        ]}
+    ];
+
+    const posesivosPersonasNuevoItaliano = [
+        { titulo: "Formas (con artículo, según el objeto poseído)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Masc. plural", "Fem. plural"], columnasConSonido: [1, 2, 3, 4], rows: [
+            ["yo", "il mio", "la mia", "i miei", "le mie"],
+            ["tú", "il tuo", "la tua", "i tuoi", "le tue"],
+            ["él/ella", "il suo", "la sua", "i suoi", "le sue"],
+            ["nosotros", "il nostro", "la nostra", "i nostri", "le nostre"],
+            ["ustedes/vosotros", "il vostro", "la vostra", "i vostri", "le vostre"],
+            ["ellos/ellas", "il loro", "la loro", "i loro", "le loro"]
+        ]},
+        { titulo: "El artículo es obligatorio", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés, en italiano el posesivo casi siempre va precedido del artículo definido: \"il mio passaporto\", nunca solo \"mio passaporto\" (salvo la excepción de parentesco, ver al lado)."],
+            ["", "Loro (de ellos/ellas) es invariable — no cambia con género ni número, pero el artículo que lo acompaña sí concuerda con lo poseído: \"il loro libro\", \"la loro casa\"."]
+        ]},
+        { titulo: "Excepción clave: parentesco en singular", headers: ["", "Italiano"], columnasConSonido: [], ancha: true, rows: [
+            ["", "Con un término de parentesco en singular sin modificador, se omite el artículo: \"mio fratello\", \"tua madre\", \"nostro zio\" (pero \"loro\" siempre lleva artículo: \"il loro fratello\")."],
+            ["", "Si el parentesco va en plural, o lleva un adjetivo o diminutivo, el artículo vuelve: \"i miei fratelli\", \"la mia sorella minore\", \"il mio fratellino\"."]
+        ]}
+    ];
+
+    const posicionesPersonasNuevoPortugues = [
+        { titulo: "Demonstrativos — Singular", headers: ["", "Perto de mim", "Perto de ti", "Longe"],
+          colorPorCelda: (fila, i) => i === 0 ? null : (fila[0] === "Masc." ? "genero-masc" : "genero-fem"),
+          rows: [
+            ["Masc.", "este", "esse", "aquele"], ["Fem.", "esta", "essa", "aquela"]
+        ]},
+        { titulo: "Demonstrativos — Plural", headers: ["", "Perto de mim", "Perto de ti", "Longe"],
+          colorPorCelda: (fila, i) => i === 0 ? null : "genero-plural",
+          rows: [
+            ["Masc.", "estes", "esses", "aqueles"], ["Fem.", "estas", "essas", "aquelas"]
+        ]},
+        { titulo: "Mapa de posições", headers: ["", ""], rows: [
+            ["⬆️", "À frente de"], ["⬇️", "Atrás de"], ["↔️", "Ao lado de"], ["🔼", "Em cima de"],
+            ["📦", "Dentro de"], ["🔽", "Debaixo de"], ["↕️", "Entre"], ["👀", "Em frente a"],
+            ["📍", "Perto de"], ["🌍", "Longe de"], ["⏫", "Por cima de"], ["⏬", "Por baixo de"], ["🔄", "Ao redor de"]
+        ]}
+    ];
+
+    const codCoiPersonasNuevoPortugues = [
+        { titulo: "CD — Complemento Direto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["o (masc.)", "Eu vejo-o", "Yo lo veo"],
+            ["a (fem.)", "Eu procuro-a", "Yo la busco"],
+            ["os (masc. plural)", "Eu encontro-os", "Yo los encuentro"],
+            ["as (fem. plural)", "Eu adoro-as", "Yo las amo"]
+        ]},
+        { titulo: "CI — Complemento Indireto", headers: ["Pronombre", "Ejemplo", "Traducción"], columnasConSonido: [0, 1],
+          colorPorCelda: (fila, i) => i === 0 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["lhe (a ele / a ela)", "Eu dou-lhe a chave", "Yo le doy la llave (a él/ella)"],
+            ["lhes (a eles / a elas)", "Eu falo-lhes do tempo", "Yo les hablo del clima (a ellos/ellas)"]
+        ]}
+    ];
+
+    const fusionesPersonasNuevoPortugues = [
+        { titulo: "A... (destinos)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masculino singular", "ao", "ao hotel"],
+            ["Femenino singular", "à", "à recepção"],
+            ["Masculino plural", "aos", "aos clientes"],
+            ["Femenino plural", "às", "às malas"]
+        ]},
+        { titulo: "De... (origens)", headers: ["Caso", "Fusión", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masculino singular", "do", "do hotel"],
+            ["Femenino singular", "da", "da recepção"],
+            ["Masculino plural", "dos", "dos clientes"],
+            ["Femenino plural", "das", "das malas"]
+        ]}
+    ];
+
+    const personasPersonasNuevoPortugues = [
+        { titulo: "Las personas: sujeto, tónico, reflexivo", headers: ["Sujeto", "Tónico", "Reflexivo"], columnasConSonido: [0, 1, 2], rows: [
+            ["eu", "mim / comigo", "me"],
+            ["tu", "ti / contigo", "te"],
+            ["ele / ela", "ele / ela", "se"],
+            ["nós", "nós / conosco", "nos"],
+            ["você", "você", "se"],
+            ["eles / elas", "eles / elas", "se"]
+        ]},
+        { titulo: "Regla general", headers: ["Género", "Terminación", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc.", "-o", "o quarto"],
+            ["Fem.", "-a", "a mala"],
+            ["Indistinto", "-e (puede ser ambos)", "o/a cliente"]
+        ]},
+        { titulo: "Casos fijos (siempre el mismo género)", headers: ["Género", "Categoría", "Ejemplo"], columnasConSonido: [2],
+          colorPorCelda: (fila, i) => i === 2 ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Fem.", "Días de semana (segunda a sexta)", "a segunda-feira"],
+            ["Masc.", "Sábado (único día masc. junto con domingo)", "o sábado"],
+            ["Masc.", "Domingo (único día masc. junto con sábado)", "o domingo"],
+            ["Masc.", "Idiomas", "o português"],
+            ["Masc.", "Cores", "o vermelho"],
+            ["Fem.", "Palabras terminadas en -gem", "a viagem"],
+            ["Fem.", "Excepción notable: a mão", "a mão (es femenino aunque termina en -o)"]
+        ]}
+    ];
+
+    const articulosPersonasNuevoPortugues = [
+        { titulo: "Definidos — \"o/a/os/as\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "o", "o passaporte"],
+            ["Fem. sing.", "a", "a chave"],
+            ["Masc. plural", "os", "os passaportes"],
+            ["Fem. plural", "as", "as chaves"]
+        ]},
+        { titulo: "Indefinidos — \"um/uma/uns/umas\"", headers: ["Caso", "Artículo", "Ejemplo"], columnasConSonido: [1, 2],
+          colorPorCelda: (fila, i) => (i === 1 || i === 2) ? colorGeneroPorTexto(fila[0]) : null,
+          rows: [
+            ["Masc. sing.", "um", "um passaporte"],
+            ["Fem. sing.", "uma", "uma chave"],
+            ["Masc. plural", "uns", "uns passaportes"],
+            ["Fem. plural", "umas", "umas chaves"]
+        ]},
+        { titulo: "¿Y el partitivo?", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "A diferencia del francés y el italiano, en portugués el artículo partitivo prácticamente no se usa hoy — existió en otra época, pero quedó en desuso."],
+            ["", "Donde el francés diría \"du café\" o el italiano \"del caffè\", el portugués simplemente dice \"café\" sin artículo, o usa um/uma si hace falta precisar una unidad."]
+        ]}
+    ];
+
+    const posesivosPersonasNuevoPortugues = [
+        { titulo: "Formas (con artículo opcional, según el objeto poseído)", headers: ["Poseedor", "Masc. sing.", "Fem. sing.", "Masc. plural", "Fem. plural"], columnasConSonido: [1, 2, 3, 4], rows: [
+            ["yo", "(o) meu", "(a) minha", "(os) meus", "(as) minhas"],
+            ["tú", "(o) teu", "(a) tua", "(os) teus", "(as) tuas"],
+            ["él/ella/usted", "(o) seu", "(a) sua", "(os) seus", "(as) suas"],
+            ["nosotros", "(o) nosso", "(a) nossa", "(os) nossos", "(as) nossas"],
+            ["ustedes/vosotros", "(o) vosso", "(a) vossa", "(os) vossos", "(as) vossas"]
+        ]},
+        { titulo: "El artículo es opcional (pero frecuente)", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "En portugués europeo es muy común decir \"o meu carro\" con artículo, a diferencia del portugués de Brasil, donde suele omitirse (\"meu carro\")."],
+            ["", "Con artículo definido, el posesivo va antes del sustantivo (\"o meu amigo\"). Con artículo indefinido, el posesivo suele ir después (\"um amigo meu\")."]
+        ]},
+        { titulo: "Ambigüedad de \"seu/sua\"", headers: ["", "Português"], columnasConSonido: [], ancha: true, rows: [
+            ["", "\"Seu/sua\" puede significar \"de él\", \"de ella\", \"de usted\" o \"de ustedes\" — para evitar confusión, se puede aclarar con \"dele\", \"dela\", \"deles\", \"delas\": \"o livro dele\" en vez de \"o seu livro\"."]
+        ]}
+    ];
+
+    const PERSONAS_NUEVO_POR_IDIOMA = {
+        "FRANCÉS": {
+            personas: personasPersonasNuevoFrances.filter(t => !t.ancha),
+            articulos: [
+                articulosPersonasNuevoFrances[0], articulosPersonasNuevoFrances[1], articulosPersonasNuevoFrances[2],
+                posicionesPersonasNuevoFrances[0], posicionesPersonasNuevoFrances[1], posicionesPersonasNuevoFrances[2],
+                fusionesPersonasNuevoFrances[0], fusionesPersonasNuevoFrances[1],
+                codCoiPersonasNuevoFrances[0], codCoiPersonasNuevoFrances[1],
+                ...posesivosPersonasNuevoFrances.filter(t => !t.ancha)
+            ]
+        },
+        "ITALIANO": {
+            personas: personasPersonasNuevoItaliano.filter(t => !t.ancha),
+            articulos: [
+                articulosPersonasNuevoItaliano[0], articulosPersonasNuevoItaliano[1], articulosPersonasNuevoItaliano[2],
+                posicionesPersonasNuevoItaliano[0], posicionesPersonasNuevoItaliano[1], posicionesPersonasNuevoItaliano[2],
+                fusionesPersonasNuevoItaliano[0], fusionesPersonasNuevoItaliano[1],
+                codCoiPersonasNuevoItaliano[0], codCoiPersonasNuevoItaliano[1],
+                ...posesivosPersonasNuevoItaliano.filter(t => !t.ancha)
+            ]
+        },
+        "PORTUGUÉS": {
+            personas: personasPersonasNuevoPortugues.filter(t => !t.ancha),
+            articulos: [
+                articulosPersonasNuevoPortugues[0], articulosPersonasNuevoPortugues[1], articulosPersonasNuevoPortugues[2],
+                posicionesPersonasNuevoPortugues[0], posicionesPersonasNuevoPortugues[1], posicionesPersonasNuevoPortugues[2],
+                fusionesPersonasNuevoPortugues[0], fusionesPersonasNuevoPortugues[1],
+                codCoiPersonasNuevoPortugues[0], codCoiPersonasNuevoPortugues[1],
+                ...posesivosPersonasNuevoPortugues.filter(t => !t.ancha)
+            ]
+        },
+    };
+
+    // PERSONAS (unidad nueva): 2 temas (Personas / Artículos), cada uno
+    // multi-tarjeta con su propia caja de "Tarjetas" — mismo patrón que "La
+    // hora y el tiempo". El estado de posición se indexa por idioma + tema +
+    // índice, para que cada combinación sea completamente independiente.
+    let modoPersonasNuevo = "personas";
+    const personasNuevoEstado = {};
+
+    function cambiarModoPersonasNuevo(nuevoModo) {
+        modoPersonasNuevo = nuevoModo;
+        const etiquetas = { personas: 'Personas', articulos: 'Artículos' };
+        document.getElementById('btnModoPersonasNuevo').innerText = etiquetas[nuevoModo];
+        document.getElementById('menuModoPersonasNuevo').classList.remove("show");
+        actualizarPantalla();
+    }
+
+    function renderPersonasNuevo(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+        const tarjetas = PERSONAS_NUEVO_POR_IDIOMA[idioma][modoPersonasNuevo];
+
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        tarjetas.forEach((t, i) => {
+            const id = idioma + "__" + modoPersonasNuevo + "__t" + i;
+            if (!personasNuevoEstado[id]) {
+                personasNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
+            }
+            const e = personasNuevoEstado[id];
+            if (!e.visible) return;
+            const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+            const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            const final = t.colorPorCelda ? t : tarjetaConColorDeGenero(t, idioma);
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastrePersonasNuevo());
+        return null;
+    }
+
+    function inicializarArrastrePersonasNuevo() {
+        const tarjetasEl = document.querySelectorAll('#mesaDeTarjetas .tarjeta-libre');
+        tarjetasEl.forEach(el => {
+            const id = el.dataset.clave;
+            const e = personasNuevoEstado[id];
+            if (!e) return;
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const tabla = el.querySelector('table');
+                    const filaEjemplo = tabla ? tabla.querySelector('tr') : null;
+                    const altoMinimo = 40 + (filaEjemplo ? filaEjemplo.getBoundingClientRect().height : 30);
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(altoMinimo, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
+
     function obtenerMesaDeTarjetas() {
         const barra = document.querySelector('.header-izquierda');
         const altoBarra = barra ? barra.getBoundingClientRect().bottom : 84;
@@ -7001,6 +7575,28 @@
             });
             return;
         }
+        if (unidadActualKey === "PERSONAS NUEVO") {
+            const menu = document.getElementById('menuTarjetasLibre');
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            const tarjetas = PERSONAS_NUEVO_POR_IDIOMA[idioma][modoPersonasNuevo];
+            menu.innerHTML = "";
+            tarjetas.forEach((t, i) => {
+                const id = idioma + "__" + modoPersonasNuevo + "__t" + i;
+                if (!personasNuevoEstado[id]) {
+                    personasNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: true };
+                }
+                const e = personasNuevoEstado[id];
+                const div = document.createElement('div');
+                div.innerText = (e.visible ? "✓ " : "") + (t.titulo || ("Tarjeta " + (i + 1)));
+                div.onclick = () => {
+                    e.visible = !e.visible;
+                    document.getElementById('menuTarjetasLibre').classList.remove("show");
+                    actualizarPantalla();
+                };
+                menu.appendChild(div);
+            });
+            return;
+        }
         if (!lienzoActualId) return;
         const menu = document.getElementById('menuTarjetasLibre');
         const etiquetas = LIENZOS_ETIQUETAS[lienzoActualId];
@@ -7177,6 +7773,9 @@
         }
         if (unidadKey === "PARTÍCULAS") {
             return renderParticulas(idioma);
+        }
+        if (unidadKey === "PERSONAS NUEVO") {
+            return renderPersonasNuevo(idioma);
         }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
