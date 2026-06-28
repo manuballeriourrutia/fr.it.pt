@@ -1251,6 +1251,14 @@
     // de las dos tiene identidad propia todavía (entonces se usa el color de
     // idioma como respaldo final, en aplicarColorDeUnidad).
     function obtenerPaletaActiva() {
+        // Excepción exclusiva de CULTURA: mientras no se eligió ningún tema,
+        // usa la identidad de Chamonix (en vez de heredar el color del tema
+        // "local" por defecto, como sí hacen el resto de unidades con tema —
+        // ahí ese comportamiento heredado se deja a propósito, queda bien).
+        // Coherente con que toda la unidad gira alrededor de Chamonix/Francia.
+        if (unidadActualKey === "CULTURA" && !temaYaElegidoPorUnidad["CULTURA"]) {
+            return colorPorTema["CULTURA__local"];
+        }
         const claveTema = unidadActualKey + "__" + obtenerTemaActivoDeUnidad();
         return colorPorTema[claveTema] || colorPorUnidad[unidadActualKey] || null;
     }
@@ -1265,6 +1273,7 @@
         if (unidadActualKey === "VERBOS AUXILIARES") return auxiliarActualKey === "REGLAS" ? "reglas" : "auxiliar";
         if (unidadActualKey === "PERSONAS NUEVO") return modoPersonasNuevo;
         if (unidadActualKey === "VOCABULARIO NUEVO") return modoVocabularioNuevo;
+        if (unidadActualKey === "CULTURA") return modoCultura;
         return "";
     }
 
@@ -1306,6 +1315,12 @@
         // temas tiene su propia combinación de colores reales, en el orden
         // dado, cerrando el ciclo (se repite el primer color al final).
         const paleta = obtenerPaletaActiva();
+        // Degradado LINEAL explícito, ya armado completo en la paleta — para
+        // casos como Chamonix, que necesita franjas verticales tipo bandera
+        // (no el conic-gradient circular genérico de bordeColores).
+        if (paleta && paleta.bordeLineal) {
+            return paleta.bordeLineal;
+        }
         if (paleta && paleta.bordeColores && paleta.bordeColores.length > 1) {
             const colores = paleta.bordeColores;
             return `conic-gradient(from 0deg, ${colores.join(", ")}, ${colores[0]})`;
@@ -1348,7 +1363,7 @@
     // fina y alargada (como una hoja de pino cayendo girando), cualquier otro
     // valor (incluido undefined) la devuelve a su tamaño base normal,
     // redondo/cuadrado parejo de fábrica.
-    function aplicarFormaParticula(p, forma) {
+    function aplicarFormaParticula(p, forma, tinteHalo) {
         const tamBase = parseFloat(p.dataset.tamBase);
         // Limpieza centralizada: cualquier forma especial (como "triangulo")
         // que use border-left/right/bottom en vez de width/height reales debe
@@ -1392,6 +1407,15 @@
             p.style.height = tamBase + 'px';
             p.style.borderRadius = '50%';
             p.style.boxShadow = `0 0 4px 1px ${p.style.background}66`;
+        } else if (forma === "destello") {
+            // Más grande que el resto, con doble halo (blanco intenso +
+            // un tinte tenue de color, por defecto celeste — cada paleta
+            // puede definir su propio tinteHalo, ver colorPorTema).
+            const tinte = tinteHalo || "180,210,230";
+            p.style.width = (tamBase * 1.7) + 'px';
+            p.style.height = (tamBase * 1.7) + 'px';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = `0 0 9px 2px rgba(255,255,255,0.9), 0 0 3px 1px rgba(${tinte},0.6)`;
         } else if (forma === "triangulo") {
             // Un triángulo CSS no usa width/height reales del elemento — el
             // color que ya viene puesto en background se traslada al
@@ -1427,7 +1451,7 @@
             // (string, forma normal) o un objeto {color, forma}.
             const esObjeto = typeof entrada === "object";
             p.style.background = esObjeto ? entrada.color : entrada;
-            aplicarFormaParticula(p, esObjeto ? entrada.forma : null);
+            aplicarFormaParticula(p, esObjeto ? entrada.forma : null, esObjeto ? entrada.tinteHalo : null);
             // La duración de animación no se puede hacer "transition" en CSS
             // (no es una propiedad interpolable) — el cambio de velocidad es
             // instantáneo, a diferencia del color/forma que sí son suaves.
@@ -1448,6 +1472,62 @@
     const UNIDADES_CON_TEMA_PENDIENTE = ["LA GEOGRAFÍA Y EL CLIMA", "LOS NÚMEROS Y EL TIEMPO", "PERSONAS NUEVO", "CULTURA"];
     let temaYaElegidoPorUnidad = {};
     const MENSAJE_ELEGIR_TEMA = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999; font-size:14px; text-align:center; padding:20px;">Elegí un tema para empezar ☝️</div>';
+
+    // Paleta neutra exclusiva de CULTURA, mientras todavía no se elige ningún
+    // tema — tierra/mapamundi: beige-arena con un toque verde-azulado tenue,
+    // evoca "vas a descubrir algo" sin definirse hacia ningún tema todavía.
+    const PALETA_NEUTRA_CULTURA = {
+        color: "#8a9a7a",
+        sombra: "rgba(138, 154, 122, 0.3)",
+        fondoPagina: "#ece8da",
+        panelBg: "#fafaf2",
+        textoColor: "#2c2c2e",
+        tituloTarjetaColor: "#5a6a4a",
+        particulas: [
+            { color: "#8a9a7a", forma: "normal" },
+            { color: "#a8b89a", forma: "normal" },
+            { color: "#c2bca0", forma: "normal" }
+        ]
+    };
+
+    colorPorTema["CULTURA__local"] = {
+        // Bandera francesa: franjas verticales azul-blanco-rojo, con las
+        // 2 uniones suavizadas (no un corte 100% duro, pero tampoco un
+        // degradado difuso de punta a punta).
+        color: "#3a5a9a",
+        sombra: "rgba(58, 90, 154, 0.3)",
+        bordeLineal: "linear-gradient(to right, #3a5a9a 0%, #3a5a9a 28%, #ffffff 38%, #ffffff 62%, #d6453a 72%, #d6453a 100%)",
+        fondoPagina: "#e0eef2",
+        panelBg: "#ffffff",
+        textoColor: "#2c2c2e",
+        tituloTarjetaColor: "#3a5a9a",
+        particulas: [
+            { color: "#3a5a9a", forma: "normal" },
+            { color: "#d6453a", forma: "normal" },
+            { color: "#ffffff", forma: "destello" }
+        ]
+    };
+    // Actividades comparte la misma identidad que Chamonix — ambos temas son
+    // sobre el mismo lugar (deportes/eventos del pueblo, no de otro país).
+    colorPorTema["CULTURA__actividades"] = colorPorTema["CULTURA__local"];
+
+    // "Propia" (Italia, cuando el idioma activo es italiano): mismo concepto
+    // que Chamonix, adaptado a la bandera italiana — verde-blanco-rojo en vez
+    // de azul-blanco-rojo, fondo verde claro en vez de celeste.
+    colorPorTema["CULTURA__propia"] = {
+        color: "#3a8a4a",
+        sombra: "rgba(58, 138, 74, 0.3)",
+        bordeLineal: "linear-gradient(to right, #3a8a4a 0%, #3a8a4a 28%, #ffffff 38%, #ffffff 62%, #d6453a 72%, #d6453a 100%)",
+        fondoPagina: "#e2f0e2",
+        panelBg: "#ffffff",
+        textoColor: "#2c2c2e",
+        tituloTarjetaColor: "#3a8a4a",
+        particulas: [
+            { color: "#3a8a4a", forma: "normal" },
+            { color: "#d6453a", forma: "normal" },
+            { color: "#ffffff", forma: "destello", tinteHalo: "180,220,180" }
+        ]
+    };
 
     const tarjetaReferencia = { vacia: true, titulo: "Espacio disponible" };
 
@@ -5896,12 +5976,12 @@
     // al armar el botón/menú). El español (clave del objeto) es la traducción
     // que se muestra chica y gris debajo de cada opción del menú.
     const TEMAS_CULTURA = {
-        local: { FRANCÉS: "Local", ITALIANO: "Locale", PORTUGUÉS: "Local", emoji: "🇫🇷" },
+        local: { FRANCÉS: "Chamonix", ITALIANO: "Chamonix", PORTUGUÉS: "Chamonix", emoji: "🇫🇷 ❄️🏔️☀️" },
         actividades: { FRANCÉS: "Activités", ITALIANO: "Attività", PORTUGUÉS: "Atividades", emoji: "⛷️🍫" },
-        propia: { FRANCÉS: "Propre", ITALIANO: "Propria", PORTUGUÉS: "Própria", emoji: null },
+        propia: { FRANCÉS: "France", ITALIANO: "Italia", PORTUGUÉS: "Portugal", emoji: null },
         recepcion: { FRANCÉS: "Phrases de réception", ITALIANO: "Frasi di reception", PORTUGUÉS: "Frases de receção", emoji: "📘" }
     };
-    const ESPAÑOL_TEMA_CULTURA = { local: "Local", actividades: "Actividades", propia: "Propia", recepcion: "Frases de recepción" };
+    const ESPAÑOL_TEMA_CULTURA = { local: "Chamonix", actividades: "Actividades", recepcion: "Frases de recepción" };
 
     function etiquetaTemaCultura(clave, idioma) {
         const t = TEMAS_CULTURA[clave];
@@ -5909,13 +5989,20 @@
         return `${t[idioma]} ${emoji}`;
     }
 
+    // Caso especial: "propia" apunta a un país DISTINTO según el idioma
+    // activo (Francia/Italia/Portugal) — su traducción al español también
+    // depende de cuál sea, a diferencia del resto de temas (que son el mismo
+    // concepto en los 3 idiomas, con una sola traducción fija).
+    const ESPAÑOL_PAIS_PROPIO_POR_IDIOMA = { FRANCÉS: "Francia", ITALIANO: "Italia", PORTUGUÉS: "Portugal" };
+
     function inicializarMenuCultura() {
         const menu = document.getElementById('menuModoCultura');
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         menu.innerHTML = "";
         Object.keys(TEMAS_CULTURA).forEach(clave => {
             const div = document.createElement('div');
-            div.innerHTML = `${etiquetaTemaCultura(clave, idioma)}<div class="traduccion-unidad">${ESPAÑOL_TEMA_CULTURA[clave]}</div>`;
+            const traduccionEs = clave === "propia" ? ESPAÑOL_PAIS_PROPIO_POR_IDIOMA[idioma] : ESPAÑOL_TEMA_CULTURA[clave];
+            div.innerHTML = `${etiquetaTemaCultura(clave, idioma)}<div class="traduccion-unidad">${traduccionEs}</div>`;
             div.onclick = () => cambiarModoCultura(clave);
             menu.appendChild(div);
         });
@@ -5930,6 +6017,7 @@
         reproducirNombreSeleccion(etiqueta, idioma);
         document.getElementById('btnModoCultura').innerText = etiqueta;
         document.getElementById('menuModoCultura').classList.remove("show");
+        aplicarColorDeUnidad(idioma);
         actualizarPantalla();
     }
 
@@ -7497,7 +7585,7 @@
     }
 
     window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn') && !event.target.matches('.flagbtn')) {
+        if (!event.target.closest('.dropbtn') && !event.target.closest('.flagbtn')) {
             var dropdowns = document.getElementsByClassName("dropdown-content");
             for (var i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('show');
         }
