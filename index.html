@@ -729,7 +729,7 @@
 
 <header class="header-izquierda">
     <div class="dropdown">
-        <button class="flagbtn" id="btnIdioma" onclick="intentarAbrirMenuIdioma()" data-idioma="FRANCÉS" style="border-color: #ccc; background: #f2f2f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease; cursor: not-allowed;"><span id="emojiBanderaIdioma" style="filter: grayscale(100%); transition: filter 0.3s ease;">🇫🇷</span></button>
+        <button class="flagbtn" id="btnIdioma" onclick="intentarAbrirMenuIdioma()" data-idioma="FRANCÉS" style="border: 2.5px solid transparent; background-image: linear-gradient(#f2f2f0, #f2f2f0), conic-gradient(#ccc, #ccc); background-origin: border-box; background-clip: padding-box, border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background-color 0.3s ease, box-shadow 0.3s ease; cursor: not-allowed;"><span id="emojiBanderaIdioma" style="filter: grayscale(100%); transition: filter 0.3s ease;">🇫🇷</span></button>
         <div id="menuIdioma" class="dropdown-content flagdropdown">
             <div onclick="cambiarIdioma('FRANCÉS')" class="flag-option idioma-fr">FRANCÉS</div>
             <div onclick="cambiarIdioma('ITALIANO')" class="flag-option idioma-it">ITALIANO</div>
@@ -3298,8 +3298,10 @@
                 });
                 aplicarColorDeUnidad(idioma);
                 const btnIdiomaEl = document.getElementById('btnIdioma');
-                btnIdiomaEl.style.borderColor = "";
-                btnIdiomaEl.style.background = "";
+                btnIdiomaEl.style.border = "";
+                btnIdiomaEl.style.backgroundImage = "";
+                btnIdiomaEl.style.backgroundOrigin = "";
+                btnIdiomaEl.style.backgroundClip = "";
                 btnIdiomaEl.style.boxShadow = "";
                 btnIdiomaEl.style.cursor = "pointer";
                 document.getElementById('emojiBanderaIdioma').style.filter = "grayscale(0%)";
