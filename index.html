@@ -107,7 +107,7 @@
         .editorbtn-marron { border-color: #a0522d; color: #8b4226; box-shadow: 0 0 10px #a0522d, 0 0 4px #a0522d; }
         
         .dropdown { position: relative; display: inline-block; }
-        .dropbtn { background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), var(--degradado-borde-unidad); background-origin: border-box; background-clip: padding-box, border-box; border: 2.5px solid transparent; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; }
+        .dropbtn { background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), var(--degradado-borde-unidad); background-origin: border-box; background-clip: padding-box, border-box; border: 2.5px solid transparent; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 0 8px var(--sombra-borde-idioma), 0 2px 4px rgba(0,0,0,0.05); width: fit-content; min-width: 0; text-align: center; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; white-space: nowrap; }
 
         /* Pulso latente en el botón "Seleccione unidad" — antes de elegir
            cualquier unidad, es lo único disponible para tocar, así que llama
@@ -3551,6 +3551,7 @@
             medidor.style.padding = '10px 20px';
             medidor.style.border = '2.5px solid transparent';
             medidor.style.fontSize = '14px';
+            medidor.style.fontWeight = '600';
             medidor.style.textTransform = 'uppercase';
             document.body.appendChild(medidor);
         }
