@@ -860,7 +860,7 @@
         "PARTÍCULAS": { "FRANCÉS": "PARTICULES 🧳", "ITALIANO": "PARTICELLE 🧳", "PORTUGUÉS": "PARTÍCULAS 🧳" },
         "PERSONAS NUEVO": { "FRANCÉS": "PERSONNES 🧍", "ITALIANO": "PERSONE 🧍", "PORTUGUÉS": "PESSOAS 🧍" },
         "CULTURA": { "FRANCÉS": "CULTURE 🌐", "ITALIANO": "CULTURA 🌐", "PORTUGUÉS": "CULTURA 🌐" },
-        "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GÉOGRAPHIE 🏔️ ET LE CLIMAT ☀️🌥️🌧️", "ITALIANO": "LA GEOGRAFIA 🏔️ E IL CLIMA ☀️🌥️🌧️", "PORTUGUÉS": "A GEOGRAFIA 🏔️ E O CLIMA ☀️🌥️🌧️" },
+        "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GÉOGRAPHIE ET LE CLIMAT ❄️🏔️☀️", "ITALIANO": "LA GEOGRAFIA E IL CLIMA ❄️🏔️☀️", "PORTUGUÉS": "A GEOGRAFIA E O CLIMA ❄️🏔️☀️" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX 🌈", "ITALIANO": "TEMPI VERBALI 🌈", "PORTUGUÉS": "TEMPOS VERBAIS 🌈" },
         "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" }
     };
@@ -898,6 +898,7 @@
             .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, "") // banderas (pares de letras regionales)
             .replace(/[\u{1F300}-\u{1FAFF}]/gu, "") // emojis generales (símbolos, objetos, naturaleza...)
             .replace(/[\u{2600}-\u{27BF}]/gu, "")   // símbolos varios (☀️🌧️❄️📘 etc.)
+            .replace(/[\u{231A}-\u{23FF}]/gu, "")   // miscellaneous technical (⏳⌛⏰⏱️ reloj de arena y afines — faltaba este rango, BUG real: dejaba el ⏳ pegado al texto a pronunciar)
             .replace(/[\u{FE0F}\u{200D}]/gu, "")    // variation selector y zero-width joiner
             .replace(/\s+/g, " ")
             .trim();
@@ -909,7 +910,7 @@
     // idiomas tenían el mismo emoji, así que cualquiera de ellos sirve como
     // fuente para extraerlo).
     function extraerEmojis(texto) {
-        const coincidencias = String(texto).match(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu);
+        const coincidencias = String(texto).match(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{231A}-\u{23FF}\u{FE0F}\u{200D}]/gu);
         return coincidencias ? coincidencias.join("") : "";
     }
 
@@ -3547,8 +3548,8 @@
             medidor.style.left = '-9999px';
             medidor.style.top = '0';
             medidor.style.boxSizing = 'border-box';
-            medidor.style.padding = '0 16px';
-            medidor.style.border = '2px solid transparent';
+            medidor.style.padding = '10px 20px';
+            medidor.style.border = '2.5px solid transparent';
             medidor.style.fontSize = '14px';
             medidor.style.textTransform = 'uppercase';
             document.body.appendChild(medidor);
