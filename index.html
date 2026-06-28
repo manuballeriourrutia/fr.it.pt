@@ -965,11 +965,13 @@
             panelBg: "#ffffff",
             textoColor: "#2c2c2e",
             tituloTarjetaColor: "#8a8a86",
+            // Mismo color que fondoPagina a propósito: las partículas siguen
+            // existiendo y moviéndose (mismo mecanismo que el resto de la
+            // app, sin tratamiento especial ni transición distinta al
+            // cambiar de unidad), pero quedan invisibles — en REGLAS hay
+            // mucho texto/scroll, y verlas caer ahí resultaba molesto.
             particulas: [
-                { color: "#a9744a", forma: "normal" },
-                { color: "#6b8a9a", forma: "normal" },
-                { color: "#b8862e", forma: "normal" },
-                { color: "#9a9a96", forma: "normal" }
+                { color: "#e8e8e6", forma: "normal" }
             ]
         },
         "PARTÍCULAS": {
@@ -1310,14 +1312,6 @@
     // de las dos tiene identidad propia todavía (entonces se usa el color de
     // idioma como respaldo final, en aplicarColorDeUnidad).
     function obtenerPaletaActiva() {
-        // Excepción exclusiva de CULTURA: mientras no se eligió ningún tema,
-        // usa la identidad de Chamonix (en vez de heredar el color del tema
-        // "local" por defecto, como sí hacen el resto de unidades con tema —
-        // ahí ese comportamiento heredado se deja a propósito, queda bien).
-        // Coherente con que toda la unidad gira alrededor de Chamonix/Francia.
-        if (unidadActualKey === "CULTURA" && !temaYaElegidoPorUnidad["CULTURA"]) {
-            return colorPorTema["CULTURA__local"];
-        }
         // "Propia" apunta a un país DISTINTO según el idioma activo (Francia/
         // Italia/Portugal) — necesita su propia paleta por idioma, no solo
         // por tema, a diferencia del resto de claves que no varían así.
@@ -1533,16 +1527,6 @@
     // Arranca sin unidad seleccionada: la persona debe elegir una del menú,
     // en vez de ver COLORES por defecto al abrir o recargar la app.
     let unidadActualKey = null;
-
-    // Las 5 unidades con selector de tema interno (Geografía y Clima, Los
-    // Números y el Tiempo, Personas, Vocabulario, Cultura) no muestran
-    // contenido automático al entrar — el botón de tema dice "Tema" hasta que
-    // se elige uno a propósito. REGLAS, PARTÍCULAS, TIEMPOS VERBALES y VERBOS
-    // AUXILIARES no tienen este selector, así que no aplica (siguen mostrando
-    // contenido directo, como siempre).
-    const UNIDADES_CON_TEMA_PENDIENTE = ["LA GEOGRAFÍA Y EL CLIMA", "LOS NÚMEROS Y EL TIEMPO", "PERSONAS NUEVO", "CULTURA"];
-    let temaYaElegidoPorUnidad = {};
-    const MENSAJE_ELEGIR_TEMA = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999; font-size:14px; text-align:center; padding:20px;">Elegí un tema para empezar ☝️</div>';
 
     // Paleta neutra exclusiva de CULTURA, mientras todavía no se elige ningún
     // tema — tierra/mapamundi: beige-arena con un toque verde-azulado tenue,
@@ -3484,9 +3468,6 @@
             div.innerHTML = `${u} ${extraerEmojis(unidades[u]["FRANCÉS"])}`;
             div.onclick = () => {
                 unidadActualKey = u;
-                if (UNIDADES_CON_TEMA_PENDIENTE.includes(u)) {
-                    temaYaElegidoPorUnidad[u] = false;
-                }
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros.es;
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -3502,15 +3483,6 @@
                 ["FRANCÉS", "ITALIANO", "PORTUGUÉS"].forEach(idiomaAux => {
                     data[idiomaAux]["VERBOS AUXILIARES"] = obtenerContenidoAuxiliar(idiomaAux);
                 });
-                const idsBotonTemaPorUnidad = {
-                    "LA GEOGRAFÍA Y EL CLIMA": "btnModoGeografiaClimaNuevo",
-                    "LOS NÚMEROS Y EL TIEMPO": "btnModoNumerosTiempoNuevo",
-                    "PERSONAS NUEVO": "btnModoPersonasNuevo",
-                    "CULTURA": "btnModoCultura"
-                };
-                if (UNIDADES_CON_TEMA_PENDIENTE.includes(u)) {
-                    document.getElementById(idsBotonTemaPorUnidad[u]).innerText = "Tema";
-                }
                 aplicarColorDeUnidad(idioma);
                 document.getElementById('btnIdioma').classList.remove("bloqueado-pantalla-inicio");
                 document.getElementById('btnUnidad').classList.remove("boton-unidad-pulso");
@@ -6136,7 +6108,6 @@
 
     function cambiarModoCultura(nuevoModo) {
         modoCultura = nuevoModo;
-        temaYaElegidoPorUnidad["CULTURA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const t = TEMAS_CULTURA[nuevoModo];
         const emoji = t.emoji || banderaPorIdioma[idioma];
@@ -6151,10 +6122,6 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
-        if (!temaYaElegidoPorUnidad["CULTURA"]) {
-            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
-            return null;
-        }
         const tarjetas = CULTURA_POR_IDIOMA[idioma][modoCultura];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -6279,7 +6246,6 @@
 
     function cambiarModoPersonasNuevo(nuevoModo) {
         modoPersonasNuevo = nuevoModo;
-        temaYaElegidoPorUnidad["PERSONAS NUEVO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo].es;
         document.getElementById('menuModoPersonasNuevo').classList.remove("show");
@@ -6291,10 +6257,6 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
-        if (!temaYaElegidoPorUnidad["PERSONAS NUEVO"]) {
-            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
-            return null;
-        }
         const tarjetas = PERSONAS_NUEVO_POR_IDIOMA[idioma][modoPersonasNuevo];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -6607,7 +6569,6 @@
 
     function cambiarModoGeografiaClimaNuevo(nuevoModo) {
         modoGeografiaClimaNuevo = nuevoModo;
-        temaYaElegidoPorUnidad["LA GEOGRAFÍA Y EL CLIMA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
         document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t.es} ${t.emoji}`;
@@ -6620,10 +6581,6 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
-        if (!temaYaElegidoPorUnidad["LA GEOGRAFÍA Y EL CLIMA"]) {
-            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
-            return null;
-        }
         const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -7200,10 +7157,6 @@
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        if (!temaYaElegidoPorUnidad["LOS NÚMEROS Y EL TIEMPO"]) {
-            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
-            return null;
-        }
 
         if (modoNumerosTiempoNuevo === "numeros") {
             const e = numerosNuevoEstado[idioma];
@@ -7570,7 +7523,6 @@
 
     function cambiarModoNumerosTiempoNuevo(nuevoModo) {
         modoNumerosTiempoNuevo = nuevoModo;
-        temaYaElegidoPorUnidad["LOS NÚMEROS Y EL TIEMPO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo].es;
         document.getElementById('menuModoNumerosTiempoNuevo').classList.remove("show");
