@@ -198,6 +198,22 @@
         .flag-option.idioma-pt { color: #c8102e; }
 
         .dropdown-content { display: none; position: absolute; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-top: 8px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; left: 0; max-height: 70vh; overflow-y: auto; }
+        /* Menú de unidades con botón por opción (cada una con su color real)
+           — necesita su propio padding interno (separación entre los
+           botones y el borde del contenedor general) y sus opciones sin la
+           línea divisoria genérica del resto de menús (que ya no aplica,
+           porque ahora cada opción tiene su propio borde completo), con el
+           contenido centrado verticalmente. */
+        .menu-unidades-botones { padding: 8px; }
+        .menu-unidades-botones div {
+            border-bottom: none !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px !important;
+        }
+        .menu-unidades-botones div .traduccion-unidad { margin-top: 2px; }
         /* Menús que viven cerca del borde derecho de la pantalla (como el
            selector de Tarjetas, junto al lápiz de editor) se anclan por la
            derecha — si no, el texto largo (white-space: nowrap) los empuja
@@ -758,7 +774,7 @@
     </div>
     <div class="dropdown">
         <button class="dropbtn boton-unidad-pulso" id="btnUnidad" onclick="toggleDropdown('menuUnidad')">Seleccione unidad</button>
-        <div id="menuUnidad" class="dropdown-content"></div>
+        <div id="menuUnidad" class="dropdown-content menu-unidades-botones"></div>
     </div>
     <div class="dropdown" id="selectorRegularidadWrap" style="display: none;">
         <button class="dropbtn" id="btnRegularidad" onclick="toggleDropdown('menuRegularidad')">IRREGULARES</button>
@@ -3453,7 +3469,7 @@
             const paletaUnidad = obtenerColorRealDeUnidad(u);
             const colorReal = paletaUnidad ? paletaUnidad.color : "#b0b0ac";
             const panelReal = paletaUnidad && paletaUnidad.panelBg ? paletaUnidad.panelBg : "#ffffff";
-            div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 10px; margin-bottom: 4px;`;
+            div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box;`;
             // Número de orden (según el orden alfabético real del menú) + nombre en
             // el idioma activo arriba, y la clave en español (ya la tenemos como
             // nombre de unidad) como traducción/aclaración en gris debajo.
@@ -3525,7 +3541,7 @@
             medidor.style.left = '-9999px';
             medidor.style.top = '0';
             medidor.style.boxSizing = 'border-box';
-            medidor.style.padding = '4px 16px';
+            medidor.style.padding = '10px 16px';
             medidor.style.border = '2px solid transparent';
             medidor.style.fontSize = '14px';
             medidor.style.textTransform = 'uppercase';
