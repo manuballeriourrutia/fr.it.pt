@@ -3509,10 +3509,32 @@
         // usan el ancho de la opción MÁS LARGA, con el texto centrado — así
         // se ven como una lista prolija de botones del mismo tamaño, en vez
         // de cada uno ajustado a su propio texto.
+        // El menú tiene display:none por defecto (.dropdown-content) — sin
+        // esto, getBoundingClientRect() siempre da 0, y el ancho colapsa
+        // (causa real de un bug visto en pantalla: texto partido en varias
+        // líneas dentro de un botón angosto). Para medir de forma confiable,
+        // se usa un medidor aparte, fuera de pantalla, nunca dentro del menú
+        // oculto — así no depende de tocar la visibilidad real del menú.
+        let medidor = document.getElementById('medidorAnchoOculto');
+        if (!medidor) {
+            medidor = document.createElement('div');
+            medidor.id = 'medidorAnchoOculto';
+            medidor.style.position = 'absolute';
+            medidor.style.visibility = 'hidden';
+            medidor.style.whiteSpace = 'nowrap';
+            medidor.style.left = '-9999px';
+            medidor.style.top = '0';
+            medidor.style.boxSizing = 'border-box';
+            medidor.style.padding = '4px 16px';
+            medidor.style.border = '2px solid transparent';
+            medidor.style.fontSize = '14px';
+            medidor.style.textTransform = 'uppercase';
+            document.body.appendChild(medidor);
+        }
         let anchoMaximo = 0;
         Array.from(menu.children).forEach(div => {
-            div.style.width = "fit-content";
-            anchoMaximo = Math.max(anchoMaximo, div.getBoundingClientRect().width);
+            medidor.innerHTML = div.innerHTML;
+            anchoMaximo = Math.max(anchoMaximo, medidor.getBoundingClientRect().width);
         });
         Array.from(menu.children).forEach(div => {
             div.style.width = anchoMaximo + "px";
