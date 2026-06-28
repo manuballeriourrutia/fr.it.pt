@@ -1246,6 +1246,32 @@
         return { color: paleta.color, sombra: paleta.sombra };
     }
 
+    // Mapa del tema "por defecto" de cada unidad con selector interno — el
+    // mismo que ya se usa como fallback visual en el resto de la app (antes
+    // del placeholder "Tema"). Sirve para elegir UN color representativo por
+    // unidad en el menú de selección, ya que ahí no hay "tema activo" real.
+    const TEMA_POR_DEFECTO_DE_UNIDAD = {
+        "LA GEOGRAFÍA Y EL CLIMA": "terreno",
+        "LOS NÚMEROS Y EL TIEMPO": "numeros",
+        "PERSONAS NUEVO": "personas",
+        "VOCABULARIO NUEVO": "Lugares del hotel",
+        "CULTURA": "local",
+        "VERBOS AUXILIARES": "reglas"
+    };
+
+    // Color representativo de una unidad CUALQUIERA (no necesariamente la
+    // activa) — usado para pintar cada opción del menú de selección de
+    // unidades con su propio color real, igual que ya hacemos con el
+    // contenido de cada unidad una vez elegida.
+    function obtenerColorRealDeUnidad(claveUnidad) {
+        if (colorPorUnidad[claveUnidad]) return colorPorUnidad[claveUnidad];
+        const temaPorDefecto = TEMA_POR_DEFECTO_DE_UNIDAD[claveUnidad];
+        if (temaPorDefecto && colorPorTema[claveUnidad + "__" + temaPorDefecto]) {
+            return colorPorTema[claveUnidad + "__" + temaPorDefecto];
+        }
+        return null; // sin color definido todavía — cae a un estilo neutro genérico
+    }
+
     // Devuelve la paleta activa en este momento: primero busca por tema
     // (unidad + tema actual), después por unidad entera, y null si ninguna
     // de las dos tiene identidad propia todavía (entonces se usa el color de
@@ -1258,6 +1284,13 @@
         // Coherente con que toda la unidad gira alrededor de Chamonix/Francia.
         if (unidadActualKey === "CULTURA" && !temaYaElegidoPorUnidad["CULTURA"]) {
             return colorPorTema["CULTURA__local"];
+        }
+        // "Propia" apunta a un país DISTINTO según el idioma activo (Francia/
+        // Italia/Portugal) — necesita su propia paleta por idioma, no solo
+        // por tema, a diferencia del resto de claves que no varían así.
+        if (unidadActualKey === "CULTURA" && modoCultura === "propia") {
+            const idiomaActivo = document.getElementById('btnIdioma').dataset.idioma;
+            return colorPorTema["CULTURA__propia__" + idiomaActivo] || colorPorTema["CULTURA__local"];
         }
         const claveTema = unidadActualKey + "__" + obtenerTemaActivoDeUnidad();
         return colorPorTema[claveTema] || colorPorUnidad[unidadActualKey] || null;
@@ -1363,7 +1396,7 @@
     // fina y alargada (como una hoja de pino cayendo girando), cualquier otro
     // valor (incluido undefined) la devuelve a su tamaño base normal,
     // redondo/cuadrado parejo de fábrica.
-    function aplicarFormaParticula(p, forma, tinteHalo) {
+    function aplicarFormaParticula(p, forma, tinteHalo, escalaExtra) {
         const tamBase = parseFloat(p.dataset.tamBase);
         // Limpieza centralizada: cualquier forma especial (como "triangulo")
         // que use border-left/right/bottom en vez de width/height reales debe
@@ -1408,14 +1441,19 @@
             p.style.borderRadius = '50%';
             p.style.boxShadow = `0 0 4px 1px ${p.style.background}66`;
         } else if (forma === "destello") {
-            // Más grande que el resto, con doble halo (blanco intenso +
-            // un tinte tenue de color, por defecto celeste — cada paleta
-            // puede definir su propio tinteHalo, ver colorPorTema).
+            // Más grande que el resto, con doble halo — el principal toma el
+            // COLOR REAL de la partícula (blanco en Chamonix/Italia, amarillo
+            // en Portugal, etc.), y un segundo halo más tenue con tinteHalo
+            // (por defecto celeste — cada paleta puede definir el suyo).
+            // escalaExtra permite agrandar más todavía en algún tema puntual
+            // (ej. Portugal), sobre el 1.7 base — 1 por defecto, sin cambio.
             const tinte = tinteHalo || "180,210,230";
-            p.style.width = (tamBase * 1.7) + 'px';
-            p.style.height = (tamBase * 1.7) + 'px';
+            const colorHalo = p.style.background + "e6";
+            const multiplicador = 1.7 * (escalaExtra || 1);
+            p.style.width = (tamBase * multiplicador) + 'px';
+            p.style.height = (tamBase * multiplicador) + 'px';
             p.style.borderRadius = '50%';
-            p.style.boxShadow = `0 0 9px 2px rgba(255,255,255,0.9), 0 0 3px 1px rgba(${tinte},0.6)`;
+            p.style.boxShadow = `0 0 9px 2px ${colorHalo}, 0 0 3px 1px rgba(${tinte},0.6)`;
         } else if (forma === "triangulo") {
             // Un triángulo CSS no usa width/height reales del elemento — el
             // color que ya viene puesto en background se traslada al
@@ -1451,7 +1489,7 @@
             // (string, forma normal) o un objeto {color, forma}.
             const esObjeto = typeof entrada === "object";
             p.style.background = esObjeto ? entrada.color : entrada;
-            aplicarFormaParticula(p, esObjeto ? entrada.forma : null, esObjeto ? entrada.tinteHalo : null);
+            aplicarFormaParticula(p, esObjeto ? entrada.forma : null, esObjeto ? entrada.tinteHalo : null, esObjeto ? entrada.escalaExtra : null);
             // La duración de animación no se puede hacer "transition" en CSS
             // (no es una propiedad interpolable) — el cambio de velocidad es
             // instantáneo, a diferencia del color/forma que sí son suaves.
@@ -1514,7 +1552,7 @@
     // "Propia" (Italia, cuando el idioma activo es italiano): mismo concepto
     // que Chamonix, adaptado a la bandera italiana — verde-blanco-rojo en vez
     // de azul-blanco-rojo, fondo verde claro en vez de celeste.
-    colorPorTema["CULTURA__propia"] = {
+    colorPorTema["CULTURA__propia__ITALIANO"] = {
         color: "#3a8a4a",
         sombra: "rgba(58, 138, 74, 0.3)",
         bordeLineal: "linear-gradient(to right, #3a8a4a 0%, #3a8a4a 28%, #ffffff 38%, #ffffff 62%, #d6453a 72%, #d6453a 100%)",
@@ -1526,6 +1564,25 @@
             { color: "#3a8a4a", forma: "normal" },
             { color: "#d6453a", forma: "normal" },
             { color: "#ffffff", forma: "destello", tinteHalo: "180,220,180" }
+        ]
+    };
+
+    // "Propia" (Portugal, cuando el idioma activo es portugués): bandera
+    // verde-rojo (2 franjas, sin blanco), fondo mostaza claro, panel apenas
+    // tinte amarillo (no blanco puro, para que se distinga del fondo sin
+    // parecer transparente), destello amarillo en vez de blanco.
+    colorPorTema["CULTURA__propia__PORTUGUÉS"] = {
+        color: "#2a6a3a",
+        sombra: "rgba(42, 106, 58, 0.3)",
+        bordeLineal: "linear-gradient(to right, #2a6a3a 0%, #2a6a3a 44%, #d6453a 56%, #d6453a 100%)",
+        fondoPagina: "#f5efd8",
+        panelBg: "#fffdf5",
+        textoColor: "#2c2c2e",
+        tituloTarjetaColor: "#2a6a3a",
+        particulas: [
+            { color: "#2a6a3a", forma: "normal" },
+            { color: "#d6453a", forma: "normal" },
+            { color: "#fff4b8", forma: "destello", tinteHalo: "220,200,140", escalaExtra: 1.2 }
         ]
     };
 
@@ -3360,28 +3417,6 @@
     // actual hacia el ancho que necesita el texto nuevo. Genérica: no importa
     // qué texto había antes ni cuál viene después, funciona en cadena para
     // cualquier secuencia de cambios (botón corto → largo → corto → ...).
-    function cambiarTextoConTransicionAncho(idEl, textoNuevo) {
-        const el = document.getElementById(idEl);
-        const anchoViejo = el.getBoundingClientRect().width;
-        el.style.transition = "none"; // congela sin transición para el cambio de medida
-        el.style.width = anchoViejo + "px";
-        el.innerText = textoNuevo;
-        const anchoNuevo = (() => {
-            const anchoViejoWidth = el.style.width;
-            el.style.width = "fit-content";
-            const medido = el.getBoundingClientRect().width;
-            el.style.width = anchoViejoWidth;
-            return medido;
-        })();
-        // Fuerza el reflow con el ancho viejo ya pintado, después habilita la
-        // transición y recién ahí pasa al ancho nuevo — así el navegador anima
-        // el cambio en vez de saltar directo.
-        requestAnimationFrame(() => {
-            el.style.transition = "width 0.35s ease, color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease";
-            el.style.width = anchoNuevo + "px";
-        });
-    }
-
     function intentarAbrirMenuIdioma() {
         if (!unidadActualKey) return;
         toggleDropdown('menuIdioma');
@@ -3411,6 +3446,14 @@
         Object.keys(unidades).sort().forEach((u, i) => {
             const div = document.createElement('div');
             div.dataset.key = u;
+            // Cada opción es un "botón" con su propio borde/fondo/color real
+            // — color de la unidad (o un gris neutro si todavía no tiene
+            // paleta definida), mismo mecanismo de doble capa que el resto
+            // de la app, para mantener consistencia de estilo.
+            const paletaUnidad = obtenerColorRealDeUnidad(u);
+            const colorReal = paletaUnidad ? paletaUnidad.color : "#b0b0ac";
+            const panelReal = paletaUnidad && paletaUnidad.panelBg ? paletaUnidad.panelBg : "#ffffff";
+            div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 10px; margin-bottom: 4px;`;
             // Número de orden (según el orden alfabético real del menú) + nombre en
             // el idioma activo arriba, y la clave en español (ya la tenemos como
             // nombre de unidad) como traducción/aclaración en gris debajo.
@@ -3453,7 +3496,7 @@
                 editorLibreActivo = false;
                 document.getElementById('btnEditorLibre').classList.remove("activo");
                 document.getElementById('emojiLapiz').style.filter = "grayscale(100%)";
-                cambiarTextoConTransicionAncho('btnUnidad', unidades[u][idioma]);
+                document.getElementById('btnUnidad').innerText = unidades[u][idioma];
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
                 fijarAnchoPanel();
@@ -3462,6 +3505,20 @@
             };
             menu.appendChild(div);
         });
+        // Ancho fijo: todas las opciones del menú (y el botón visible arriba)
+        // usan el ancho de la opción MÁS LARGA, con el texto centrado — así
+        // se ven como una lista prolija de botones del mismo tamaño, en vez
+        // de cada uno ajustado a su propio texto.
+        let anchoMaximo = 0;
+        Array.from(menu.children).forEach(div => {
+            div.style.width = "fit-content";
+            anchoMaximo = Math.max(anchoMaximo, div.getBoundingClientRect().width);
+        });
+        Array.from(menu.children).forEach(div => {
+            div.style.width = anchoMaximo + "px";
+            div.style.textAlign = "center";
+        });
+        document.getElementById('btnUnidad').style.width = anchoMaximo + "px";
     }
 
     // Algunas unidades (ej. NÚMEROS) necesitan ocupar toda la pantalla en vez de
@@ -3676,7 +3733,7 @@
         document.getElementById('emojiBanderaIdioma').innerText = banderaPorIdioma[nuevoIdioma];
         btnIdioma.dataset.idioma = nuevoIdioma;
         document.getElementById('menuIdioma').classList.remove("show");
-        cambiarTextoConTransicionAncho('btnUnidad', unidadActualKey ? unidades[unidadActualKey][nuevoIdioma] : "Seleccione unidad");
+        document.getElementById('btnUnidad').innerText = unidadActualKey ? unidades[unidadActualKey][nuevoIdioma] : "Seleccione unidad";
         aplicarColorDeUnidad(nuevoIdioma);
         inicializarMenuUnidades();
         if (unidadActualKey === "CULTURA") {
