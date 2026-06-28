@@ -197,47 +197,46 @@
         .flag-option.idioma-it { color: #008c45; }
         .flag-option.idioma-pt { color: #c8102e; }
 
-        .dropdown-content { display: none; position: absolute; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-top: 8px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; left: 0; max-height: 70vh; overflow-y: auto; }
-        /* Menú de unidades con botón por opción (cada una con su color real)
-           — necesita su propio padding interno (separación entre los
-           botones y el borde del contenedor general) y sus opciones sin la
-           línea divisoria genérica del resto de menús (que ya no aplica,
-           porque ahora cada opción tiene su propio borde completo), con el
-           contenido centrado verticalmente. */
-        .menu-unidades-botones { padding: 8px; }
-        .menu-unidades-botones div {
-            border-bottom: none !important;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 44px;
-            padding: 13px 16px 4px !important;
+        .dropdown-content { display: none; position: absolute; background: #fafafa; border: 2px solid #d4d4d2; border-radius: 16px; margin-top: 8px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; left: 0; max-height: 70vh; overflow-y: auto; padding: 8px; }
+        /* Estética unificada para TODOS los desplegables de la app — gris
+           neutro, sin la paleta de color de cada unidad/tema, para que se
+           vean consistentes entre sí. Cada opción es un "botón" separado
+           (borde + fondo blanco propios), siempre en UN renglón (sin
+           traducción aparte ni texto partido en 2 líneas). */
+        .dropdown-content div {
+            border: 1.5px solid #c8c8c6 !important;
+            background: #ffffff;
+            color: #3a3a3a !important;
+            border-radius: 999px;
+            margin-bottom: 6px;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            padding: 0 16px !important;
             line-height: 1.1;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: background-color 0.2s ease;
         }
-        .menu-unidades-botones div .traduccion-unidad {
-            margin: 0;
-            line-height: 1.1;
-        }
-        /* Menús que viven cerca del borde derecho de la pantalla (como el
-           selector de Tarjetas, junto al lápiz de editor) se anclan por la
-           derecha — si no, el texto largo (white-space: nowrap) los empuja
-           fuera del viewport y quedan recortados contra el borde real. */
-        .dropdown-derecha .dropdown-content { left: auto; right: 0; max-width: 90vw; }
-        .dropdown-derecha .dropdown-content div {
-            white-space: normal;
-            padding: 10px 16px;
-            line-height: 1.3;
-        }
-        .dropdown-content div { padding: 4px 16px; cursor: pointer; font-size: 14px; line-height: 1.2; white-space: nowrap; color: var(--text-color); text-transform: uppercase; transition: color 0.4s ease; border-bottom: 1px solid var(--border-color); }
-        .dropdown-content div .traduccion-unidad { border-bottom: none; }
-        .dropdown-content div:last-child { border-bottom: none; }
-        .dropdown-content div:hover { background-color: #f8f8f8; }
+        .dropdown-content div:last-child { margin-bottom: 0; }
+        .dropdown-content div:hover { background-color: #f0f0f0; }
         /* Unidad actualmente seleccionada: se marca al abrir el menú (ver
            toggleDropdown), comparando contra unidadActualKey. */
-        .dropdown-content div.seleccionada { background-color: rgba(0,0,0,0.05); font-weight: 700; }
+        .dropdown-content div.seleccionada { background-color: #ececea; font-weight: 700; }
+
+        /* Menús que viven cerca del borde derecho de la pantalla (como el
+           selector de Tarjetas, junto al lápiz de editor) se anclan por la
+           derecha — si no, el texto largo los empuja fuera del viewport y
+           quedan recortados contra el borde real. */
+        .dropdown-derecha .dropdown-content { left: auto; right: 0; max-width: 90vw; min-width: 260px; }
+        .dropdown-derecha .dropdown-content div { white-space: nowrap; overflow: visible; text-overflow: clip; }
+
         /* Traducción/aclaración en español debajo del nombre de cada unidad del
            menú (ej. "ARTICLES" arriba, "ARTÍCULOS" abajo en gris, chico). El
            selector ".dropdown-content div" de arriba también matchea este div
@@ -902,6 +901,16 @@
             .replace(/[\u{FE0F}\u{200D}]/gu, "")    // variation selector y zero-width joiner
             .replace(/\s+/g, " ")
             .trim();
+    }
+
+    // Extrae SOLO los emojis de un texto (lo opuesto a limpiarEmojis) — usado
+    // para conservar el emoji de cada unidad/tema cuando el nombre visible
+    // pasa a ser siempre en español, sin depender del idioma activo (los 3
+    // idiomas tenían el mismo emoji, así que cualquiera de ellos sirve como
+    // fuente para extraerlo).
+    function extraerEmojis(texto) {
+        const coincidencias = String(texto).match(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu);
+        return coincidencias ? coincidencias.join("") : "";
     }
 
     // Reproduce en voz alta el nombre de una unidad o tema, ya traducido al
@@ -2828,10 +2837,10 @@
     //   segundo auxiliar tipo être en portugués europeo, así que esa posición
     //   directamente no está en el menú.
     const auxiliaresMeta = {
-        "AVOIR": { nombre: { "FRANCÉS": "Avoir", "ITALIANO": "Avere", "PORTUGUÉS": "Ter" } },
-        "ETRE": { nombre: { "FRANCÉS": "Être", "ITALIANO": "Essere" } }, // sin PORTUGUÉS: no existe
-        "ALLER": { nombre: { "FRANCÉS": "Aller", "ITALIANO": "Andare", "PORTUGUÉS": "Ir" } },
-        "REGLAS": { nombre: { "FRANCÉS": "Reglas", "ITALIANO": "Regole", "PORTUGUÉS": "Regras" } }
+        "AVOIR": { nombre: { "FRANCÉS": "Avoir", "ITALIANO": "Avere", "PORTUGUÉS": "Ter" }, es: "Tener" },
+        "ETRE": { nombre: { "FRANCÉS": "Être", "ITALIANO": "Essere" }, es: "Ser/Estar" }, // sin PORTUGUÉS: no existe
+        "ALLER": { nombre: { "FRANCÉS": "Aller", "ITALIANO": "Andare", "PORTUGUÉS": "Ir" }, es: "Ir" },
+        "REGLAS": { nombre: { "FRANCÉS": "Reglas", "ITALIANO": "Regole", "PORTUGUÉS": "Regras" }, es: null }
     };
     const ordenMenuAuxiliares = ["AVOIR", "ETRE", "ALLER", "REGLAS"];
 
@@ -3469,29 +3478,10 @@
         Object.keys(unidades).sort().forEach((u) => {
             const div = document.createElement('div');
             div.dataset.key = u;
-            // Cada opción es un "botón" con su propio borde/fondo/color real
-            // — color de la unidad (o un gris neutro si todavía no tiene
-            // paleta definida), mismo mecanismo de doble capa que el resto
-            // de la app, para mantener consistencia de estilo. Si la paleta
-            // tiene un degradado propio (bordeLineal, como Chamonix con su
-            // bandera de 3 franjas) o es TIEMPOS VERBALES (arcoíris fijo de
-            // 7 colores), se usa ESE degradado real, no un color sólido.
-            const paletaUnidad = obtenerColorRealDeUnidad(u);
-            const colorReal = paletaUnidad ? paletaUnidad.color : "#b0b0ac";
-            const panelReal = paletaUnidad && paletaUnidad.panelBg ? paletaUnidad.panelBg : "#ffffff";
-            const degradadoEspecial = u === "TIEMPOS VERBALES" ? DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES
-                : (paletaUnidad && paletaUnidad.bordeLineal ? paletaUnidad.bordeLineal : null);
-            if (degradadoEspecial) {
-                div.style.cssText = `border: 2px solid transparent; background-image: linear-gradient(${panelReal}, ${panelReal}), ${degradadoEspecial}; background-origin: border-box; background-clip: padding-box, border-box; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box; color: ${colorReal};`;
-            } else {
-                div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box;`;
-            }
-            // Nombre en el idioma activo arriba, y la clave en español (ya la
-            // tenemos como nombre de unidad) como traducción/aclaración en
-            // gris debajo — sin número de orden, generaba ruido visual.
-            div.innerHTML = `${unidades[u][idioma]}<div class="traduccion-unidad">${u}</div>`;
+            // Nombre en español + su emoji (extraído de cualquier idioma,
+            // siempre el mismo) — sin traducción aparte ni número de orden.
+            div.innerHTML = `${u} ${extraerEmojis(unidades[u]["FRANCÉS"])}`;
             div.onclick = () => {
-                reproducirNombreSeleccion(unidades[u][idioma], idioma);
                 unidadActualKey = u;
                 if (UNIDADES_CON_TEMA_PENDIENTE.includes(u)) {
                     temaYaElegidoPorUnidad[u] = false;
@@ -3503,7 +3493,7 @@
                 modoPersonasNuevo = "personas";
                 document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS.personas[idioma];
                 modoCultura = "local";
-                document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura("local", idioma);
+                document.getElementById('btnModoCultura').innerText = `Chamonix ${TEMAS_CULTURA.local.emoji}`;
                 modoGeografiaClimaNuevo = "terreno";
                 document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${TEMAS_GEOGRAFIA_CLIMA.terreno[idioma]} ${TEMAS_GEOGRAFIA_CLIMA.terreno.emoji}`;
                 auxiliarActualKey = "REGLAS";
@@ -3528,7 +3518,7 @@
                 editorLibreActivo = false;
                 document.getElementById('btnEditorLibre').classList.remove("activo");
                 document.getElementById('emojiLapiz').style.filter = "grayscale(100%)";
-                document.getElementById('btnUnidad').innerText = unidades[u][idioma];
+                document.getElementById('btnUnidad').innerText = `${u} ${extraerEmojis(unidades[u]["FRANCÉS"])}`;
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
                 fijarAnchoPanel();
@@ -3745,7 +3735,7 @@
 
         disponibles.forEach(k => {
             const div = document.createElement('div');
-            div.innerText = auxiliaresMeta[k].nombre[idioma];
+            div.innerText = formatearNombreAuxiliar(k, idioma);
             div.onclick = () => {
                 cambiarAuxiliar(k);
                 document.getElementById('menuAuxiliar').classList.remove("show");
@@ -3765,7 +3755,19 @@
     // Refresca el texto del botón de auxiliar en el idioma activo (sin recalcular nada más)
     function actualizarNombreBotonAuxiliar() {
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        document.getElementById('btnAuxiliar').innerText = auxiliaresMeta[auxiliarActualKey].nombre[idioma];
+        document.getElementById('btnAuxiliar').innerText = formatearNombreAuxiliar(auxiliarActualKey, idioma);
+    }
+
+    // El verbo se muestra siempre en el idioma activo (es lo que se está
+    // aprendiendo a conjugar) — pero como puede no ser obvio qué significa,
+    // se agrega su traducción al español con un guion, salvo que coincidan
+    // (ej. en portugués "Ir" ya es la traducción real, no hace falta
+    // repetir) o que sea "REGLAS" (ya está en español, sin verbo a traducir).
+    function formatearNombreAuxiliar(clave, idioma) {
+        const meta = auxiliaresMeta[clave];
+        const nombreReal = meta.nombre[idioma];
+        if (!meta.es || meta.es === nombreReal) return nombreReal;
+        return `${nombreReal} - ${meta.es}`;
     }
 
     // Cambia la opción activa de VERBOS AUXILIARES: regenera data["VERBOS AUXILIARES"]
@@ -3787,7 +3789,8 @@
         document.getElementById('emojiBanderaIdioma').innerText = banderaPorIdioma[nuevoIdioma];
         btnIdioma.dataset.idioma = nuevoIdioma;
         document.getElementById('menuIdioma').classList.remove("show");
-        document.getElementById('btnUnidad').innerText = unidadActualKey ? unidades[unidadActualKey][nuevoIdioma] : "Seleccione unidad";
+        // El nombre de unidad ya no depende del idioma activo (siempre se
+        // muestra en español) — no hace falta tocar btnUnidad acá.
         aplicarColorDeUnidad(nuevoIdioma);
         inicializarMenuUnidades();
         if (unidadActualKey === "CULTURA") {
@@ -6112,21 +6115,31 @@
         menu.innerHTML = "";
         Object.keys(TEMAS_CULTURA).forEach(clave => {
             const div = document.createElement('div');
-            const traduccionEs = clave === "propia" ? ESPAÑOL_PAIS_PROPIO_POR_IDIOMA[idioma] : ESPAÑOL_TEMA_CULTURA[clave];
-            div.innerHTML = `${etiquetaTemaCultura(clave, idioma)}<div class="traduccion-unidad">${traduccionEs}</div>`;
+            const t = TEMAS_CULTURA[clave];
+            const emoji = t.emoji || banderaPorIdioma[idioma];
+            // "propia" es la única excepción real: el nombre cambia de país
+            // según el idioma activo (Francia/Italia/Portugal son lugares
+            // distintos, no traducciones) — el resto siempre es el mismo
+            // nombre en español, sin importar el idioma activo.
+            const nombreEs = clave === "propia" ? ESPAÑOL_PAIS_PROPIO_POR_IDIOMA[idioma] : ESPAÑOL_TEMA_CULTURA[clave];
+            div.innerHTML = `${nombreEs} ${emoji}`;
             div.onclick = () => cambiarModoCultura(clave);
             menu.appendChild(div);
         });
-        document.getElementById('btnModoCultura').innerText = etiquetaTemaCultura(modoCultura, idioma);
+        const tActual = TEMAS_CULTURA[modoCultura];
+        const emojiActual = tActual.emoji || banderaPorIdioma[idioma];
+        const nombreActual = modoCultura === "propia" ? ESPAÑOL_PAIS_PROPIO_POR_IDIOMA[idioma] : ESPAÑOL_TEMA_CULTURA[modoCultura];
+        document.getElementById('btnModoCultura').innerText = `${nombreActual} ${emojiActual}`;
     }
 
     function cambiarModoCultura(nuevoModo) {
         modoCultura = nuevoModo;
         temaYaElegidoPorUnidad["CULTURA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        const etiqueta = etiquetaTemaCultura(nuevoModo, idioma);
-        reproducirNombreSeleccion(etiqueta, idioma);
-        document.getElementById('btnModoCultura').innerText = etiqueta;
+        const t = TEMAS_CULTURA[nuevoModo];
+        const emoji = t.emoji || banderaPorIdioma[idioma];
+        const nombreEs = nuevoModo === "propia" ? ESPAÑOL_PAIS_PROPIO_POR_IDIOMA[idioma] : ESPAÑOL_TEMA_CULTURA[nuevoModo];
+        document.getElementById('btnModoCultura').innerText = `${nombreEs} ${emoji}`;
         document.getElementById('menuModoCultura').classList.remove("show");
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
@@ -6255,19 +6268,18 @@
         menu.innerHTML = "";
         Object.keys(TEMAS_PERSONAS).forEach(clave => {
             const div = document.createElement('div');
-            div.innerHTML = `${TEMAS_PERSONAS[clave][idioma]}<div class="traduccion-unidad">${TEMAS_PERSONAS[clave].es}</div>`;
+            div.innerHTML = TEMAS_PERSONAS[clave].es;
             div.onclick = () => cambiarModoPersonasNuevo(clave);
             menu.appendChild(div);
         });
-        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[modoPersonasNuevo][idioma];
+        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[modoPersonasNuevo].es;
     }
 
     function cambiarModoPersonasNuevo(nuevoModo) {
         modoPersonasNuevo = nuevoModo;
         temaYaElegidoPorUnidad["PERSONAS NUEVO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        reproducirNombreSeleccion(TEMAS_PERSONAS[nuevoModo][idioma], idioma);
-        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo][idioma];
+        document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo].es;
         document.getElementById('menuModoPersonasNuevo').classList.remove("show");
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
@@ -6583,12 +6595,12 @@
         Object.keys(TEMAS_GEOGRAFIA_CLIMA).forEach(clave => {
             const t = TEMAS_GEOGRAFIA_CLIMA[clave];
             const div = document.createElement('div');
-            div.innerHTML = `${t[idioma]} ${t.emoji}<div class="traduccion-unidad">${t.es}</div>`;
+            div.innerHTML = `${t.es} ${t.emoji}`;
             div.onclick = () => cambiarModoGeografiaClimaNuevo(clave);
             menu.appendChild(div);
         });
         const tActual = TEMAS_GEOGRAFIA_CLIMA[modoGeografiaClimaNuevo];
-        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${tActual[idioma]} ${tActual.emoji}`;
+        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${tActual.es} ${tActual.emoji}`;
     }
 
     function cambiarModoGeografiaClimaNuevo(nuevoModo) {
@@ -6596,8 +6608,7 @@
         temaYaElegidoPorUnidad["LA GEOGRAFÍA Y EL CLIMA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
-        reproducirNombreSeleccion(t[idioma], idioma);
-        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t[idioma]} ${t.emoji}`;
+        document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t.es} ${t.emoji}`;
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
@@ -6999,18 +7010,17 @@
         menu.innerHTML = "";
         Object.keys(TEMAS_VOCABULARIO).forEach(claveEs => {
             const div = document.createElement('div');
-            div.innerHTML = `${TEMAS_VOCABULARIO[claveEs][idioma]}<div class="traduccion-unidad">${claveEs}</div>`;
+            div.innerHTML = claveEs;
             div.onclick = () => cambiarModoVocabularioNuevo(claveEs);
             menu.appendChild(div);
         });
-        document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO[modoVocabularioNuevo][idioma];
+        document.getElementById('btnModoVocabularioNuevo').innerText = modoVocabularioNuevo;
     }
 
     function cambiarModoVocabularioNuevo(nuevoTema) {
         modoVocabularioNuevo = nuevoTema;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        reproducirNombreSeleccion(TEMAS_VOCABULARIO[nuevoTema][idioma], idioma);
-        document.getElementById('btnModoVocabularioNuevo').innerText = TEMAS_VOCABULARIO[nuevoTema][idioma];
+        document.getElementById('btnModoVocabularioNuevo').innerText = nuevoTema;
         document.getElementById('menuModoVocabularioNuevo').classList.remove("show");
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
@@ -7549,19 +7559,18 @@
         menu.innerHTML = "";
         Object.keys(TEMAS_NUMEROS_TIEMPO).forEach(clave => {
             const div = document.createElement('div');
-            div.innerHTML = `${TEMAS_NUMEROS_TIEMPO[clave][idioma]}<div class="traduccion-unidad">${TEMAS_NUMEROS_TIEMPO[clave].es}</div>`;
+            div.innerHTML = TEMAS_NUMEROS_TIEMPO[clave].es;
             div.onclick = () => cambiarModoNumerosTiempoNuevo(clave);
             menu.appendChild(div);
         });
-        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[modoNumerosTiempoNuevo][idioma];
+        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[modoNumerosTiempoNuevo].es;
     }
 
     function cambiarModoNumerosTiempoNuevo(nuevoModo) {
         modoNumerosTiempoNuevo = nuevoModo;
         temaYaElegidoPorUnidad["LOS NÚMEROS Y EL TIEMPO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        reproducirNombreSeleccion(TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma], idioma);
-        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma];
+        document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo].es;
         document.getElementById('menuModoNumerosTiempoNuevo').classList.remove("show");
         const visibleGrupo = nuevoModo === "numeros" && !editorLibreActivo;
         document.getElementById('selectorGrupoNumerosNuevoWrap').style.display = visibleGrupo ? "inline-block" : "none";
