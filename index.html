@@ -210,10 +210,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 10px 16px !important;
+            justify-content: flex-start;
+            height: 44px;
+            padding: 13px 16px 4px !important;
+            box-sizing: border-box;
+            line-height: 1.1;
+            overflow: hidden;
         }
-        .menu-unidades-botones div .traduccion-unidad { margin-top: 2px; }
+        .menu-unidades-botones div .traduccion-unidad {
+            margin: 0;
+            line-height: 1.1;
+        }
         /* Menús que viven cerca del borde derecho de la pantalla (como el
            selector de Tarjetas, junto al lápiz de editor) se anclan por la
            derecha — si no, el texto largo (white-space: nowrap) los empuja
@@ -3459,7 +3466,7 @@
         const menu = document.getElementById('menuUnidad');
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         menu.innerHTML = "";
-        Object.keys(unidades).sort().forEach((u, i) => {
+        Object.keys(unidades).sort().forEach((u) => {
             const div = document.createElement('div');
             div.dataset.key = u;
             // Cada opción es un "botón" con su propio borde/fondo/color real
@@ -3470,10 +3477,10 @@
             const colorReal = paletaUnidad ? paletaUnidad.color : "#b0b0ac";
             const panelReal = paletaUnidad && paletaUnidad.panelBg ? paletaUnidad.panelBg : "#ffffff";
             div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box;`;
-            // Número de orden (según el orden alfabético real del menú) + nombre en
-            // el idioma activo arriba, y la clave en español (ya la tenemos como
-            // nombre de unidad) como traducción/aclaración en gris debajo.
-            div.innerHTML = `${i + 1}. ${unidades[u][idioma]}<div class="traduccion-unidad">${u}</div>`;
+            // Nombre en el idioma activo arriba, y la clave en español (ya la
+            // tenemos como nombre de unidad) como traducción/aclaración en
+            // gris debajo — sin número de orden, generaba ruido visual.
+            div.innerHTML = `${unidades[u][idioma]}<div class="traduccion-unidad">${u}</div>`;
             div.onclick = () => {
                 reproducirNombreSeleccion(unidades[u][idioma], idioma);
                 unidadActualKey = u;
@@ -3541,7 +3548,7 @@
             medidor.style.left = '-9999px';
             medidor.style.top = '0';
             medidor.style.boxSizing = 'border-box';
-            medidor.style.padding = '10px 16px';
+            medidor.style.padding = '0 16px';
             medidor.style.border = '2px solid transparent';
             medidor.style.fontSize = '14px';
             medidor.style.textTransform = 'uppercase';
