@@ -3275,6 +3275,33 @@
     // El botón de idioma queda completamente bloqueado (no abre su menú)
     // hasta que se elija una unidad — no tiene sentido elegir idioma antes,
     // así que ni el menú se abre mientras unidadActualKey sea null.
+    // Cambia el texto de un botón con una transición suave de ancho — en vez
+    // del salto instantáneo de "width: fit-content", anima desde el ancho
+    // actual hacia el ancho que necesita el texto nuevo. Genérica: no importa
+    // qué texto había antes ni cuál viene después, funciona en cadena para
+    // cualquier secuencia de cambios (botón corto → largo → corto → ...).
+    function cambiarTextoConTransicionAncho(idEl, textoNuevo) {
+        const el = document.getElementById(idEl);
+        const anchoViejo = el.getBoundingClientRect().width;
+        el.style.transition = "none"; // congela sin transición para el cambio de medida
+        el.style.width = anchoViejo + "px";
+        el.innerText = textoNuevo;
+        const anchoNuevo = (() => {
+            const anchoViejoWidth = el.style.width;
+            el.style.width = "fit-content";
+            const medido = el.getBoundingClientRect().width;
+            el.style.width = anchoViejoWidth;
+            return medido;
+        })();
+        // Fuerza el reflow con el ancho viejo ya pintado, después habilita la
+        // transición y recién ahí pasa al ancho nuevo — así el navegador anima
+        // el cambio en vez de saltar directo.
+        requestAnimationFrame(() => {
+            el.style.transition = "width 0.35s ease, color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease";
+            el.style.width = anchoNuevo + "px";
+        });
+    }
+
     function intentarAbrirMenuIdioma() {
         if (!unidadActualKey) return;
         toggleDropdown('menuIdioma');
@@ -3346,7 +3373,7 @@
                 editorLibreActivo = false;
                 document.getElementById('btnEditorLibre').classList.remove("activo");
                 document.getElementById('emojiLapiz').style.filter = "grayscale(100%)";
-                document.getElementById('btnUnidad').innerText = unidades[u][idioma];
+                cambiarTextoConTransicionAncho('btnUnidad', unidades[u][idioma]);
                 actualizarVisibilidadSelectorVerbo();
                 actualizarModoPantalla();
                 fijarAnchoPanel();
@@ -3569,7 +3596,7 @@
         document.getElementById('emojiBanderaIdioma').innerText = banderaPorIdioma[nuevoIdioma];
         btnIdioma.dataset.idioma = nuevoIdioma;
         document.getElementById('menuIdioma').classList.remove("show");
-        document.getElementById('btnUnidad').innerText = unidadActualKey ? unidades[unidadActualKey][nuevoIdioma] : "Seleccione unidad";
+        cambiarTextoConTransicionAncho('btnUnidad', unidadActualKey ? unidades[unidadActualKey][nuevoIdioma] : "Seleccione unidad");
         aplicarColorDeUnidad(nuevoIdioma);
         inicializarMenuUnidades();
         if (unidadActualKey === "CULTURA") {
