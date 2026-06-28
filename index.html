@@ -3472,11 +3472,20 @@
             // Cada opción es un "botón" con su propio borde/fondo/color real
             // — color de la unidad (o un gris neutro si todavía no tiene
             // paleta definida), mismo mecanismo de doble capa que el resto
-            // de la app, para mantener consistencia de estilo.
+            // de la app, para mantener consistencia de estilo. Si la paleta
+            // tiene un degradado propio (bordeLineal, como Chamonix con su
+            // bandera de 3 franjas) o es TIEMPOS VERBALES (arcoíris fijo de
+            // 7 colores), se usa ESE degradado real, no un color sólido.
             const paletaUnidad = obtenerColorRealDeUnidad(u);
             const colorReal = paletaUnidad ? paletaUnidad.color : "#b0b0ac";
             const panelReal = paletaUnidad && paletaUnidad.panelBg ? paletaUnidad.panelBg : "#ffffff";
-            div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box;`;
+            const degradadoEspecial = u === "TIEMPOS VERBALES" ? DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES
+                : (paletaUnidad && paletaUnidad.bordeLineal ? paletaUnidad.bordeLineal : null);
+            if (degradadoEspecial) {
+                div.style.cssText = `border: 2px solid transparent; background-image: linear-gradient(${panelReal}, ${panelReal}), ${degradadoEspecial}; background-origin: border-box; background-clip: padding-box, border-box; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box; color: ${colorReal};`;
+            } else {
+                div.style.cssText = `border: 2px solid ${colorReal}; background: ${panelReal}; color: ${colorReal}; border-radius: 999px; margin-bottom: 6px; box-sizing: border-box;`;
+            }
             // Nombre en el idioma activo arriba, y la clave en español (ya la
             // tenemos como nombre de unidad) como traducción/aclaración en
             // gris debajo — sin número de orden, generaba ruido visual.
