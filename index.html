@@ -125,6 +125,26 @@
         .dropbtn-chico { min-width: 0; padding: 10px 18px; }
 
         /* Botón circular de bandera, reemplaza al selector de idioma en texto */
+        /* Bloqueo de la pantalla de inicio: el botón de idioma se ve "apagado"
+           mientras no se elija ninguna unidad — fondo y borde en gris fijo
+           real (igual que el lápiz inactivo), y el emoji de la bandera en
+           escala de grises (grayscale solo en el span del emoji, NO en el
+           botón completo — si no, el fondo/borde gris también se ve afectado
+           y queda con un contraste raro). Se quita una sola vez al elegir la
+           primera unidad, y como no hay forma de volver a la pantalla de
+           inicio, nunca vuelve a aplicarse. */
+        .bloqueado-pantalla-inicio {
+            border: 2.5px solid transparent !important;
+            background-image: linear-gradient(#f2f2f0, #f2f2f0), conic-gradient(#ccc, #ccc) !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            cursor: not-allowed;
+        }
+        .bloqueado-pantalla-inicio #emojiBanderaIdioma {
+            filter: grayscale(100%);
+        }
+
         .flagbtn {
             width: 44px;
             height: 44px;
@@ -729,7 +749,7 @@
 
 <header class="header-izquierda">
     <div class="dropdown">
-        <button class="flagbtn" id="btnIdioma" onclick="intentarAbrirMenuIdioma()" data-idioma="FRANCÉS" style="border: 2.5px solid transparent; background-image: linear-gradient(#f2f2f0, #f2f2f0), conic-gradient(#ccc, #ccc); background-origin: border-box; background-clip: padding-box, border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background-color 0.3s ease, box-shadow 0.3s ease; cursor: not-allowed;"><span id="emojiBanderaIdioma" style="filter: grayscale(100%); transition: filter 0.3s ease;">🇫🇷</span></button>
+        <button class="flagbtn bloqueado-pantalla-inicio" id="btnIdioma" onclick="intentarAbrirMenuIdioma()" data-idioma="FRANCÉS"><span id="emojiBanderaIdioma">🇫🇷</span></button>
         <div id="menuIdioma" class="dropdown-content flagdropdown">
             <div onclick="cambiarIdioma('FRANCÉS')" class="flag-option idioma-fr">FRANCÉS</div>
             <div onclick="cambiarIdioma('ITALIANO')" class="flag-option idioma-it">ITALIANO</div>
@@ -1418,6 +1438,16 @@
     // Arranca sin unidad seleccionada: la persona debe elegir una del menú,
     // en vez de ver COLORES por defecto al abrir o recargar la app.
     let unidadActualKey = null;
+
+    // Las 5 unidades con selector de tema interno (Geografía y Clima, Los
+    // Números y el Tiempo, Personas, Vocabulario, Cultura) no muestran
+    // contenido automático al entrar — el botón de tema dice "Tema" hasta que
+    // se elige uno a propósito. REGLAS, PARTÍCULAS, TIEMPOS VERBALES y VERBOS
+    // AUXILIARES no tienen este selector, así que no aplica (siguen mostrando
+    // contenido directo, como siempre).
+    const UNIDADES_CON_TEMA_PENDIENTE = ["LA GEOGRAFÍA Y EL CLIMA", "LOS NÚMEROS Y EL TIEMPO", "PERSONAS NUEVO", "CULTURA"];
+    let temaYaElegidoPorUnidad = {};
+    const MENSAJE_ELEGIR_TEMA = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999; font-size:14px; text-align:center; padding:20px;">Elegí un tema para empezar ☝️</div>';
 
     const tarjetaReferencia = { vacia: true, titulo: "Espacio disponible" };
 
@@ -3281,6 +3311,9 @@
             div.onclick = () => {
                 reproducirNombreSeleccion(unidades[u][idioma], idioma);
                 unidadActualKey = u;
+                if (UNIDADES_CON_TEMA_PENDIENTE.includes(u)) {
+                    temaYaElegidoPorUnidad[u] = false;
+                }
                 modoNumerosTiempoNuevo = "numeros";
                 document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO.numeros[idioma];
                 modoVocabularioNuevo = "Lugares del hotel";
@@ -3296,15 +3329,17 @@
                 ["FRANCÉS", "ITALIANO", "PORTUGUÉS"].forEach(idiomaAux => {
                     data[idiomaAux]["VERBOS AUXILIARES"] = obtenerContenidoAuxiliar(idiomaAux);
                 });
+                const idsBotonTemaPorUnidad = {
+                    "LA GEOGRAFÍA Y EL CLIMA": "btnModoGeografiaClimaNuevo",
+                    "LOS NÚMEROS Y EL TIEMPO": "btnModoNumerosTiempoNuevo",
+                    "PERSONAS NUEVO": "btnModoPersonasNuevo",
+                    "CULTURA": "btnModoCultura"
+                };
+                if (UNIDADES_CON_TEMA_PENDIENTE.includes(u)) {
+                    document.getElementById(idsBotonTemaPorUnidad[u]).innerText = "Tema";
+                }
                 aplicarColorDeUnidad(idioma);
-                const btnIdiomaEl = document.getElementById('btnIdioma');
-                btnIdiomaEl.style.border = "";
-                btnIdiomaEl.style.backgroundImage = "";
-                btnIdiomaEl.style.backgroundOrigin = "";
-                btnIdiomaEl.style.backgroundClip = "";
-                btnIdiomaEl.style.boxShadow = "";
-                btnIdiomaEl.style.cursor = "pointer";
-                document.getElementById('emojiBanderaIdioma').style.filter = "grayscale(0%)";
+                document.getElementById('btnIdioma').classList.remove("bloqueado-pantalla-inicio");
                 document.getElementById('btnUnidad').classList.remove("boton-unidad-pulso");
                 document.getElementById('mesaDeTarjetas').style.display = "none";
                 document.getElementById('contentTable').style.display = "";
@@ -5862,6 +5897,7 @@
 
     function cambiarModoCultura(nuevoModo) {
         modoCultura = nuevoModo;
+        temaYaElegidoPorUnidad["CULTURA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const etiqueta = etiquetaTemaCultura(nuevoModo, idioma);
         reproducirNombreSeleccion(etiqueta, idioma);
@@ -5874,6 +5910,10 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
+        if (!temaYaElegidoPorUnidad["CULTURA"]) {
+            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
+            return null;
+        }
         const tarjetas = CULTURA_POR_IDIOMA[idioma][modoCultura];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -5998,6 +6038,7 @@
 
     function cambiarModoPersonasNuevo(nuevoModo) {
         modoPersonasNuevo = nuevoModo;
+        temaYaElegidoPorUnidad["PERSONAS NUEVO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         reproducirNombreSeleccion(TEMAS_PERSONAS[nuevoModo][idioma], idioma);
         document.getElementById('btnModoPersonasNuevo').innerText = TEMAS_PERSONAS[nuevoModo][idioma];
@@ -6010,6 +6051,10 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
+        if (!temaYaElegidoPorUnidad["PERSONAS NUEVO"]) {
+            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
+            return null;
+        }
         const tarjetas = PERSONAS_NUEVO_POR_IDIOMA[idioma][modoPersonasNuevo];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -6322,6 +6367,7 @@
 
     function cambiarModoGeografiaClimaNuevo(nuevoModo) {
         modoGeografiaClimaNuevo = nuevoModo;
+        temaYaElegidoPorUnidad["LA GEOGRAFÍA Y EL CLIMA"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
         reproducirNombreSeleccion(t[idioma], idioma);
@@ -6335,6 +6381,10 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
+        if (!temaYaElegidoPorUnidad["LA GEOGRAFÍA Y EL CLIMA"]) {
+            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
+            return null;
+        }
         const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
@@ -6912,6 +6962,10 @@
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        if (!temaYaElegidoPorUnidad["LOS NÚMEROS Y EL TIEMPO"]) {
+            document.getElementById('mesaDeTarjetas').innerHTML = MENSAJE_ELEGIR_TEMA;
+            return null;
+        }
 
         if (modoNumerosTiempoNuevo === "numeros") {
             const e = numerosNuevoEstado[idioma];
@@ -7278,6 +7332,7 @@
 
     function cambiarModoNumerosTiempoNuevo(nuevoModo) {
         modoNumerosTiempoNuevo = nuevoModo;
+        temaYaElegidoPorUnidad["LOS NÚMEROS Y EL TIEMPO"] = true;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
         reproducirNombreSeleccion(TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma], idioma);
         document.getElementById('btnModoNumerosTiempoNuevo').innerText = TEMAS_NUMEROS_TIEMPO[nuevoModo][idioma];
