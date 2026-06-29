@@ -883,6 +883,10 @@
         <button class="dropbtn dropbtn-chico" id="btnTemporadaActividades" onclick="inicializarMenuTemporadaActividades(); toggleDropdown('menuTemporadaActividades')">Invierno ❄️</button>
         <div id="menuTemporadaActividades" class="dropdown-content"></div>
     </div>
+    <div class="dropdown" id="selectorModoFraseWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnModoFrase" onclick="toggleDropdown('menuModoFrase')">Imperativo</button>
+        <div id="menuModoFrase" class="dropdown-content"></div>
+    </div>
 </header>
 
 <header class="header-derecha">
@@ -924,7 +928,8 @@
         "CULTURA": { "FRANCÉS": "CULTURE 🌐", "ITALIANO": "CULTURA 🌐", "PORTUGUÉS": "CULTURA 🌐" },
         "LA GEOGRAFÍA Y EL CLIMA": { "FRANCÉS": "LA GÉOGRAPHIE ET LE CLIMAT ❄️🏔️☀️", "ITALIANO": "LA GEOGRAFIA E IL CLIMA ❄️🏔️☀️", "PORTUGUÉS": "A GEOGRAFIA E O CLIMA ❄️🏔️☀️" },
         "TIEMPOS VERBALES": { "FRANCÉS": "TEMPS VERBAUX 🌈", "ITALIANO": "TEMPI VERBALI 🌈", "PORTUGUÉS": "TEMPOS VERBAIS 🌈" },
-        "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" }
+        "VERBOS AUXILIARES": { "FRANCÉS": "VERBES AUXILIAIRES 📓", "ITALIANO": "VERBI AUSILIARI 📓", "PORTUGUÉS": "VERBOS AUXILIARES 📓" },
+        "MODOS Y FRASES": { "FRANCÉS": "MODES ET PHRASES 💬", "ITALIANO": "MODES ET PHRASES 💬", "PORTUGUÉS": "MODES ET PHRASES 💬" }
     };
 
 
@@ -1058,6 +1063,25 @@
             sombra: "rgba(58, 58, 58, 0.25)",
             fondoPagina: "#ffffff",
             particulas: ["#d63b2f", "#e8821e", "#e8c91e", "#e85ca8", "#4caf3a", "#2f7fe0", "#7b3fd6"]
+        },
+        "MODOS Y FRASES": {
+            // Degradado propio de 2 colores (no arcoíris completo): verde de
+            // Futur Proche (Imperativo = acción inminente, mismo concepto) +
+            // violeta de Conditionnel Présent (Subjuntivo = incertidumbre,
+            // deseo, condición — asociación ya aprendida en Tiempos Verbales,
+            // reutilizada a propósito para reforzar el patrón).
+            color: "#4caf3a",
+            sombra: "rgba(76, 175, 58, 0.3)",
+            bordeLineal: "linear-gradient(to right, #4caf3a 0%, #4caf3a 46%, #7b3fd6 54%, #7b3fd6 100%)",
+            fondoPagina: "#f3f0fa",
+            panelBg: "#ffffff",
+            textoColor: "#2c2c2e",
+            tituloTarjetaColor: "#4caf3a",
+            particulas: [
+                { color: "#4caf3a", forma: "normal" },
+                { color: "#7b3fd6", forma: "normal" },
+                { color: "#ffffff", forma: "destello", tinteHalo: "180,210,160" }
+            ]
         }
     };
     // Color de partícula neutro para cualquier unidad sin paleta propia
@@ -1741,6 +1765,78 @@
             regularidad: { "FRANCÉS": "regular", "ITALIANO": "regular", "PORTUGUÉS": "regular" },
             es: "Llegar",
             participio: { "FRANCÉS": "arrivé", "ITALIANO": "arrivato", "PORTUGUÉS": "chegado" }
+        },
+        "VIVRE": {
+            nombre: { "FRANCÉS": "Vivre" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Vivir",
+            participio: { "FRANCÉS": "vécu" }
+        },
+        "AIMER": {
+            nombre: { "FRANCÉS": "Aimer" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Gustar / Amar",
+            participio: { "FRANCÉS": "aimé" }
+        },
+        "HABITER": {
+            nombre: { "FRANCÉS": "Habiter" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Habitar / Vivir en",
+            participio: { "FRANCÉS": "habité" }
+        },
+        "TRAVAILLER": {
+            nombre: { "FRANCÉS": "Travailler" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Trabajar",
+            participio: { "FRANCÉS": "travaillé" }
+        },
+        "CONNAITRE": {
+            nombre: { "FRANCÉS": "Connaître" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Conocer",
+            participio: { "FRANCÉS": "connu" }
+        },
+        "VENIR": {
+            nombre: { "FRANCÉS": "Venir" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Venir",
+            participio: { "FRANCÉS": "venu" }
+        },
+        "SORTIR": {
+            nombre: { "FRANCÉS": "Sortir" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Salir",
+            participio: { "FRANCÉS": "sorti" }
+        },
+        "DIRE": {
+            nombre: { "FRANCÉS": "Dire" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Decir",
+            participio: { "FRANCÉS": "dit" }
+        },
+        "PENSER": {
+            nombre: { "FRANCÉS": "Penser" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Pensar",
+            participio: { "FRANCÉS": "pensé" }
+        },
+        "METTRE": {
+            nombre: { "FRANCÉS": "Mettre" },
+            regularidad: { "FRANCÉS": "irregular" },
+            es: "Poner / Meter",
+            participio: { "FRANCÉS": "mis" }
+        },
+        "APPORTER": {
+            nombre: { "FRANCÉS": "Apporter" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Traer",
+            participio: { "FRANCÉS": "apporté" }
+        },
+        "REPARER": {
+            nombre: { "FRANCÉS": "Réparer" },
+            regularidad: { "FRANCÉS": "regular" },
+            es: "Reparar",
+            participio: { "FRANCÉS": "réparé" }
         }
     };
 
@@ -2898,6 +2994,534 @@
                     regla: "Infinitivo chegar + terminación del condicional"
                 }
             ]
+        },
+        "VIVRE": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA VIVIDO",
+                    filas: [["j'", "avais vécu"], ["tu", "avais vécu"], ["il, elle", "avait vécu"], ["nous", "avions vécu"], ["vous", "aviez vécu"], ["ils, elles", "avaient vécu"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio vécu"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO VIVÍ",
+                    filas: [["j'", "ai vécu"], ["tu", "as vécu"], ["il, elle", "a vécu"], ["nous", "avons vécu"], ["vous", "avez vécu"], ["ils, elles", "ont vécu"]],
+                    regla: "Auxiliar avoir + participio vécu"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO VIVÍA",
+                    filas: [["je", "vivais"], ["tu", "vivais"], ["il, elle", "vivait"], ["nous", "vivions"], ["vous", "viviez"], ["ils, elles", "vivaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA VIVIDO",
+                    filas: [["j'", "aurais vécu"], ["tu", "aurais vécu"], ["il, elle", "aurait vécu"], ["nous", "aurions vécu"], ["vous", "auriez vécu"], ["ils, elles", "auraient vécu"]],
+                    regla: "Avoir en condicional presente + participio vécu"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO VIVO",
+                    filas: [["je", "vis"], ["tu", "vis"], ["il, elle", "vit"], ["nous", "vivons"], ["vous", "vivez"], ["ils, elles", "vivent"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A VIVIR",
+                    filas: [["je", "vais vivre"], ["tu", "vas vivre"], ["il, elle", "va vivre"], ["nous", "allons vivre"], ["vous", "allez vivre"], ["ils, elles", "vont vivre"]],
+                    regla: "Aller en presente + vivre en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO VIVIRÉ",
+                    filas: [["je", "vivrai"], ["tu", "vivras"], ["il, elle", "vivra"], ["nous", "vivrons"], ["vous", "vivrez"], ["ils, elles", "vivront"]],
+                    regla: "Raíz vivr (irregular) + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO VIVIRÍA",
+                    filas: [["je", "vivrais"], ["tu", "vivrais"], ["il, elle", "vivrait"], ["nous", "vivrions"], ["vous", "vivriez"], ["ils, elles", "vivraient"]],
+                    regla: "Misma raíz del futuro (vivr) + terminación del imperfait"
+                }
+            ]
+        },
+        "AIMER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA AMADO/QUERIDO",
+                    filas: [["j'", "avais aimé"], ["tu", "avais aimé"], ["il, elle", "avait aimé"], ["nous", "avions aimé"], ["vous", "aviez aimé"], ["ils, elles", "avaient aimé"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio aimé"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "ME GUSTÓ/AMÉ",
+                    filas: [["j'", "ai aimé"], ["tu", "as aimé"], ["il, elle", "a aimé"], ["nous", "avons aimé"], ["vous", "avez aimé"], ["ils, elles", "ont aimé"]],
+                    regla: "Auxiliar avoir + participio aimé"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "ME GUSTABA",
+                    filas: [["j'", "aimais"], ["tu", "aimais"], ["il, elle", "aimait"], ["nous", "aimions"], ["vous", "aimiez"], ["ils, elles", "aimaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "ME HUBIERA GUSTADO",
+                    filas: [["j'", "aurais aimé"], ["tu", "aurais aimé"], ["il, elle", "aurait aimé"], ["nous", "aurions aimé"], ["vous", "auriez aimé"], ["ils, elles", "auraient aimé"]],
+                    regla: "Avoir en condicional presente + participio aimé"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "ME GUSTA",
+                    filas: [["j'", "aime"], ["tu", "aimes"], ["il, elle", "aime"], ["nous", "aimons"], ["vous", "aimez"], ["ils, elles", "aiment"]],
+                    regla: "Verbo regular en -er (aimer): radical aim + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A AMAR/QUERER",
+                    filas: [["je", "vais aimer"], ["tu", "vas aimer"], ["il, elle", "va aimer"], ["nous", "allons aimer"], ["vous", "allez aimer"], ["ils, elles", "vont aimer"]],
+                    regla: "Aller en presente + aimer en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "ME GUSTARÁ",
+                    filas: [["j'", "aimerai"], ["tu", "aimeras"], ["il, elle", "aimera"], ["nous", "aimerons"], ["vous", "aimerez"], ["ils, elles", "aimeront"]],
+                    regla: "Infinitivo aimer + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "ME GUSTARÍA",
+                    filas: [["j'", "aimerais"], ["tu", "aimerais"], ["il, elle", "aimerait"], ["nous", "aimerions"], ["vous", "aimeriez"], ["ils, elles", "aimeraient"]],
+                    regla: "Infinitivo aimer + terminación del imperfait"
+                }
+            ]
+        },
+        "HABITER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA VIVIDO/HABITADO",
+                    filas: [["j'", "avais habité"], ["tu", "avais habité"], ["il, elle", "avait habité"], ["nous", "avions habité"], ["vous", "aviez habité"], ["ils, elles", "avaient habité"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio habité"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO VIVÍ/HABITÉ",
+                    filas: [["j'", "ai habité"], ["tu", "as habité"], ["il, elle", "a habité"], ["nous", "avons habité"], ["vous", "avez habité"], ["ils, elles", "ont habité"]],
+                    regla: "Auxiliar avoir + participio habité"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO VIVÍA/HABITABA",
+                    filas: [["j'", "habitais"], ["tu", "habitais"], ["il, elle", "habitait"], ["nous", "habitions"], ["vous", "habitiez"], ["ils, elles", "habitaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA VIVIDO/HABITADO",
+                    filas: [["j'", "aurais habité"], ["tu", "aurais habité"], ["il, elle", "aurait habité"], ["nous", "aurions habité"], ["vous", "auriez habité"], ["ils, elles", "auraient habité"]],
+                    regla: "Avoir en condicional presente + participio habité"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO VIVO/HABITO",
+                    filas: [["j'", "habite"], ["tu", "habites"], ["il, elle", "habite"], ["nous", "habitons"], ["vous", "habitez"], ["ils, elles", "habitent"]],
+                    regla: "Verbo regular en -er (habiter): radical habit + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A VIVIR/HABITAR",
+                    filas: [["je", "vais habiter"], ["tu", "vas habiter"], ["il, elle", "va habiter"], ["nous", "allons habiter"], ["vous", "allez habiter"], ["ils, elles", "vont habiter"]],
+                    regla: "Aller en presente + habiter en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO VIVIRÉ/HABITARÉ",
+                    filas: [["j'", "habiterai"], ["tu", "habiteras"], ["il, elle", "habitera"], ["nous", "habiterons"], ["vous", "habiterez"], ["ils, elles", "habiteront"]],
+                    regla: "Infinitivo habiter + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO VIVIRÍA/HABITARÍA",
+                    filas: [["j'", "habiterais"], ["tu", "habiterais"], ["il, elle", "habiterait"], ["nous", "habiterions"], ["vous", "habiteriez"], ["ils, elles", "habiteraient"]],
+                    regla: "Infinitivo habiter + terminación del imperfait"
+                }
+            ]
+        },
+        "TRAVAILLER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA TRABAJADO",
+                    filas: [["j'", "avais travaillé"], ["tu", "avais travaillé"], ["il, elle", "avait travaillé"], ["nous", "avions travaillé"], ["vous", "aviez travaillé"], ["ils, elles", "avaient travaillé"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio travaillé"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO TRABAJÉ",
+                    filas: [["j'", "ai travaillé"], ["tu", "as travaillé"], ["il, elle", "a travaillé"], ["nous", "avons travaillé"], ["vous", "avez travaillé"], ["ils, elles", "ont travaillé"]],
+                    regla: "Auxiliar avoir + participio travaillé"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO TRABAJABA",
+                    filas: [["je", "travaillais"], ["tu", "travaillais"], ["il, elle", "travaillait"], ["nous", "travaillions"], ["vous", "travailliez"], ["ils, elles", "travaillaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA TRABAJADO",
+                    filas: [["j'", "aurais travaillé"], ["tu", "aurais travaillé"], ["il, elle", "aurait travaillé"], ["nous", "aurions travaillé"], ["vous", "auriez travaillé"], ["ils, elles", "auraient travaillé"]],
+                    regla: "Avoir en condicional presente + participio travaillé"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO TRABAJO",
+                    filas: [["je", "travaille"], ["tu", "travailles"], ["il, elle", "travaille"], ["nous", "travaillons"], ["vous", "travaillez"], ["ils, elles", "travaillent"]],
+                    regla: "Verbo regular en -er (travailler): radical travaill + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A TRABAJAR",
+                    filas: [["je", "vais travailler"], ["tu", "vas travailler"], ["il, elle", "va travailler"], ["nous", "allons travailler"], ["vous", "allez travailler"], ["ils, elles", "vont travailler"]],
+                    regla: "Aller en presente + travailler en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO TRABAJARÉ",
+                    filas: [["je", "travaillerai"], ["tu", "travailleras"], ["il, elle", "travaillera"], ["nous", "travaillerons"], ["vous", "travaillerez"], ["ils, elles", "travailleront"]],
+                    regla: "Infinitivo travailler + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO TRABAJARÍA",
+                    filas: [["je", "travaillerais"], ["tu", "travaillerais"], ["il, elle", "travaillerait"], ["nous", "travaillerions"], ["vous", "travailleriez"], ["ils, elles", "travailleraient"]],
+                    regla: "Infinitivo travailler + terminación del imperfait"
+                }
+            ]
+        },
+        "CONNAITRE": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA CONOCIDO",
+                    filas: [["j'", "avais connu"], ["tu", "avais connu"], ["il, elle", "avait connu"], ["nous", "avions connu"], ["vous", "aviez connu"], ["ils, elles", "avaient connu"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio connu"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO CONOCÍ",
+                    filas: [["j'", "ai connu"], ["tu", "as connu"], ["il, elle", "a connu"], ["nous", "avons connu"], ["vous", "avez connu"], ["ils, elles", "ont connu"]],
+                    regla: "Auxiliar avoir + participio connu"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO CONOCÍA",
+                    filas: [["je", "connaissais"], ["tu", "connaissais"], ["il, elle", "connaissait"], ["nous", "connaissions"], ["vous", "connaissiez"], ["ils, elles", "connaissaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA CONOCIDO",
+                    filas: [["j'", "aurais connu"], ["tu", "aurais connu"], ["il, elle", "aurait connu"], ["nous", "aurions connu"], ["vous", "auriez connu"], ["ils, elles", "auraient connu"]],
+                    regla: "Avoir en condicional presente + participio connu"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO CONOZCO",
+                    filas: [["je", "connais"], ["tu", "connais"], ["il, elle", "connaît"], ["nous", "connaissons"], ["vous", "connaissez"], ["ils, elles", "connaissent"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A CONOCER",
+                    filas: [["je", "vais connaître"], ["tu", "vas connaître"], ["il, elle", "va connaître"], ["nous", "allons connaître"], ["vous", "allez connaître"], ["ils, elles", "vont connaître"]],
+                    regla: "Aller en presente + connaître en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO CONOCERÉ",
+                    filas: [["je", "connaîtrai"], ["tu", "connaîtras"], ["il, elle", "connaîtra"], ["nous", "connaîtrons"], ["vous", "connaîtrez"], ["ils, elles", "connaîtront"]],
+                    regla: "Raíz connaîtr (cae la e final) + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO CONOCERÍA",
+                    filas: [["je", "connaîtrais"], ["tu", "connaîtrais"], ["il, elle", "connaîtrait"], ["nous", "connaîtrions"], ["vous", "connaîtriez"], ["ils, elles", "connaîtraient"]],
+                    regla: "Misma raíz del futuro (connaîtr) + terminación del imperfait"
+                }
+            ]
+        },
+        "VENIR": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA VENIDO",
+                    filas: [["j'", "étais venu"], ["tu", "étais venu"], ["il, elle", "était venu"], ["nous", "étions venus"], ["vous", "étiez venus"], ["ils, elles", "étaient venus"]],
+                    regla: "Auxiliar être (¡no avoir!) conjugado en imperfait + participio venu"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO VINE",
+                    filas: [["je", "suis venu"], ["tu", "es venu"], ["il, elle", "est venu"], ["nous", "sommes venus"], ["vous", "êtes venus"], ["ils, elles", "sont venus"]],
+                    regla: "Auxiliar être (¡no avoir!) + participio venu — venir es verbo de movimiento"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO VENÍA",
+                    filas: [["je", "venais"], ["tu", "venais"], ["il, elle", "venait"], ["nous", "venions"], ["vous", "veniez"], ["ils, elles", "venaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA VENIDO",
+                    filas: [["je", "serais venu"], ["tu", "serais venu"], ["il, elle", "serait venu"], ["nous", "serions venus"], ["vous", "seriez venus"], ["ils, elles", "seraient venus"]],
+                    regla: "Être en condicional presente + participio venu"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO VENGO",
+                    filas: [["je", "viens"], ["tu", "viens"], ["il, elle", "vient"], ["nous", "venons"], ["vous", "venez"], ["ils, elles", "viennent"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A VENIR",
+                    filas: [["je", "vais venir"], ["tu", "vas venir"], ["il, elle", "va venir"], ["nous", "allons venir"], ["vous", "allez venir"], ["ils, elles", "vont venir"]],
+                    regla: "Aller en presente + venir en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO VENDRÉ",
+                    filas: [["je", "viendrai"], ["tu", "viendras"], ["il, elle", "viendra"], ["nous", "viendrons"], ["vous", "viendrez"], ["ils, elles", "viendront"]],
+                    regla: "Raíz viendr (irregular) + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO VENDRÍA",
+                    filas: [["je", "viendrais"], ["tu", "viendrais"], ["il, elle", "viendrait"], ["nous", "viendrions"], ["vous", "viendriez"], ["ils, elles", "viendraient"]],
+                    regla: "Misma raíz del futuro (viendr) + terminación del imperfait"
+                }
+            ]
+        },
+        "SORTIR": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA SALIDO",
+                    filas: [["j'", "étais sorti"], ["tu", "étais sorti"], ["il, elle", "était sorti"], ["nous", "étions sortis"], ["vous", "étiez sortis"], ["ils, elles", "étaient sortis"]],
+                    regla: "Auxiliar être (¡no avoir!) conjugado en imperfait + participio sorti"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO SALÍ",
+                    filas: [["je", "suis sorti"], ["tu", "es sorti"], ["il, elle", "est sorti"], ["nous", "sommes sortis"], ["vous", "êtes sortis"], ["ils, elles", "sont sortis"]],
+                    regla: "Auxiliar être (¡no avoir!) + participio sorti — sortir es verbo de movimiento"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO SALÍA",
+                    filas: [["je", "sortais"], ["tu", "sortais"], ["il, elle", "sortait"], ["nous", "sortions"], ["vous", "sortiez"], ["ils, elles", "sortaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA SALIDO",
+                    filas: [["je", "serais sorti"], ["tu", "serais sorti"], ["il, elle", "serait sorti"], ["nous", "serions sortis"], ["vous", "seriez sortis"], ["ils, elles", "seraient sortis"]],
+                    regla: "Être en condicional presente + participio sorti"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO SALGO",
+                    filas: [["je", "sors"], ["tu", "sors"], ["il, elle", "sort"], ["nous", "sortons"], ["vous", "sortez"], ["ils, elles", "sortent"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A SALIR",
+                    filas: [["je", "vais sortir"], ["tu", "vas sortir"], ["il, elle", "va sortir"], ["nous", "allons sortir"], ["vous", "allez sortir"], ["ils, elles", "vont sortir"]],
+                    regla: "Aller en presente + sortir en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO SALDRÉ",
+                    filas: [["je", "sortirai"], ["tu", "sortiras"], ["il, elle", "sortira"], ["nous", "sortirons"], ["vous", "sortirez"], ["ils, elles", "sortiront"]],
+                    regla: "Infinitivo sortir + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO SALDRÍA",
+                    filas: [["je", "sortirais"], ["tu", "sortirais"], ["il, elle", "sortirait"], ["nous", "sortirions"], ["vous", "sortiriez"], ["ils, elles", "sortiraient"]],
+                    regla: "Infinitivo sortir + terminación del imperfait"
+                }
+            ]
+        },
+        "DIRE": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA DICHO",
+                    filas: [["j'", "avais dit"], ["tu", "avais dit"], ["il, elle", "avait dit"], ["nous", "avions dit"], ["vous", "aviez dit"], ["ils, elles", "avaient dit"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio dit"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO DIJE",
+                    filas: [["j'", "ai dit"], ["tu", "as dit"], ["il, elle", "a dit"], ["nous", "avons dit"], ["vous", "avez dit"], ["ils, elles", "ont dit"]],
+                    regla: "Auxiliar avoir + participio dit"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO DECÍA",
+                    filas: [["je", "disais"], ["tu", "disais"], ["il, elle", "disait"], ["nous", "disions"], ["vous", "disiez"], ["ils, elles", "disaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA DICHO",
+                    filas: [["j'", "aurais dit"], ["tu", "aurais dit"], ["il, elle", "aurait dit"], ["nous", "aurions dit"], ["vous", "auriez dit"], ["ils, elles", "auraient dit"]],
+                    regla: "Avoir en condicional presente + participio dit"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO DIGO",
+                    filas: [["je", "dis"], ["tu", "dis"], ["il, elle", "dit"], ["nous", "disons"], ["vous", "dites"], ["ils, elles", "disent"]],
+                    regla: "Irregular en vous: dites (no disez)"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A DECIR",
+                    filas: [["je", "vais dire"], ["tu", "vas dire"], ["il, elle", "va dire"], ["nous", "allons dire"], ["vous", "allez dire"], ["ils, elles", "vont dire"]],
+                    regla: "Aller en presente + dire en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO DIRÉ",
+                    filas: [["je", "dirai"], ["tu", "diras"], ["il, elle", "dira"], ["nous", "dirons"], ["vous", "direz"], ["ils, elles", "diront"]],
+                    regla: "Infinitivo dire + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO DIRÍA",
+                    filas: [["je", "dirais"], ["tu", "dirais"], ["il, elle", "dirait"], ["nous", "dirions"], ["vous", "diriez"], ["ils, elles", "diraient"]],
+                    regla: "Infinitivo dire + terminación del imperfait"
+                }
+            ]
+        },
+        "PENSER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA PENSADO",
+                    filas: [["j'", "avais pensé"], ["tu", "avais pensé"], ["il, elle", "avait pensé"], ["nous", "avions pensé"], ["vous", "aviez pensé"], ["ils, elles", "avaient pensé"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio pensé"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO PENSÉ",
+                    filas: [["j'", "ai pensé"], ["tu", "as pensé"], ["il, elle", "a pensé"], ["nous", "avons pensé"], ["vous", "avez pensé"], ["ils, elles", "ont pensé"]],
+                    regla: "Auxiliar avoir + participio pensé"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO PENSABA",
+                    filas: [["je", "pensais"], ["tu", "pensais"], ["il, elle", "pensait"], ["nous", "pensions"], ["vous", "pensiez"], ["ils, elles", "pensaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA PENSADO",
+                    filas: [["j'", "aurais pensé"], ["tu", "aurais pensé"], ["il, elle", "aurait pensé"], ["nous", "aurions pensé"], ["vous", "auriez pensé"], ["ils, elles", "auraient pensé"]],
+                    regla: "Avoir en condicional presente + participio pensé"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO PIENSO",
+                    filas: [["je", "pense"], ["tu", "penses"], ["il, elle", "pense"], ["nous", "pensons"], ["vous", "pensez"], ["ils, elles", "pensent"]],
+                    regla: "Verbo regular en -er (penser): radical pens + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A PENSAR",
+                    filas: [["je", "vais penser"], ["tu", "vas penser"], ["il, elle", "va penser"], ["nous", "allons penser"], ["vous", "allez penser"], ["ils, elles", "vont penser"]],
+                    regla: "Aller en presente + penser en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO PENSARÉ",
+                    filas: [["je", "penserai"], ["tu", "penseras"], ["il, elle", "pensera"], ["nous", "penserons"], ["vous", "penserez"], ["ils, elles", "penseront"]],
+                    regla: "Infinitivo penser + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO PENSARÍA",
+                    filas: [["je", "penserais"], ["tu", "penserais"], ["il, elle", "penserait"], ["nous", "penserions"], ["vous", "penseriez"], ["ils, elles", "penseraient"]],
+                    regla: "Infinitivo penser + terminación del imperfait"
+                }
+            ]
+        },
+        "METTRE": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA PUESTO",
+                    filas: [["j'", "avais mis"], ["tu", "avais mis"], ["il, elle", "avait mis"], ["nous", "avions mis"], ["vous", "aviez mis"], ["ils, elles", "avaient mis"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio mis"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO PUSE",
+                    filas: [["j'", "ai mis"], ["tu", "as mis"], ["il, elle", "a mis"], ["nous", "avons mis"], ["vous", "avez mis"], ["ils, elles", "ont mis"]],
+                    regla: "Auxiliar avoir + participio mis"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO PONÍA",
+                    filas: [["je", "mettais"], ["tu", "mettais"], ["il, elle", "mettait"], ["nous", "mettions"], ["vous", "mettiez"], ["ils, elles", "mettaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA PUESTO",
+                    filas: [["j'", "aurais mis"], ["tu", "aurais mis"], ["il, elle", "aurait mis"], ["nous", "aurions mis"], ["vous", "auriez mis"], ["ils, elles", "auraient mis"]],
+                    regla: "Avoir en condicional presente + participio mis"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO PONGO",
+                    filas: [["je", "mets"], ["tu", "mets"], ["il, elle", "met"], ["nous", "mettons"], ["vous", "mettez"], ["ils, elles", "mettent"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A PONER",
+                    filas: [["je", "vais mettre"], ["tu", "vas mettre"], ["il, elle", "va mettre"], ["nous", "allons mettre"], ["vous", "allez mettre"], ["ils, elles", "vont mettre"]],
+                    regla: "Aller en presente + mettre en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO PONDRÉ",
+                    filas: [["je", "mettrai"], ["tu", "mettras"], ["il, elle", "mettra"], ["nous", "mettrons"], ["vous", "mettrez"], ["ils, elles", "mettront"]],
+                    regla: "Infinitivo mettre + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO PONDRÍA",
+                    filas: [["je", "mettrais"], ["tu", "mettrais"], ["il, elle", "mettrait"], ["nous", "mettrions"], ["vous", "mettriez"], ["ils, elles", "mettraient"]],
+                    regla: "Infinitivo mettre + terminación del imperfait"
+                }
+            ]
+        },
+        "APPORTER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA TRAÍDO",
+                    filas: [["j'", "avais apporté"], ["tu", "avais apporté"], ["il, elle", "avait apporté"], ["nous", "avions apporté"], ["vous", "aviez apporté"], ["ils, elles", "avaient apporté"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio apporté"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO TRAJE",
+                    filas: [["j'", "ai apporté"], ["tu", "as apporté"], ["il, elle", "a apporté"], ["nous", "avons apporté"], ["vous", "avez apporté"], ["ils, elles", "ont apporté"]],
+                    regla: "Auxiliar avoir + participio apporté"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO TRAÍA",
+                    filas: [["j'", "apportais"], ["tu", "apportais"], ["il, elle", "apportait"], ["nous", "apportions"], ["vous", "apportiez"], ["ils, elles", "apportaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA TRAÍDO",
+                    filas: [["j'", "aurais apporté"], ["tu", "aurais apporté"], ["il, elle", "aurait apporté"], ["nous", "aurions apporté"], ["vous", "auriez apporté"], ["ils, elles", "auraient apporté"]],
+                    regla: "Avoir en condicional presente + participio apporté"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO TRAIGO",
+                    filas: [["j'", "apporte"], ["tu", "apportes"], ["il, elle", "apporte"], ["nous", "apportons"], ["vous", "apportez"], ["ils, elles", "apportent"]],
+                    regla: "Verbo regular en -er (apporter): radical apport + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A TRAER",
+                    filas: [["je", "vais apporter"], ["tu", "vas apporter"], ["il, elle", "va apporter"], ["nous", "allons apporter"], ["vous", "allez apporter"], ["ils, elles", "vont apporter"]],
+                    regla: "Aller en presente + apporter en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO TRAERÉ",
+                    filas: [["j'", "apporterai"], ["tu", "apporteras"], ["il, elle", "apportera"], ["nous", "apporterons"], ["vous", "apporterez"], ["ils, elles", "apporteront"]],
+                    regla: "Infinitivo apporter + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO TRAERÍA",
+                    filas: [["j'", "apporterais"], ["tu", "apporterais"], ["il, elle", "apporterait"], ["nous", "apporterions"], ["vous", "apporteriez"], ["ils, elles", "apporteraient"]],
+                    regla: "Infinitivo apporter + terminación del imperfait"
+                }
+            ]
+        },
+        "REPARER": {
+            "FRANCÉS": [
+                {
+                    tiempo: "Le Plus Que Parfait", funcion: "YO HABÍA REPARADO",
+                    filas: [["j'", "avais réparé"], ["tu", "avais réparé"], ["il, elle", "avait réparé"], ["nous", "avions réparé"], ["vous", "aviez réparé"], ["ils, elles", "avaient réparé"]],
+                    regla: "Auxiliar avoir conjugado en imperfait + participio réparé"
+                },
+                {
+                    tiempo: "Le Passé Composé", funcion: "YO REPARÉ",
+                    filas: [["j'", "ai réparé"], ["tu", "as réparé"], ["il, elle", "a réparé"], ["nous", "avons réparé"], ["vous", "avez réparé"], ["ils, elles", "ont réparé"]],
+                    regla: "Auxiliar avoir + participio réparé"
+                },
+                {
+                    tiempo: "L'Imparfait", funcion: "YO REPARABA",
+                    filas: [["je", "réparais"], ["tu", "réparais"], ["il, elle", "réparait"], ["nous", "réparions"], ["vous", "répariez"], ["ils, elles", "réparaient"]],
+                    regla: ""
+                },
+                {
+                    tiempo: "Pasado Condicional", funcion: "YO HUBIERA REPARADO",
+                    filas: [["j'", "aurais réparé"], ["tu", "aurais réparé"], ["il, elle", "aurait réparé"], ["nous", "aurions réparé"], ["vous", "auriez réparé"], ["ils, elles", "auraient réparé"]],
+                    regla: "Avoir en condicional presente + participio réparé"
+                },
+                {
+                    tiempo: "Le Présent", funcion: "YO REPARO",
+                    filas: [["je", "répare"], ["tu", "répares"], ["il, elle", "répare"], ["nous", "réparons"], ["vous", "réparez"], ["ils, elles", "réparent"]],
+                    regla: "Verbo regular en -er (réparer): radical répar + terminación"
+                },
+                {
+                    tiempo: "Le Futur Proche", funcion: "VOY A REPARAR",
+                    filas: [["je", "vais réparer"], ["tu", "vas réparer"], ["il, elle", "va réparer"], ["nous", "allons réparer"], ["vous", "allez réparer"], ["ils, elles", "vont réparer"]],
+                    regla: "Aller en presente + réparer en infinitivo"
+                },
+                {
+                    tiempo: "Le Future Simple", funcion: "YO REPARARÉ",
+                    filas: [["je", "réparerai"], ["tu", "répareras"], ["il, elle", "réparera"], ["nous", "réparerons"], ["vous", "réparerez"], ["ils, elles", "répareront"]],
+                    regla: "Infinitivo réparer + terminación del futuro"
+                },
+                {
+                    tiempo: "Le Conditionel Present", funcion: "YO REPARARÍA",
+                    filas: [["je", "réparerais"], ["tu", "réparerais"], ["il, elle", "réparerait"], ["nous", "réparerions"], ["vous", "répareriez"], ["ils, elles", "répareraient"]],
+                    regla: "Infinitivo réparer + terminación del imperfait"
+                }
+            ]
         }
     };
 
@@ -3574,6 +4198,8 @@
                 document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${TEMAS_GEOGRAFIA_CLIMA.terreno.es} ${TEMAS_GEOGRAFIA_CLIMA.terreno.emoji}`;
                 auxiliarActualKey = "REGLAS";
                 document.getElementById('btnAuxiliar').innerText = auxiliaresMeta["REGLAS"].nombre[idioma];
+                modoFraseActual = "imperativo";
+                document.getElementById('btnModoFrase').innerText = "Imperativo";
                 ["FRANCÉS", "ITALIANO", "PORTUGUÉS"].forEach(idiomaAux => {
                     data[idiomaAux]["VERBOS AUXILIARES"] = obtenerContenidoAuxiliar(idiomaAux);
                 });
@@ -3645,7 +4271,7 @@
     // viejo sistema) — los 3 botones de navegación rápida entre unidades
     // (placeholder, sin función todavía) aparecen solo en estas. Cuando se
     // arme una unidad nueva, se agrega a esta lista.
-    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA"];
+    const UNIDADES_NUEVAS_DE_CERO = ["LOS NÚMEROS Y EL TIEMPO", "REGLAS", "VOCABULARIO NUEVO", "PARTÍCULAS", "PERSONAS NUEVO", "CULTURA", "LA GEOGRAFÍA Y EL CLIMA", "MODOS Y FRASES"];
 
     // Detecta si el lienzo libre está activo en este momento: Personas →
     // Artículos → francés (caso especial fijo), o cualquier unidad genérica en
@@ -3658,6 +4284,7 @@
         if (unidadActualKey === "PERSONAS NUEVO") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "CULTURA") return true; // unidad nueva, sistema de mesa
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") return true; // unidad nueva, sistema de mesa
+        if (unidadActualKey === "MODOS Y FRASES") return true; // unidad nueva, sistema de mesa
         if (UNIDADES_SIN_LIENZO.includes(unidadActualKey)) return false;
         if (unidadActualKey === "REGLAS") return false; // solo lectura, sin editor
         return false; // clave de unidad no reconocida (no debería ocurrir con las unidades vivas)
@@ -3707,6 +4334,12 @@
 
         const visibleTemporadaActividades = visibleGeografiaClimaNuevo && modoGeografiaClimaNuevo === "actividades" && !editorLibreActivo;
         document.getElementById('selectorTemporadaActividadesWrap').style.display = visibleTemporadaActividades ? "inline-block" : "none";
+
+        const visibleModoFrase = unidadActualKey === "MODOS Y FRASES";
+        document.getElementById('selectorModoFraseWrap').style.display = visibleModoFrase ? "inline-block" : "none";
+        if (visibleModoFrase) {
+            inicializarMenuModoFrase();
+        }
 
         // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
         // activo: Personas → Artículos → francés, o unidades genéricas en
@@ -6441,6 +7074,7 @@
 
     let modoCultura = "local";
     const culturaEstado = {};
+    const modosFraseEstado = {};
 
     // Nombre de cada tema de CULTURA en los 3 idiomas + su emoji fijo. "Propia"
     // lleva la bandera del idioma elegido en vez de un emoji fijo (se agrega
@@ -7141,20 +7775,17 @@
         "FRANCÉS": {
             terreno: terrenoNuevoGeoFrances,
             florafauna: geografiaNuevoGeoFrances,
-            climaestaciones: [...climaNuevoGeoFrances, ...estacionesNuevoGeoFrances],
-            actividades: []
+            climaestaciones: [...climaNuevoGeoFrances, ...estacionesNuevoGeoFrances]
         },
         "ITALIANO": {
             terreno: terrenoNuevoGeoItaliano,
             florafauna: geografiaNuevoGeoItaliano,
-            climaestaciones: [...climaNuevoGeoItaliano, ...estacionesNuevoGeoItaliano],
-            actividades: []
+            climaestaciones: [...climaNuevoGeoItaliano, ...estacionesNuevoGeoItaliano]
         },
         "PORTUGUÉS": {
             terreno: terrenoNuevoGeoPortugues,
             florafauna: geografiaNuevoGeoPortugues,
-            climaestaciones: [...climaNuevoGeoPortugues, ...estacionesNuevoGeoPortugues],
-            actividades: []
+            climaestaciones: [...climaNuevoGeoPortugues, ...estacionesNuevoGeoPortugues]
         },
     };
 
@@ -8162,6 +8793,31 @@
             });
             return;
         }
+        if (unidadActualKey === "MODOS Y FRASES") {
+            const menu = document.getElementById('menuTarjetasLibre');
+            const idioma = document.getElementById('btnIdioma').dataset.idioma;
+            menu.innerHTML = "";
+            if (idioma !== "FRANCÉS") return;
+            const tarjetas = modoFraseActual === "imperativo"
+                ? [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES]
+                : [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES];
+            tarjetas.forEach((t, i) => {
+                const id = idioma + "__" + modoFraseActual + "__t" + i;
+                if (!modosFraseEstado[id]) {
+                    modosFraseEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+                }
+                const e = modosFraseEstado[id];
+                const div = document.createElement('div');
+                div.innerText = (e.visible ? "✓ " : "") + (t.titulo || ("Tarjeta " + (i + 1)));
+                div.onclick = () => {
+                    e.visible = !e.visible;
+                    document.getElementById('menuTarjetasLibre').classList.remove("show");
+                    actualizarPantalla();
+                };
+                menu.appendChild(div);
+            });
+            return;
+        }
     }
 
     // LOS NÚMEROS Y EL TIEMPO: unidad nueva (sistema de mesa), reemplaza a
@@ -8253,6 +8909,9 @@
         if (unidadKey === "LA GEOGRAFÍA Y EL CLIMA") {
             return renderGeografiaClimaNuevo(idioma);
         }
+        if (unidadKey === "MODOS Y FRASES") {
+            return renderModosFrases(idioma);
+        }
         const unidadData = data[idioma] && data[idioma][unidadKey];
         if (!unidadData) return null;
 
@@ -8338,7 +8997,8 @@
     const CLAVE_LOCALSTORAGE_POSICIONES = "appIdiomas_posicionesTarjetas_v1";
     const ESTRUCTURAS_DE_ESTADO_PERSISTENTES = {
         particulasEstado, culturaEstado, personasNuevoEstado,
-        geografiaClimaNuevoEstado, numerosTiempoNuevoEstado, vocabularioNuevoEstado
+        geografiaClimaNuevoEstado, numerosTiempoNuevoEstado, vocabularioNuevoEstado,
+        modosFraseEstado
     };
 
     function guardarPosicionesEnLocalStorage() {
@@ -8373,6 +9033,221 @@
         } catch (error) {
             console.error("No se pudo cargar desde localStorage:", error);
         }
+    }
+
+    // ===================== MODOS Y FRASES =====================
+    // Unidad nueva: Imperativo y Subjuntivo, pensada para comunicación activa
+    // (pedir, ordenar, expresar deseo/duda/emoción) — distinta de los tiempos
+    // puros de TIEMPOS VERBALES. Identidad visual propia: degradado verde
+    // (Futur Proche, "acción inminente" — mismo concepto que el Imperativo)
+    // + violeta (Conditionnel Présent, "incertidumbre/condición" — mismo
+    // concepto que el Subjuntivo), reutilizando asociaciones ya aprendidas.
+    // Solo en francés por ahora — italiano/portugués quedan para después.
+    let modoFraseActual = "imperativo";
+
+    const IMPERATIVO_REGULARES_FRANCES = {
+        titulo: "Imperativo — verbos regulares",
+        headers: ["Tú", "Nosotros", "Ustedes"],
+        columnasConSonido: [0, 1, 2],
+        rows: [
+            ["Parle !", "Parlons !", "Parlez !"],
+            ["Regarde !", "Regardons !", "Regardez !"],
+            ["Donne !", "Donnons !", "Donnez !"],
+            ["Travaille !", "Travaillons !", "Travaillez !"],
+            ["Mange !", "Mangeons !", "Mangez !"]
+        ]
+    };
+
+    const IMPERATIVO_IRREGULARES_FRANCES = {
+        titulo: "Imperativo — verbos irregulares",
+        headers: ["Tú", "Nosotros", "Ustedes"],
+        columnasConSonido: [0, 1, 2],
+        rows: [
+            ["Sois !", "Soyons !", "Soyez !"],
+            ["Aie !", "Ayons !", "Ayez !"],
+            ["Sache !", "Sachons !", "Sachez !"],
+            ["Va !", "Allons !", "Allez !"],
+            ["Viens !", "Venons !", "Venez !"],
+            ["Fais !", "Faisons !", "Faites !"]
+        ]
+    };
+
+    const IMPERATIVO_NEGATIVO_FRANCES = {
+        titulo: "Imperativo negativo",
+        headers: ["Francés", "Español", "Ejemplo"],
+        columnasConSonido: [0],
+        rows: [
+            ["ne ... pas + verbe", "no + verbo", "Ne fais pas ça ! (¡No hagas eso!)"],
+            ["n' ... pas + verbe", "no + verbo (antes de vocal)", "N'aie pas peur ! (¡No tengas miedo!)"]
+        ]
+    };
+
+    const SUBJUNTIVO_DISPARADORES_FRANCES = [
+        {
+            titulo: "Subjuntivo — cuándo se usa",
+            categorias: [
+                { etiqueta: "Deseo", contenido: "<span class=\"nombre-real\">Je veux que</span> + subjuntivo — quiero que", ancha: true },
+                { etiqueta: "Necesidad", contenido: "<span class=\"nombre-real\">Il faut que</span> + subjuntivo — es necesario que / hay que", ancha: true },
+                { etiqueta: "Duda", contenido: "<span class=\"nombre-real\">Je ne pense pas que</span> + subjuntivo — no creo que", ancha: true },
+                { etiqueta: "Emoción", contenido: "<span class=\"nombre-real\">Je suis content que</span> + subjuntivo — estoy contento de que", ancha: true },
+                { etiqueta: "Posibilidad", contenido: "<span class=\"nombre-real\">Il est possible que</span> + subjuntivo — es posible que", ancha: true },
+                { etiqueta: "Después de pour que", contenido: "<span class=\"nombre-real\">Pour que</span> + subjuntivo — para que (objetivo)", ancha: true }
+            ]
+        }
+    ];
+
+    const SUBJUNTIVO_REGULARES_FRANCES = {
+        titulo: "Subjuntivo presente — verbos regulares",
+        headers: ["Francés", "Español", "Ejemplo"],
+        columnasConSonido: [0],
+        rows: [
+            ["que je parle", "que yo hable", "Il faut que je parle plus fort."],
+            ["que tu parles", "que tú hables", "Je veux que tu parles avec elle."],
+            ["qu'il/elle parle", "que él/ella hable", "Il est possible qu'il parle français."],
+            ["que nous parlions", "que nosotros hablemos", "Il faut que nous parlions de ça."],
+            ["que vous parliez", "que ustedes hablen", "Je veux que vous parliez plus lentement."],
+            ["qu'ils/elles parlent", "que ellos/ellas hablen", "Il faut qu'ils parlent au directeur."]
+        ]
+    };
+
+    const SUBJUNTIVO_IRREGULARES_FRANCES = {
+        titulo: "Subjuntivo presente — verbos irregulares clave",
+        headers: ["Francés", "Español", "Ejemplo"],
+        columnasConSonido: [0],
+        rows: [
+            ["que je sois / que tu sois", "que yo/tú sea(s)", "Il faut que je sois à l'heure."],
+            ["que j'aie / que tu aies", "que yo/tú tenga(s)", "Je veux que tu aies de la patience."],
+            ["que je fasse / que tu fasses", "que yo/tú haga(s)", "Il faut que je fasse attention."],
+            ["que j'aille / que tu ailles", "que yo/tú vaya(s)", "Je veux que tu ailles voir un médecin."],
+            ["que je puisse / que tu puisses", "que yo/tú pueda(s)", "Il est possible que je puisse t'aider."],
+            ["que je sache / que tu saches", "que yo/tú sepa(s)", "Il faut que tu saches la vérité."]
+        ]
+    };
+
+    function renderModosFrases(idioma) {
+        document.getElementById('mesaDeTarjetas').style.display = "block";
+        document.getElementById('contentTable').style.display = "none";
+        posicionarMesaDeTarjetas();
+        // Solo francés tiene contenido real hoy — si el idioma activo es
+        // otro, se muestra un aviso claro en vez de una tarjeta vacía rota.
+        if (idioma !== "FRANCÉS") {
+            document.getElementById('mesaDeTarjetas').innerHTML =
+                '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999; font-size:14px; text-align:center; padding:20px;">Todavía no disponible en este idioma ☝️</div>';
+            return null;
+        }
+        const tarjetas = modoFraseActual === "imperativo"
+            ? [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES]
+            : [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES];
+        let html = `<div style="position:relative; width:100%; height:100%;">`;
+        tarjetas.forEach((t, i) => {
+            const id = idioma + "__" + modoFraseActual + "__t" + i;
+            if (!modosFraseEstado[id]) {
+                modosFraseEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
+            }
+            const e = modosFraseEstado[id];
+            if (!e.visible) return;
+            const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
+            const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
+            const contenidoTarjeta = t.categorias ? renderPanelCultural(t) : renderTabla(t, idioma);
+            html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
+                <div class="tarjeta-libre-contenido">
+                    <div class="tarjeta tarjeta-con-borde">${contenidoTarjeta}</div>
+                </div>
+                <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
+            </div>`;
+        });
+        html += '</div>';
+        document.getElementById('mesaDeTarjetas').innerHTML = html;
+        document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
+        requestAnimationFrame(() => inicializarArrastreModosFrases());
+        return null;
+    }
+
+    function inicializarArrastreModosFrases() {
+        const tarjetasEl = document.querySelectorAll('#mesaDeTarjetas .tarjeta-libre');
+        tarjetasEl.forEach(el => {
+            const id = el.dataset.clave;
+            const e = modosFraseEstado[id];
+            if (!e) return;
+            const zonaMover = el.querySelector('caption');
+            const manijaResize = el.querySelector('.tarjeta-libre-manija-resize');
+
+            if (zonaMover) {
+                zonaMover.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioX = ev.clientX, inicioY = ev.clientY;
+                    const left0 = el.offsetLeft, top0 = el.offsetTop;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+                    const rectTarjeta = el.getBoundingClientRect();
+                    const limiteX = rectMesa.width - rectTarjeta.width;
+                    const limiteY = rectMesa.height - rectTarjeta.height;
+
+                    function mover(ev2) {
+                        const dx = ev2.clientX - inicioX, dy = ev2.clientY - inicioY;
+                        el.style.left = Math.min(Math.max(0, left0 + dx), Math.max(0, limiteX)) + "px";
+                        el.style.top = Math.min(Math.max(0, top0 + dy), Math.max(0, limiteY)) + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.left = el.offsetLeft;
+                        e.top = el.offsetTop;
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+
+            if (manijaResize) {
+                manijaResize.addEventListener('pointerdown', (ev) => {
+                    if (!editorLibreActivo) return;
+                    ev.preventDefault();
+                    el.style.zIndex = 50;
+                    const inicioY = ev.clientY;
+                    const h0 = el.offsetHeight;
+                    const rectMesa = document.getElementById('mesaDeTarjetas').getBoundingClientRect();
+
+                    function mover(ev2) {
+                        const dy = ev2.clientY - inicioY;
+                        const maxAlto = rectMesa.height - el.offsetTop;
+                        const nuevoAlto = Math.min(maxAlto, Math.max(40, h0 + dy));
+                        el.style.height = nuevoAlto + "px";
+                    }
+                    function soltar() {
+                        document.removeEventListener('pointermove', mover);
+                        document.removeEventListener('pointerup', soltar);
+                        e.alto = el.offsetHeight;
+                        e.tamanoManual = true;
+                        el.classList.remove("tarjeta-libre-auto");
+                    }
+                    document.addEventListener('pointermove', mover);
+                    document.addEventListener('pointerup', soltar);
+                });
+            }
+        });
+    }
+
+    function inicializarMenuModoFrase() {
+        const menu = document.getElementById('menuModoFrase');
+        menu.innerHTML = "";
+        [["imperativo", "Imperativo"], ["subjuntivo", "Subjuntivo"]].forEach(([clave, etiqueta]) => {
+            const div = document.createElement('div');
+            div.innerText = etiqueta;
+            div.onclick = () => cambiarModoFrase(clave);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnModoFrase').innerText = modoFraseActual === "imperativo" ? "Imperativo" : "Subjuntivo";
+    }
+
+    function cambiarModoFrase(nuevoModo) {
+        modoFraseActual = nuevoModo;
+        const idioma = document.getElementById('btnIdioma').dataset.idioma;
+        document.getElementById('btnModoFrase').innerText = nuevoModo === "imperativo" ? "Imperativo" : "Subjuntivo";
+        document.getElementById('menuModoFrase').classList.remove("show");
+        aplicarColorDeUnidad(idioma);
+        actualizarPantalla();
     }
 
     cargarPosicionesDesdeLocalStorage();
