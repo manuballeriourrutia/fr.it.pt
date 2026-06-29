@@ -2876,9 +2876,9 @@
     //   segundo auxiliar tipo être en portugués europeo, así que esa posición
     //   directamente no está en el menú.
     const auxiliaresMeta = {
-        "AVOIR": { nombre: { "FRANCÉS": "Avoir", "ITALIANO": "Avere", "PORTUGUÉS": "Ter" }, es: "Tener" },
-        "ETRE": { nombre: { "FRANCÉS": "Être", "ITALIANO": "Essere" }, es: "Ser/Estar" }, // sin PORTUGUÉS: no existe
-        "ALLER": { nombre: { "FRANCÉS": "Aller", "ITALIANO": "Andare", "PORTUGUÉS": "Ir" }, es: "Ir" },
+        "AVOIR": { nombre: { "FRANCÉS": "Avoir", "ITALIANO": "Avere", "PORTUGUÉS": "Ter" }, es: "Tener", participio: { "FRANCÉS": "eu", "ITALIANO": "avuto", "PORTUGUÉS": "tido" } },
+        "ETRE": { nombre: { "FRANCÉS": "Être", "ITALIANO": "Essere" }, es: "Ser/Estar", participio: { "FRANCÉS": "été", "ITALIANO": "stato" } }, // sin PORTUGUÉS: no existe
+        "ALLER": { nombre: { "FRANCÉS": "Aller", "ITALIANO": "Andare", "PORTUGUÉS": "Ir" }, es: "Ir", participio: { "FRANCÉS": "allé", "ITALIANO": "andato", "PORTUGUÉS": "ido" } },
         "REGLAS": { nombre: { "FRANCÉS": "Reglas", "ITALIANO": "Regole", "PORTUGUÉS": "Regras" }, es: null }
     };
     const ordenMenuAuxiliares = ["AVOIR", "ETRE", "ALLER", "REGLAS"];
@@ -4023,7 +4023,8 @@
                 return;
             }
             const color = colorPorPosicionTiempo[i] || "#888";
-            html += '<div class="tarjeta-tiempo tarjeta-con-borde">';
+            const estiloBorde = `background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), conic-gradient(${color}, ${color}); box-shadow: 0 0 8px ${color}59, 0 3px 8px rgba(0,0,0,0.05);`;
+            html += `<div class="tarjeta-tiempo tarjeta-con-borde" style="${estiloBorde}">`;
             html += `<div class="tarjeta-tiempo-header"><div class="tarjeta-tiempo-nombre" style="color: ${color};">${t.tiempo}</div><div class="tarjeta-tiempo-funcion">${t.funcion}</div></div>`;
             html += "<table>";
             t.filas.forEach(fila => {
@@ -4036,6 +4037,19 @@
             html += "</div>";
         });
         html += "</div>";
+        // Tarjeta de infinitivo/participio, igual mecanismo que en TIEMPOS
+        // VERBALES — separada y debajo del grid, sin tocar nada existente.
+        // Solo si el participio existe en este idioma (ÊTRE no tiene PT).
+        const meta = auxiliaresMeta[auxiliarActualKey];
+        if (meta.participio && meta.participio[idioma]) {
+            html += `<div class="tarjeta-infinitivo-participio" style="background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), ${DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES};">
+                <span class="tip-columna">${meta.es}</span>
+                <span class="tip-separador">·</span>
+                <span class="tip-columna">${meta.nombre[idioma]}</span>
+                <span class="tip-separador">·</span>
+                <span class="tip-columna">${meta.participio[idioma]}</span>
+            </div>`;
+        }
         return html;
     }
 
