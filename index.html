@@ -666,6 +666,31 @@
             gap: 20px;
             width: 100%;
         }
+        /* Tarjeta de infinitivo + participio, debajo del grid de los 8
+           tiempos — estilo "botón de la barra de herramientas" (pastilla
+           ancha, border-box transparente + degradado real en el fondo de
+           border-box, mismo mecanismo de doble capa que toda la app), no
+           el rectángulo de esquinas apenas redondeadas de las tarjetas de
+           tiempo. Separada con margen arriba, sin afectar el grid. */
+        .tarjeta-infinitivo-participio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: fit-content;
+            margin: 24px auto 0;
+            padding: 12px 28px;
+            border: 2.5px solid transparent;
+            border-radius: 999px;
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .tip-columna { white-space: nowrap; }
+        .tip-separador { color: #bbb; font-weight: 400; }
         .tarjeta-tiempo {
             padding: 16px;
             display: flex;
@@ -1614,39 +1639,57 @@
     const verbosMeta = {
         "PRENDRE": {
             nombre: { "FRANCÉS": "Prendre", "ITALIANO": "Prendere", "PORTUGUÉS": "Pegar" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "regular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "regular" },
+            es: "Agarrar",
+            participio: { "FRANCÉS": "pris", "ITALIANO": "preso", "PORTUGUÉS": "pegado" }
         },
         "ALLER": {
             nombre: { "FRANCÉS": "Aller", "ITALIANO": "Andare", "PORTUGUÉS": "Ir" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" },
+            es: "Ir",
+            participio: { "FRANCÉS": "allé", "ITALIANO": "andato", "PORTUGUÉS": "ido" }
         },
         "FAIRE": {
             nombre: { "FRANCÉS": "Faire", "ITALIANO": "Fare", "PORTUGUÉS": "Fazer" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" },
+            es: "Hacer",
+            participio: { "FRANCÉS": "fait", "ITALIANO": "fatto", "PORTUGUÉS": "feito" }
         },
         "VOULOIR": {
             nombre: { "FRANCÉS": "Vouloir", "ITALIANO": "Volere", "PORTUGUÉS": "Querer" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" },
+            es: "Querer",
+            participio: { "FRANCÉS": "voulu", "ITALIANO": "voluto", "PORTUGUÉS": "querido" }
         },
         "POUVOIR": {
             nombre: { "FRANCÉS": "Pouvoir", "ITALIANO": "Potere", "PORTUGUÉS": "Poder" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" },
+            es: "Poder",
+            participio: { "FRANCÉS": "pu", "ITALIANO": "potuto", "PORTUGUÉS": "podido" }
         },
         "DEVOIR": {
             nombre: { "FRANCÉS": "Devoir", "ITALIANO": "Dovere", "PORTUGUÉS": "Dever" },
-            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "regular" }
+            regularidad: { "FRANCÉS": "irregular", "ITALIANO": "irregular", "PORTUGUÉS": "regular" },
+            es: "Deber",
+            participio: { "FRANCÉS": "dû", "ITALIANO": "dovuto", "PORTUGUÉS": "devido" }
         },
         "PARLER": {
             nombre: { "FRANCÉS": "Parler", "ITALIANO": "Parlare", "PORTUGUÉS": "Falar" },
-            regularidad: { "FRANCÉS": "regular", "ITALIANO": "regular", "PORTUGUÉS": "regular" }
+            regularidad: { "FRANCÉS": "regular", "ITALIANO": "regular", "PORTUGUÉS": "regular" },
+            es: "Hablar",
+            participio: { "FRANCÉS": "parlé", "ITALIANO": "parlato", "PORTUGUÉS": "falado" }
         },
         "DONNER": {
             nombre: { "FRANCÉS": "Donner", "ITALIANO": "Dare", "PORTUGUÉS": "Dar" },
-            regularidad: { "FRANCÉS": "regular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" }
+            regularidad: { "FRANCÉS": "regular", "ITALIANO": "irregular", "PORTUGUÉS": "irregular" },
+            es: "Dar",
+            participio: { "FRANCÉS": "donné", "ITALIANO": "dato", "PORTUGUÉS": "dado" }
         },
         "ARRIVER": {
             nombre: { "FRANCÉS": "Arriver", "ITALIANO": "Arrivare", "PORTUGUÉS": "Chegar" },
-            regularidad: { "FRANCÉS": "regular", "ITALIANO": "regular", "PORTUGUÉS": "regular" }
+            regularidad: { "FRANCÉS": "regular", "ITALIANO": "regular", "PORTUGUÉS": "regular" },
+            es: "Llegar",
+            participio: { "FRANCÉS": "arrivé", "ITALIANO": "arrivato", "PORTUGUÉS": "chegado" }
         }
     };
 
@@ -3663,7 +3706,7 @@
 
         verbosFiltrados.forEach(v => {
             const div = document.createElement('div');
-            div.innerText = verbosMeta[v].nombre[idioma];
+            div.innerText = formatearNombreVerboGenerico(verbosMeta[v], idioma);
             div.onclick = () => {
                 cambiarVerbo(v);
                 document.getElementById('menuVerbo').classList.remove("show");
@@ -3682,7 +3725,7 @@
     // Refresca el texto del botón de verbo en el idioma activo (sin recalcular nada más)
     function actualizarNombreBotonVerbo() {
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        document.getElementById('btnVerbo').innerText = verbosMeta[verboActualKey].nombre[idioma];
+        document.getElementById('btnVerbo').innerText = formatearNombreVerboGenerico(verbosMeta[verboActualKey], idioma);
     }
 
     // Cambia el verbo activo: regenera data["TIEMPOS VERBALES"] en los 3 idiomas y refresca pantalla
@@ -3737,11 +3780,20 @@
     // se agrega su traducción al español con un guion, salvo que coincidan
     // (ej. en portugués "Ir" ya es la traducción real, no hace falta
     // repetir) o que sea "REGLAS" (ya está en español, sin verbo a traducir).
-    function formatearNombreAuxiliar(clave, idioma) {
-        const meta = auxiliaresMeta[clave];
+    // El verbo se muestra siempre en el idioma activo (es lo que se está
+    // aprendiendo a conjugar) — pero como puede no ser obvio qué significa,
+    // se agrega su traducción al español con un guion, salvo que coincidan
+    // (ej. en portugués "Ir" ya es la traducción real, no hace falta
+    // repetir). Genérica: funciona con auxiliaresMeta y con verbosMeta, ya
+    // que ambos comparten la misma forma ({ nombre: {idioma: ...}, es }).
+    function formatearNombreVerboGenerico(meta, idioma) {
         const nombreReal = meta.nombre[idioma];
         if (!meta.es || meta.es === nombreReal) return nombreReal;
         return `${nombreReal} - ${meta.es}`;
+    }
+
+    function formatearNombreAuxiliar(clave, idioma) {
+        return formatearNombreVerboGenerico(auxiliaresMeta[clave], idioma);
     }
 
     // Cambia la opción activa de VERBOS AUXILIARES: regenera data["VERBOS AUXILIARES"]
@@ -3922,6 +3974,18 @@
             html += "</div>";
         });
         html += "</div>";
+        // Tarjeta de infinitivo/participio, separada y debajo de las 8 de
+        // tiempos — estilo "botón de la barra de herramientas" (pastilla,
+        // no rectángulo), con el degradado arcoíris real de la unidad. 3
+        // columnas: español | infinitivo en el idioma activo | participio.
+        const meta = verbosMeta[verboActualKey];
+        html += `<div class="tarjeta-infinitivo-participio" style="background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), ${DEGRADADO_ARCOIRIS_TIEMPOS_VERBALES};">
+            <span class="tip-columna">${meta.es}</span>
+            <span class="tip-separador">·</span>
+            <span class="tip-columna">${meta.nombre[idioma]}</span>
+            <span class="tip-separador">·</span>
+            <span class="tip-columna">${meta.participio[idioma]}</span>
+        </div>`;
         return html;
     }
 
