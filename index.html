@@ -367,6 +367,42 @@
             transition: box-shadow 0.4s ease, background-color 0.4s ease;
         }
 
+        /* Panel cultural (Cultura → Propia): mosaico de categorías en grid,
+           no la tabla de filas habitual — cada celda es chica/mediana/ancha
+           según necesite, optimizando el espacio en vez de apilar filas
+           verticales. Pensado para mucha info variada (carácter, religión,
+           comida, fechas, moneda, fauna...) sin generar separación enorme
+           entre secciones. */
+        .panel-cultural {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            padding: 4px;
+        }
+        .panel-cultural-celda {
+            background: rgba(0,0,0,0.025);
+            border-radius: 10px;
+            padding: 8px 10px;
+            min-width: 0;
+        }
+        .panel-cultural-celda.ancha { grid-column: span 2; }
+        .panel-cultural-etiqueta {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .panel-cultural-contenido {
+            font-size: 13px;
+            line-height: 1.35;
+            color: var(--text-color);
+        }
+        .panel-cultural-contenido .nombre-real {
+            font-weight: 600;
+        }
+
         /* Tarjeta de Estaciones (dentro de Clima y Estaciones): borde propio
            con degradado de las 4 estaciones — invierno→primavera→verano→
            otoño en sentido horario — en vez del color general de la unidad.
@@ -3916,6 +3952,24 @@
     // - tablaData.colorPorCelda: función (fila, indiceColumna) => clase o null; tiene
     //   prioridad sobre colorPorColumna si está definida. Útil cuando, por ejemplo, la
     //   fila 0 es "Masc." y la fila 1 es "Fem." en la misma columna.
+    // Panel cultural (Cultura → Propia): mosaico de categorías culturales en
+    // grid, mucho más denso que renderTabla — pensado para volcar bastante
+    // info variada (carácter, religión, comida, fechas, moneda, fauna...)
+    // sin la separación visual grande que generarían varias tarjetas chicas.
+    // panelData = { categorias: [{ etiqueta, contenido, ancha? }] }
+    function renderPanelCultural(panelData) {
+        let html = '<div class="panel-cultural">';
+        panelData.categorias.forEach(cat => {
+            const claseAncha = cat.ancha ? " ancha" : "";
+            html += `<div class="panel-cultural-celda${claseAncha}">
+                <div class="panel-cultural-etiqueta">${cat.etiqueta}</div>
+                <div class="panel-cultural-contenido">${cat.contenido}</div>
+            </div>`;
+        });
+        html += '</div>';
+        return html;
+    }
+
     function renderTabla(tablaData, idioma) {
         if (tablaData.vacia) {
             return tablaData.titulo || "";
@@ -6146,10 +6200,243 @@
     // traduce, cambia el contenido entero según la bandera elegida), y "Frases
     // de recepción" (francés + el idioma de esa bandera). Arranca vacía en los
     // 4 temas a propósito — el contenido se agrega después, tarjeta por tarjeta.
+    const propiaPortugal = [
+        {
+            titulo: "Portugal — identidad cultural",
+            categorias: [
+                { etiqueta: "Carácter y trato", contenido: "Reservados pero hospitalarios, conservadores en las formas. La familia y la comida son temas seguros y queridos de conversación." },
+                { etiqueta: "Saludo", contenido: "<span class=\"nombre-real\">Bom dia</span>/<span class=\"nombre-real\">boa tarde</span>/<span class=\"nombre-real\">boa noite</span> según la hora. Apretón de manos firme entre desconocidos, 2 besos en la mejilla (empezando por la derecha) entre conocidos." },
+                { etiqueta: "Cómo dirigirse", contenido: "<span class=\"nombre-real\">Senhor</span>/<span class=\"nombre-real\">Senhora</span> + apellido hasta que inviten a la informalidad. Nunca hablarles en español — aunque se entiendan, se vive como una falta de respeto al idioma." },
+                { etiqueta: "Temas prohibidos", contenido: "Dinero/salario, política, la Guerra Colonial portuguesa y racismo. La religión se puede tocar, pero con cuidado.", ancha: true },
+                { etiqueta: "Religión", contenido: "Fuerte influencia histórica de la Iglesia Católica, todavía presente en la etiqueta social cotidiana." },
+                { etiqueta: "Familia", contenido: "Muy centrada en varias generaciones juntas — es común que vivan bajo el mismo techo o se reúnan seguido. El almuerzo familiar de domingo puede durar de la 1 a las 5-6 de la tarde." },
+                { etiqueta: "Comida y mesa", contenido: "Cuchillo siempre en la mano derecha, tenedor en la izquierda, nunca se cambian. Al terminar, cubiertos en paralelo sobre el plato. Dejar algo en el plato al final indica que estás satisfecho, no que falta comida.", ancha: true },
+                { etiqueta: "Deportes", contenido: "Fútbol es, por lejos, el deporte y tema de conversación más importante." },
+                { etiqueta: "Fecha nacional", contenido: "<span class=\"nombre-real\">25 de abril</span> — Dia da Liberdade, aniversario de la Revolução dos Cravos (1974), que terminó con casi 50 años de dictadura sin un solo disparo." },
+                { etiqueta: "Moneda", contenido: "Euro (€)" },
+                { etiqueta: "Animal/símbolo", contenido: "El lobo ibérico es el animal nacional real, pero el símbolo cultural más popular y reconocido es el <span class=\"nombre-real\">Galo de Barcelos</span> (gallo de cerámica pintado), ligado a una leyenda medieval de justicia." }
+            ]
+        }
+    ];
+
+    const propiaItalia = [
+        {
+            titulo: "Italia — identidad cultural",
+            categorias: [
+                { etiqueta: "Carácter y trato", contenido: "Cálidos, expresivos, hablan con las manos. Interrumpir en una conversación se vive como entusiasmo, no como falta de respeto. Directos al opinar." },
+                { etiqueta: "Saludo", contenido: "<span class=\"nombre-real\">Buongiorno</span> (de día) o <span class=\"nombre-real\">buonasera</span> (de noche) en situaciones formales. <span class=\"nombre-real\">Ciao</span> solo entre amigos/gente de tu edad. Entre conocidos: 2 besos en la mejilla." },
+                { etiqueta: "Cómo dirigirse", contenido: "<span class=\"nombre-real\">Signore</span>/<span class=\"nombre-real\">Signora</span> + apellido, o el título profesional (<span class=\"nombre-real\">Dottore</span> ya se usa para cualquiera con título universitario)." },
+                { etiqueta: "Temas prohibidos", contenido: "Dinero y finanzas personales. Política y religión se pueden hablar, pero con tacto. No combinar espagueti con albóndigas — son platos separados en Italia, a diferencia del cliché.", ancha: true },
+                { etiqueta: "Supersticiones", contenido: "Evitan el número 17 (mala suerte). Gesto de los cuernos (<span class=\"nombre-real\">cornetto</span>) contra el <span class=\"nombre-real\">malocchio</span> (mal de ojo)." },
+                { etiqueta: "Religión", contenido: "Mayoría histórica católica — el Vaticano está en Roma. Tema delicado, se trata con tacto, no es prohibido pero requiere respeto." },
+                { etiqueta: "Familia", contenido: "Muy centrada en los mayores — se los saluda primero y se los respeta especialmente. El almuerzo familiar de domingo, con varias generaciones juntas, es central." },
+                { etiqueta: "Comida y mesa", contenido: "Comidas en orden: <span class=\"nombre-real\">antipasto</span>, <span class=\"nombre-real\">primo</span> (pasta/risotto), <span class=\"nombre-real\">secondo</span> (carne/pescado), <span class=\"nombre-real\">contorno</span>, <span class=\"nombre-real\">dolce</span>, <span class=\"nombre-real\">caffè</span>. El capuchino es bebida de mañana, no se pide después de comer.", ancha: true },
+                { etiqueta: "Deportes", contenido: "Fútbol (<span class=\"nombre-real\">calcio</span>) es pasión nacional. También ciclismo y Fórmula 1 (Ferrari)." },
+                { etiqueta: "Fecha nacional", contenido: "<span class=\"nombre-real\">2 giugno</span> — Festa della Repubblica, conmemora el referéndum de 1946 que abolió la monarquía." },
+                { etiqueta: "Moneda", contenido: "Euro (€)" },
+                { etiqueta: "Animal/símbolo", contenido: "El lobo de los Apeninos (<span class=\"nombre-real\">lupo</span>), por la leyenda de la loba que amamantó a Rómulo y Remo, fundadores de Roma." }
+            ]
+        }
+    ];
+
+    const propiaFrancia = [
+        {
+            titulo: "Francia — identidad cultural",
+            categorias: [
+                { etiqueta: "Carácter y trato", contenido: "Formales con desconocidos, valoran mucho la cortesía verbal y la educación al hablar. No son fríos, pero esperan que primero se respeten las formas." },
+                { etiqueta: "Saludo", contenido: "Siempre empezar con <span class=\"nombre-real\">Bonjour</span> (de día) o <span class=\"nombre-real\">Bonsoir</span> (de noche), incluso para algo rápido. No saludar se considera de mala educación. Entre conocidos: <span class=\"nombre-real\">la bise</span>, 2 a 4 besos al aire en la mejilla según la región." },
+                { etiqueta: "Tú/usted", contenido: "Distinguen <span class=\"nombre-real\">tu</span> (informal) de <span class=\"nombre-real\">vous</span> (formal/respeto). Usar <span class=\"nombre-real\">vous</span> con desconocidos y dejar que el otro proponga pasar a <span class=\"nombre-real\">tu</span>." },
+                { etiqueta: "Temas prohibidos", contenido: "Dinero, sueldo o cuánto pagaste por algo, religión, política y orígen étnico de alguien. Hablar de estos temas con desconocidos se ve como mala educación.", ancha: true },
+                { etiqueta: "Cómo dirigirse", contenido: "Usar <span class=\"nombre-real\">Monsieur</span>/<span class=\"nombre-real\">Madame</span> + apellido hasta que inviten a usar el nombre de pila. Dar la mano al conocer a alguien." },
+                { etiqueta: "Religión", contenido: "Mayoría histórica católica, pero el país es muy laico — la religión se vive como algo privado, casi nunca se habla de ella en público." },
+                { etiqueta: "Familia", contenido: "Núcleo familiar bastante independiente entre generaciones, pero las comidas familiares (sobre todo la cena) son un momento central del día, no se apura." },
+                { etiqueta: "Comida y mesa", contenido: "No empezar a comer hasta que el anfitrión lo indique. Tenedor en la mano izquierda, cuchillo en la derecha. Pedir cambios al plato (sin alergia) se ve mal. Decir <span class=\"nombre-real\">Bon appétit</span> antes de comer.", ancha: true },
+                { etiqueta: "Deportes", contenido: "Fútbol y rugby son los más populares — el equipo nacional usa al gallo (<span class=\"nombre-real\">le coq gaulois</span>) como emblema." },
+                { etiqueta: "Fecha nacional", contenido: "<span class=\"nombre-real\">14 juillet</span> — Bastille Day, aniversario de la toma de la prisión de la Bastilla en 1789." },
+                { etiqueta: "Moneda", contenido: "Euro (€)" },
+                { etiqueta: "Animal/símbolo", contenido: "El gallo galo (<span class=\"nombre-real\">le coq gaulois</span>) — vigilancia y orgullo. <span class=\"nombre-real\">Marianne</span> es la figura femenina que representa a la República." }
+            ]
+        }
+    ];
+
+    const actividadesCulturaFrances = [
+        { titulo: "Chamonix-Mont-Blanc", headers: ["Francés", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["le centre-ville", "el centro del pueblo", "el pueblo principal del valle — historia y alpinismo en la tarjeta de Chamonix"],
+            ["le musée Alpin", "el Museo Alpino", "historia de las primeras ascensiones del Mont Blanc y del turismo de montaña"],
+            ["le musée des Cristaux", "el Museo de los Cristales", "minerales del macizo del Mont Blanc, encontrados por los cristaleros locales"]
+        ]},
+        { titulo: "Argentière", headers: ["Francés", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["les cristalliers", "los cristaleros", "Argentière es conocida por su tradición de buscadores de cristales de montaña"],
+            ["l'église baroque", "la iglesia barroca", "fachada barroca y campanario en forma de aguja, reconstruida en 1845"],
+            ["le marché d'artisans", "el mercado de artesanos", "mercado de artesanos y productores locales"]
+        ]},
+        { titulo: "Les Houches", headers: ["Francés", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["la porte d'entrée de la vallée", "la entrada del valle", "los primeros habitantes del valle llegaron por aquí, en la Edad de Bronce"],
+            ["le tramway du Mont-Blanc", "el tranvía del Mont Blanc", "uno de los últimos trenes de cremallera de Francia, sube hasta el Nid d'Aigle (2.372 m)"],
+            ["le Christ Roi", "el Cristo Rey", "estatua de 25 m, construida en 1933, símbolo de paz, mirando hacia el valle"],
+            ["la Verte des Houches", "la pista Verte des Houches", "pista de descenso de la Copa del Mundo, a pesar de su nombre 'verde' es muy difícil"]
+        ]},
+        { titulo: "Servoz", headers: ["Francés", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["le village le plus authentique", "el pueblo más auténtico", "el más rural del valle — granjas antiguas, hornos de pan, oratorios"],
+            ["les gorges de la Diosaz", "las gargantas del Diosaz", "5 cascadas, abiertas a visitantes desde 1875"],
+            ["l'église Saint-Loup", "la iglesia Saint-Loup", "estilo barroco, construida en 1537"],
+            ["la foire aux moutons", "la Feria de las Ovejas", "mediados de octubre — concurso de ovejas, sidra, tractores, fiesta rural"]
+        ]},
+        { titulo: "Vallorcine", headers: ["Francés", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["le plus petit village", "el pueblo más pequeño", "unos 400 habitantes, cerca de la frontera con Suiza"],
+            ["la fête du Village", "la Fiesta del Pueblo", "fiesta local propia de Vallorcine, con carrera de montaña asociada"],
+            ["les veillées de contes", "las veladas de cuentos", "tradición de contar historias junto al fuego"],
+            ["le lac d'Émosson", "el lago d'Émosson", "lago de montaña cercano, del lado suizo"]
+        ]}
+    ];
+
+    const actividadesCulturaItaliano = [
+        { titulo: "Chamonix-Mont-Blanc", headers: ["Italiano", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["il centro del paese", "el centro del pueblo", "el pueblo principal del valle — historia y alpinismo en la tarjeta de Chamonix"],
+            ["il museo Alpino", "el Museo Alpino", "historia de las primeras ascensiones del Mont Blanc y del turismo de montaña"],
+            ["il museo dei Cristalli", "el Museo de los Cristales", "minerales del macizo del Mont Blanc, encontrados por los cristaleros locales"]
+        ]},
+        { titulo: "Argentière", headers: ["Italiano", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["i cercatori di cristalli", "los cristaleros", "Argentière es conocida por su tradición de buscadores de cristales de montaña"],
+            ["la chiesa barocca", "la iglesia barroca", "fachada barroca y campanario en forma de aguja, reconstruida en 1845"],
+            ["il mercato degli artigiani", "el mercado de artesanos", "mercado de artesanos y productores locales"]
+        ]},
+        { titulo: "Les Houches", headers: ["Italiano", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["la porta d'ingresso della valle", "la entrada del valle", "los primeros habitantes del valle llegaron por aquí, en la Edad de Bronce"],
+            ["la tranvia del Monte Bianco", "el tranvía del Mont Blanc", "uno de los últimos trenes de cremallera de Francia, sube hasta el Nid d'Aigle (2.372 m)"],
+            ["il Cristo Re", "el Cristo Rey", "estatua de 25 m, construida en 1933, símbolo de paz, mirando hacia el valle"],
+            ["la Verte des Houches", "la pista Verte des Houches", "pista de descenso de la Copa del Mundo, a pesar de su nombre 'verde' es muy difícil"]
+        ]},
+        { titulo: "Servoz", headers: ["Italiano", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["il paese più autentico", "el pueblo más auténtico", "el más rural del valle — granjas antiguas, hornos de pan, oratorios"],
+            ["le gole del Diosaz", "las gargantas del Diosaz", "5 cascadas, abiertas a visitantes desde 1875"],
+            ["la chiesa di Saint-Loup", "la iglesia Saint-Loup", "estilo barroco, construida en 1537"],
+            ["la fiera delle pecore", "la Feria de las Ovejas", "mediados de octubre — concurso de ovejas, sidra, tractores, fiesta rural"]
+        ]},
+        { titulo: "Vallorcine", headers: ["Italiano", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["il paese più piccolo", "el pueblo más pequeño", "unos 400 habitantes, cerca de la frontera con Suiza"],
+            ["la festa del Paese", "la Fiesta del Pueblo", "fiesta local propia de Vallorcine, con carrera de montaña asociada"],
+            ["le veglie di racconti", "las veladas de cuentos", "tradición de contar historias junto al fuego"],
+            ["il lago d'Émosson", "el lago d'Émosson", "lago de montaña cercano, del lado suizo"]
+        ]}
+    ];
+
+    const actividadesCulturaPortugues = [
+        { titulo: "Chamonix-Mont-Blanc", headers: ["Português", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["o centro da vila", "el centro del pueblo", "el pueblo principal del valle — historia y alpinismo en la tarjeta de Chamonix"],
+            ["o museu Alpino", "el Museo Alpino", "historia de las primeras ascensiones del Mont Blanc y del turismo de montaña"],
+            ["o museu dos Cristais", "el Museo de los Cristales", "minerales del macizo del Mont Blanc, encontrados por los cristaleros locales"]
+        ]},
+        { titulo: "Argentière", headers: ["Português", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["os garimpeiros de cristais", "los cristaleros", "Argentière es conocida por su tradición de buscadores de cristales de montaña"],
+            ["a igreja barroca", "la iglesia barroca", "fachada barroca y campanario en forma de aguja, reconstruida en 1845"],
+            ["o mercado de artesãos", "el mercado de artesanos", "mercado de artesanos y productores locales"]
+        ]},
+        { titulo: "Les Houches", headers: ["Português", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["a porta de entrada do vale", "la entrada del valle", "los primeros habitantes del valle llegaron por aquí, en la Edad de Bronce"],
+            ["o bondinho do Monte Branco", "el tranvía del Mont Blanc", "uno de los últimos trenes de cremallera de Francia, sube hasta el Nid d'Aigle (2.372 m)"],
+            ["o Cristo Rei", "el Cristo Rey", "estatua de 25 m, construida en 1933, símbolo de paz, mirando hacia el valle"],
+            ["a Verte des Houches", "la pista Verte des Houches", "pista de descenso de la Copa del Mundo, a pesar de su nombre 'verde' es muy difícil"]
+        ]},
+        { titulo: "Servoz", headers: ["Português", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["a vila mais autêntica", "el pueblo más auténtico", "el más rural del valle — granjas antiguas, hornos de pan, oratorios"],
+            ["as gargantas do Diosaz", "las gargantas del Diosaz", "5 cascadas, abiertas a visitantes desde 1875"],
+            ["a igreja de Saint-Loup", "la iglesia Saint-Loup", "estilo barroco, construida en 1537"],
+            ["a feira das ovelhas", "la Feria de las Ovejas", "mediados de octubre — concurso de ovejas, sidra, tractores, fiesta rural"]
+        ]},
+        { titulo: "Vallorcine", headers: ["Português", "Español", "Dato práctico"], columnasConSonido: [0], rows: [
+            ["a vila mais pequena", "el pueblo más pequeño", "unos 400 habitantes, cerca de la frontera con Suiza"],
+            ["a festa da Vila", "la Fiesta del Pueblo", "fiesta local propia de Vallorcine, con carrera de montaña asociada"],
+            ["as noites de contos", "las veladas de cuentos", "tradición de contar historias junto al fuego"],
+            ["o lago d'Émosson", "el lago d'Émosson", "lago de montaña cercano, del lado suizo"]
+        ]}
+    ];
+
+    const chamonixLocalFrances = [
+        { titulo: "Historia del alpinismo", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la première ascension", "la primera ascensión", "8 de agosto de 1786 — Jacques Balmat y el Dr. Michel Paccard llegaron a la cumbre del Mont Blanc"],
+            ["le berceau de l'alpinisme", "la cuna del alpinismo", "Chamonix es considerado el lugar de nacimiento del alpinismo moderno"],
+            ["la première ascension féminine", "la primera ascensión femenina", "1808 — Marie Paradis, mujer local de Chamonix"],
+            ["l'âge d'or de l'alpinisme", "la edad de oro del alpinismo", "1855-1865, década más prolífica en primeras ascensiones de toda la historia"]
+        ]},
+        { titulo: "Eventos y festivales", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["l'UTMB", "el UTMB (Ultra-Trail du Mont-Blanc)", "última semana de agosto — carrera de 171 km y 10.000 m de desnivel alrededor del Mont Blanc"],
+            ["le Cosmojazz Festival", "el Festival Cosmojazz", "conciertos de jazz al aire libre, en la cima de las montañas y los bosques"],
+            ["la Fête des Guides", "la Fiesta de los Guías", "celebra el oficio y la historia de los guías de montaña de Chamonix"]
+        ]},
+        { titulo: "La Compagnie des Guides", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la Compagnie des Guides", "la Compañía de Guías", "fundada el 24 de julio de 1821 — la más antigua y más grande del mundo"],
+            ["pourquoi elle existe", "por qué se creó", "tras un accidente fatal en el Mont Blanc en 1820, para ayudar a las familias de los guías"],
+            ["le tour de rôle", "el turno rotativo", "sistema histórico que reparte el trabajo de forma equitativa entre todos los guías"],
+            ["aujourd'hui", "hoy", "más de 200 guías y acompañantes de montaña activos"]
+        ]},
+        { titulo: "El pueblo hoy", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["Chamonix-Mont-Blanc", "Chamonix-Mont-Blanc", "el pueblo principal del valle"],
+            ["Argentière", "Argentière", "pueblo del valle, punto de partida de rutas de alta montaña"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"],
+            ["Servoz", "Servoz", "pueblo del valle, entrada sur"],
+            ["Vallorcine", "Vallorcine", "pueblo del valle, cerca de la frontera con Suiza"]
+        ]}
+    ];
+
+    const chamonixLocalItaliano = [
+        { titulo: "Historia del alpinismo", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la prima ascensione", "la primera ascensión", "8 de agosto de 1786 — Jacques Balmat y el Dr. Michel Paccard llegaron a la cumbre del Mont Blanc"],
+            ["la culla dell'alpinismo", "la cuna del alpinismo", "Chamonix es considerado el lugar de nacimiento del alpinismo moderno"],
+            ["la prima ascensione femminile", "la primera ascensión femenina", "1808 — Marie Paradis, mujer local de Chamonix"],
+            ["l'età d'oro dell'alpinismo", "la edad de oro del alpinismo", "1855-1865, década más prolífica en primeras ascensiones de toda la historia"]
+        ]},
+        { titulo: "Eventos y festivales", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["l'UTMB", "el UTMB (Ultra-Trail du Mont-Blanc)", "última semana de agosto — carrera de 171 km y 10.000 m de desnivel alrededor del Mont Blanc"],
+            ["il Cosmojazz Festival", "el Festival Cosmojazz", "conciertos de jazz al aire libre, en la cima de las montañas y los bosques"],
+            ["la Festa delle Guide", "la Fiesta de los Guías", "celebra el oficio y la historia de los guías de montaña de Chamonix"]
+        ]},
+        { titulo: "La Compagnie des Guides", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la Compagnie des Guides", "la Compañía de Guías", "fundada el 24 de julio de 1821 — la más antigua y más grande del mundo"],
+            ["perché è nata", "por qué se creó", "tras un accidente fatal en el Mont Blanc en 1820, para ayudar a las familias de los guías"],
+            ["il turno di rotazione", "el turno rotativo", "sistema histórico que reparte el trabajo de forma equitativa entre todos los guías"],
+            ["oggi", "hoy", "más de 200 guías y acompañantes de montaña activos"]
+        ]},
+        { titulo: "El pueblo hoy", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["Chamonix-Mont-Blanc", "Chamonix-Mont-Blanc", "el pueblo principal del valle"],
+            ["Argentière", "Argentière", "pueblo del valle, punto de partida de rutas de alta montaña"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"],
+            ["Servoz", "Servoz", "pueblo del valle, entrada sur"],
+            ["Vallorcine", "Vallorcine", "pueblo del valle, cerca de la frontera con Suiza"]
+        ]}
+    ];
+
+    const chamonixLocalPortugues = [
+        { titulo: "Historia del alpinismo", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["a primeira ascensão", "la primera ascensión", "8 de agosto de 1786 — Jacques Balmat y el Dr. Michel Paccard llegaron a la cumbre del Mont Blanc"],
+            ["o berço do alpinismo", "la cuna del alpinismo", "Chamonix es considerado el lugar de nacimiento del alpinismo moderno"],
+            ["a primeira ascensão feminina", "la primera ascensión femenina", "1808 — Marie Paradis, mujer local de Chamonix"],
+            ["a era de ouro do alpinismo", "la edad de oro del alpinismo", "1855-1865, década más prolífica en primeras ascensiones de toda la historia"]
+        ]},
+        { titulo: "Eventos y festivales", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["o UTMB", "el UTMB (Ultra-Trail du Mont-Blanc)", "última semana de agosto — carrera de 171 km y 10.000 m de desnivel alrededor del Mont Blanc"],
+            ["o Cosmojazz Festival", "el Festival Cosmojazz", "conciertos de jazz al aire libre, en la cima de las montañas y los bosques"],
+            ["a Festa dos Guias", "la Fiesta de los Guías", "celebra el oficio y la historia de los guías de montaña de Chamonix"]
+        ]},
+        { titulo: "La Compagnie des Guides", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["a Compagnie des Guides", "la Compañía de Guías", "fundada el 24 de julio de 1821 — la más antigua y más grande del mundo"],
+            ["por que foi criada", "por qué se creó", "tras un accidente fatal en el Mont Blanc en 1820, para ayudar a las familias de los guías"],
+            ["o turno rotativo", "el turno rotativo", "sistema histórico que reparte el trabajo de forma equitativa entre todos los guías"],
+            ["hoje", "hoy", "más de 200 guías y acompañantes de montaña activos"]
+        ]},
+        { titulo: "El pueblo hoy", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["Chamonix-Mont-Blanc", "Chamonix-Mont-Blanc", "el pueblo principal del valle"],
+            ["Argentière", "Argentière", "pueblo del valle, punto de partida de rutas de alta montaña"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"],
+            ["Servoz", "Servoz", "pueblo del valle, entrada sur"],
+            ["Vallorcine", "Vallorcine", "pueblo del valle, cerca de la frontera con Suiza"]
+        ]}
+    ];
+
     const CULTURA_POR_IDIOMA = {
-        "FRANCÉS": { local: [], actividades: [], propia: [], recepcion: [] },
-        "ITALIANO": { local: [], actividades: [], propia: [], recepcion: [] },
-        "PORTUGUÉS": { local: [], actividades: [], propia: [], recepcion: [] }
+        "FRANCÉS": { local: chamonixLocalFrances, actividades: actividadesCulturaFrances, propia: propiaFrancia },
+        "ITALIANO": { local: chamonixLocalItaliano, actividades: actividadesCulturaItaliano, propia: propiaItalia },
+        "PORTUGUÉS": { local: chamonixLocalPortugues, actividades: actividadesCulturaPortugues, propia: propiaPortugal }
     };
 
     let modoCultura = "local";
@@ -6162,10 +6449,9 @@
     const TEMAS_CULTURA = {
         local: { FRANCÉS: "Chamonix", ITALIANO: "Chamonix", PORTUGUÉS: "Chamonix", emoji: "🇫🇷 ❄️🏔️☀️" },
         actividades: { FRANCÉS: "Activités", ITALIANO: "Attività", PORTUGUÉS: "Atividades", emoji: "⛷️🍫" },
-        propia: { FRANCÉS: "France", ITALIANO: "Italia", PORTUGUÉS: "Portugal", emoji: null },
-        recepcion: { FRANCÉS: "Phrases de réception", ITALIANO: "Frasi di reception", PORTUGUÉS: "Frases de receção", emoji: "📘" }
+        propia: { FRANCÉS: "France", ITALIANO: "Italia", PORTUGUÉS: "Portugal", emoji: null }
     };
-    const ESPAÑOL_TEMA_CULTURA = { local: "Chamonix", actividades: "Actividades", recepcion: "Frases de recepción" };
+    const ESPAÑOL_TEMA_CULTURA = { local: "Chamonix", actividades: "Actividades" };
 
     function etiquetaTemaCultura(clave, idioma) {
         const t = TEMAS_CULTURA[clave];
@@ -6230,10 +6516,14 @@
             if (!e.visible) return;
             const estiloAlto = e.tamanoManual ? `height:${e.alto}px;` : `height:auto;`;
             const claseAuto = e.tamanoManual ? "" : " tarjeta-libre-auto";
-            const final = t.colorPorCelda ? t : tarjetaConColorDeGenero(t, idioma);
+            // "Propia" usa el panel cultural (mosaico denso), no la tabla de
+            // filas habitual — se detecta por la presencia de "categorias".
+            const contenidoTarjeta = t.categorias
+                ? renderPanelCultural(t)
+                : renderTabla(t.colorPorCelda ? t : tarjetaConColorDeGenero(t, idioma), idioma);
             html += `<div class="tarjeta-libre${claseAuto}" data-clave="${id}" style="left:${e.left}px; top:${e.top}px; width:auto; ${estiloAlto}">
                 <div class="tarjeta-libre-contenido">
-                    <div class="tarjeta tarjeta-con-borde">${renderTabla(final, idioma)}</div>
+                    <div class="tarjeta tarjeta-con-borde">${contenidoTarjeta}</div>
                 </div>
                 <div class="tarjeta-libre-manija-resize" title="Cambiar altura"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4l-4 4h8l-4-4zm0 16l4-4H8l4 4z" fill="currentColor"/></svg></div>
             </div>`;
