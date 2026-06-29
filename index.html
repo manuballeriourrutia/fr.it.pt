@@ -42,17 +42,14 @@
         }
         .particula-unidad {
             position: absolute;
-            top: -16px;
-            animation-name: caer-particula-unidad;
-            animation-timing-function: linear;
+            animation-name: respirar-particula-unidad;
+            animation-timing-function: ease-in-out;
             animation-iteration-count: infinite;
-            transition: background-color 0.5s ease, width 0.5s ease, height 0.5s ease, border-radius 0.5s ease;
+            transition: background-color 0.5s ease, width 0.5s ease, height 0.5s ease, border-radius 0.5s ease, box-shadow 0.5s ease;
         }
-        @keyframes caer-particula-unidad {
-            0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-            8%   { opacity: 1; }
-            92%  { opacity: 0.6; }
-            100% { transform: translateY(calc(100vh + 32px)) translateX(var(--deriva, 0px)) rotate(180deg); opacity: 0; }
+        @keyframes respirar-particula-unidad {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
         }
         @media (prefers-reduced-motion: reduce) {
             .particulas-fondo { display: none; }
@@ -990,13 +987,15 @@
             panelBg: "#ffffff",
             textoColor: "#2c2c2e",
             tituloTarjetaColor: "#8a8a86",
-            // Mismo color que fondoPagina a propósito: las partículas siguen
-            // existiendo y moviéndose (mismo mecanismo que el resto de la
-            // app, sin tratamiento especial ni transición distinta al
-            // cambiar de unidad), pero quedan invisibles — en REGLAS hay
-            // mucho texto/scroll, y verlas caer ahí resultaba molesto.
+            // Antes invisible a propósito (mismo color que el fondo) porque
+            // la caída constante mareaba con tanto texto/scroll — ahora que
+            // el efecto es estático (solo respira opacidad, sin desplazarse)
+            // ya no genera ese problema, así que recupera color real: 3
+            // tonos de gris + destello, igual criterio que el resto.
             particulas: [
-                { color: "#e8e8e6", forma: "normal" }
+                { color: "#8a8a86", forma: "normal" },
+                { color: "#6b6b68", forma: "normal" },
+                { color: "#f5f5f0", forma: "destello", tinteHalo: "200,200,195" }
             ]
         },
         "PARTÍCULAS": {
@@ -1417,7 +1416,7 @@
     // aleatorios, fijos de por vida) — el comportamiento de caída es el mismo
     // para todas las unidades, a propósito, para que cambiar de unidad se
     // sienta como "cambia el color", no como "cambia todo el sistema visual".
-    const CANTIDAD_PARTICULAS_FONDO = 24;
+    const CANTIDAD_PARTICULAS_FONDO = 31; // 24 + 30%, para que el fondo estático se vea más lleno
     function inicializarParticulasFondo() {
         const cont = document.getElementById('particulasFondo');
         if (!cont || cont.children.length > 0) return; // ya creadas, no se duplican
@@ -1429,10 +1428,10 @@
             const radioBase = Math.random() > 0.5 ? '50%' : '2px';
             p.dataset.radioBase = radioBase;
             p.style.left = (Math.random() * 100) + '%';
+            p.style.top = (Math.random() * 100) + '%';
             p.style.width = tam + 'px';
             p.style.height = tam + 'px';
             p.style.borderRadius = radioBase;
-            p.style.setProperty('--deriva', Math.round(Math.random() * 40 - 20) + 'px');
             p.style.animationDuration = (4 + Math.random() * 4) + 's';
             p.style.animationDelay = (Math.random() * 8) + 's';
             cont.appendChild(p);
@@ -1540,8 +1539,20 @@
             // Retrocompatibilidad: una entrada puede ser un color suelto
             // (string, forma normal) o un objeto {color, forma}.
             const esObjeto = typeof entrada === "object";
-            p.style.background = esObjeto ? entrada.color : entrada;
-            aplicarFormaParticula(p, esObjeto ? entrada.forma : null, esObjeto ? entrada.tinteHalo : null, esObjeto ? entrada.escalaExtra : null);
+            const color = esObjeto ? entrada.color : entrada;
+            const formaOriginal = esObjeto ? entrada.forma : null;
+            p.style.background = color;
+            // Destello automático: 1 de cada 3 partículas (por índice global,
+            // no por posición dentro de la paleta) brilla más — solo si su
+            // forma original es "normal"/sin definir, nunca sobre formas
+            // temáticas especiales (agujas, hojas, granos, etc.), que
+            // mantienen su identidad propia sin brillo extra.
+            const esFormaNormal = !formaOriginal || formaOriginal === "normal";
+            const tocaDestello = i % 3 === 2 && esFormaNormal;
+            const formaFinal = tocaDestello ? "destello" : formaOriginal;
+            const tinteHaloFinal = esObjeto ? entrada.tinteHalo : null;
+            const escalaExtraFinal = esObjeto ? entrada.escalaExtra : null;
+            aplicarFormaParticula(p, formaFinal, tinteHaloFinal, escalaExtraFinal);
             // La duración de animación no se puede hacer "transition" en CSS
             // (no es una propiedad interpolable) — el cambio de velocidad es
             // instantáneo, a diferencia del color/forma que sí son suaves.
