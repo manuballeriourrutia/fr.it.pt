@@ -8798,9 +8798,12 @@
             const idioma = document.getElementById('btnIdioma').dataset.idioma;
             menu.innerHTML = "";
             if (idioma !== "FRANCÉS") return;
-            const tarjetas = modoFraseActual === "imperativo"
-                ? [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES]
-                : [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES];
+            const tarjetasPorModo = {
+                imperativo: [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES],
+                subjuntivo: [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES],
+                preguntas: [PREGUNTAS_PALABRAS_FRANCES, ...PREGUNTAS_REGISTROS_FRANCES, PREGUNTAS_SI_NO_FRANCES]
+            };
+            const tarjetas = tarjetasPorModo[modoFraseActual];
             tarjetas.forEach((t, i) => {
                 const id = idioma + "__" + modoFraseActual + "__t" + i;
                 if (!modosFraseEstado[id]) {
@@ -9110,6 +9113,45 @@
         ]
     };
 
+    const PREGUNTAS_PALABRAS_FRANCES = {
+        titulo: "Palabras para preguntar",
+        headers: ["Francés", "Español", "Ejemplo"],
+        columnasConSonido: [0],
+        rows: [
+            ["quoi / qu'est-ce que", "qué", "Tu fais quoi ? (¿Qué hacés?)"],
+            ["comment", "cómo", "Tu t'appelles comment ? (¿Cómo te llamás?)"],
+            ["pourquoi", "por qué", "Pourquoi tu pars ? (¿Por qué te vas?)"],
+            ["où", "dónde", "Tu habites où ? (¿Dónde vivís?)"],
+            ["quand", "cuándo", "Tu arrives quand ? (¿Cuándo llegás?)"],
+            ["qui", "quién", "C'est qui ? (¿Quién es?)"],
+            ["combien", "cuánto", "Ça coûte combien ? (¿Cuánto cuesta?)"],
+            ["quel / quelle", "cuál (según género)", "Quel jour on est ? (¿Qué día es?)"]
+        ]
+    };
+
+    const PREGUNTAS_REGISTROS_FRANCES = [
+        {
+            titulo: "Las 3 formas de preguntar (registro)",
+            categorias: [
+                { etiqueta: "Hablado / casual (lo más usado en conversación real)", contenido: "Frase normal + palabra interrogativa AL FINAL + tono de pregunta. Ej: <span class=\"nombre-real\">Tu vas où ?</span> / <span class=\"nombre-real\">Tu fais quoi ?</span>", ancha: true },
+                { etiqueta: "Estándar / neutro", contenido: "<span class=\"nombre-real\">Est-ce que</span> + frase normal (sin invertir nada). Ej: <span class=\"nombre-real\">Où est-ce que tu vas ?</span> / <span class=\"nombre-real\">Qu'est-ce que tu fais ?</span>", ancha: true },
+                { etiqueta: "Formal / escrito", contenido: "Inversión verbo-sujeto con guion. Ej: <span class=\"nombre-real\">Où vas-tu ?</span> / <span class=\"nombre-real\">Que fais-tu ?</span> — casi no se usa hablando entre amigos", ancha: true },
+                { etiqueta: "Consejo práctico", contenido: "Para sonar natural hablando: usá la forma casual (palabra al final) o <span class=\"nombre-real\">est-ce que</span>. La inversión suena a libro de gramática, no a charla real.", ancha: true }
+            ]
+        }
+    ];
+
+    const PREGUNTAS_SI_NO_FRANCES = {
+        titulo: "Preguntas de sí/no",
+        headers: ["Francés", "Español", "Ejemplo"],
+        columnasConSonido: [0],
+        rows: [
+            ["frase normal + tono de pregunta", "¿frase normal? (con tono)", "Tu viens ? (¿Venís?)"],
+            ["est-ce que + frase normal", "¿frase normal? (neutro)", "Est-ce que tu viens ? (¿Venís?)"],
+            ["n'est-ce pas ?", "¿no? / ¿verdad?", "Il fait beau, n'est-ce pas ? (Hace lindo día, ¿no?)"]
+        ]
+    };
+
     const SUBJUNTIVO_IRREGULARES_FRANCES = {
         titulo: "Subjuntivo presente — verbos irregulares clave",
         headers: ["Francés", "Español", "Ejemplo"],
@@ -9135,9 +9177,12 @@
                 '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999; font-size:14px; text-align:center; padding:20px;">Todavía no disponible en este idioma ☝️</div>';
             return null;
         }
-        const tarjetas = modoFraseActual === "imperativo"
-            ? [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES]
-            : [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES];
+        const TARJETAS_POR_MODO_FRASE = {
+            imperativo: [IMPERATIVO_REGULARES_FRANCES, IMPERATIVO_IRREGULARES_FRANCES, IMPERATIVO_NEGATIVO_FRANCES],
+            subjuntivo: [...SUBJUNTIVO_DISPARADORES_FRANCES, SUBJUNTIVO_REGULARES_FRANCES, SUBJUNTIVO_IRREGULARES_FRANCES],
+            preguntas: [PREGUNTAS_PALABRAS_FRANCES, ...PREGUNTAS_REGISTROS_FRANCES, PREGUNTAS_SI_NO_FRANCES]
+        };
+        const tarjetas = TARJETAS_POR_MODO_FRASE[modoFraseActual];
         let html = `<div style="position:relative; width:100%; height:100%;">`;
         tarjetas.forEach((t, i) => {
             const id = idioma + "__" + modoFraseActual + "__t" + i;
@@ -9229,22 +9274,24 @@
         });
     }
 
+    const ETIQUETAS_MODO_FRASE = { imperativo: "Imperativo", subjuntivo: "Subjuntivo", preguntas: "Preguntas" };
+
     function inicializarMenuModoFrase() {
         const menu = document.getElementById('menuModoFrase');
         menu.innerHTML = "";
-        [["imperativo", "Imperativo"], ["subjuntivo", "Subjuntivo"]].forEach(([clave, etiqueta]) => {
+        Object.keys(ETIQUETAS_MODO_FRASE).forEach(clave => {
             const div = document.createElement('div');
-            div.innerText = etiqueta;
+            div.innerText = ETIQUETAS_MODO_FRASE[clave];
             div.onclick = () => cambiarModoFrase(clave);
             menu.appendChild(div);
         });
-        document.getElementById('btnModoFrase').innerText = modoFraseActual === "imperativo" ? "Imperativo" : "Subjuntivo";
+        document.getElementById('btnModoFrase').innerText = ETIQUETAS_MODO_FRASE[modoFraseActual];
     }
 
     function cambiarModoFrase(nuevoModo) {
         modoFraseActual = nuevoModo;
         const idioma = document.getElementById('btnIdioma').dataset.idioma;
-        document.getElementById('btnModoFrase').innerText = nuevoModo === "imperativo" ? "Imperativo" : "Subjuntivo";
+        document.getElementById('btnModoFrase').innerText = ETIQUETAS_MODO_FRASE[nuevoModo];
         document.getElementById('menuModoFrase').classList.remove("show");
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
