@@ -843,6 +843,10 @@
         <button class="dropbtn dropbtn-chico" id="btnModoGeografiaClimaNuevo" onclick="inicializarMenuGeografiaClimaNuevo(); toggleDropdown('menuModoGeografiaClimaNuevo')">Terreno 🏔️</button>
         <div id="menuModoGeografiaClimaNuevo" class="dropdown-content"></div>
     </div>
+    <div class="dropdown" id="selectorTemporadaActividadesWrap" style="display: none;">
+        <button class="dropbtn dropbtn-chico" id="btnTemporadaActividades" onclick="inicializarMenuTemporadaActividades(); toggleDropdown('menuTemporadaActividades')">Invierno ❄️</button>
+        <div id="menuTemporadaActividades" class="dropdown-content"></div>
+    </div>
 </header>
 
 <header class="header-derecha">
@@ -3665,6 +3669,9 @@
         const visibleGeografiaClimaNuevo = unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA";
         document.getElementById('selectorModoGeografiaClimaNuevoWrap').style.display = visibleGeografiaClimaNuevo ? "inline-block" : "none";
 
+        const visibleTemporadaActividades = visibleGeografiaClimaNuevo && modoGeografiaClimaNuevo === "actividades" && !editorLibreActivo;
+        document.getElementById('selectorTemporadaActividadesWrap').style.display = visibleTemporadaActividades ? "inline-block" : "none";
+
         // El botón de editor libre/guardar/tarjetas aplica a cualquier lienzo
         // activo: Personas → Artículos → francés, o unidades genéricas en
         // modo Tarjetas.
@@ -6466,6 +6473,84 @@
         ]}
     ];
 
+    const terrenoNuevoGeoFrances = [
+        { titulo: "Picos y cumbres", headers: ["Francés", "Español", "Altura"], columnasConSonido: [0], rows: [
+            ["le mont Blanc", "el Mont Blanc", "4 805 m — el más alto de Europa occidental"],
+            ["l'aiguille du Midi", "la Aiguille du Midi", "3 842 m — se sube en teleférico desde el pueblo"],
+            ["les Aiguilles Rouges", "las Aiguilles Rouges", "hasta 2 965 m — cadena frente al Mont Blanc, mejor vista panorámica"],
+            ["le mont Maudit", "el Mont Maudit", "4 465 m — al lado del Mont Blanc, ruta de alpinistas"],
+            ["les Grandes Jorasses", "las Grandes Jorasses", "4 208 m — pared muy técnica, solo alpinismo experto"]
+        ]},
+        { titulo: "Zonas de senderismo", headers: ["Francés", "Español", "Dificultad y distancia"], columnasConSonido: [0], rows: [
+            ["le lac Blanc", "el Lac Blanc", "difícil — 11 km, +950 m de desnivel, tramos con escalerillas"],
+            ["la mer de Glace (sentier)", "el sendero a la Mer de Glace", "fácil — tren de montaña + caminata corta"],
+            ["le sentier des Balcons", "el Sendero de los Balcones", "media — recorrido panorámico, sin grandes subidas"],
+            ["les lacs des Chéserys", "los Lacs des Chéserys", "media — paso obligado antes de llegar al Lac Blanc"]
+        ]},
+        { titulo: "Glaciares y nieves permanentes", headers: ["Francés", "Español", "Acceso"], columnasConSonido: [0], rows: [
+            ["la mer de Glace", "el Mar de Hielo", "el glaciar más grande de Francia — accesible en tren"],
+            ["le glacier des Bossons", "el Glaciar des Bossons", "visible desde el pueblo, sin subir"],
+            ["le glacier d'Argentière", "el Glaciar de Argentière", "visible desde el pueblo de Argentière"]
+        ]},
+        { titulo: "Valles y relieve general", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la vallée de Chamonix", "el Valle de Chamonix", "17 km de largo, entre 758 y 4 805 m de altura"],
+            ["Argentière", "Argentière", "pueblo del valle, 1 252 m, punto de partida de varias rutas"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"]
+        ]}
+    ];
+
+    const terrenoNuevoGeoItaliano = [
+        { titulo: "Picos y cumbres", headers: ["Italiano", "Español", "Altura"], columnasConSonido: [0], rows: [
+            ["il Monte Bianco", "el Mont Blanc", "4 805 m — el más alto de Europa occidental"],
+            ["l'Aiguille du Midi", "la Aiguille du Midi", "3 842 m — se sube en teleférico desde el pueblo"],
+            ["le Aiguilles Rouges", "las Aiguilles Rouges", "hasta 2 965 m — cadena frente al Mont Blanc, mejor vista panorámica"],
+            ["il Mont Maudit", "el Mont Maudit", "4 465 m — al lado del Mont Blanc, ruta de alpinistas"],
+            ["le Grandes Jorasses", "las Grandes Jorasses", "4 208 m — pared muy técnica, solo alpinismo experto"]
+        ]},
+        { titulo: "Zonas de senderismo", headers: ["Italiano", "Español", "Dificultad y distancia"], columnasConSonido: [0], rows: [
+            ["il lac Blanc", "el Lac Blanc", "difícil — 11 km, +950 m de desnivel, tramos con escalerillas"],
+            ["il sentiero per la mer de Glace", "el sendero a la Mer de Glace", "fácil — tren de montaña + caminata corta"],
+            ["il sentiero dei Balconi", "el Sendero de los Balcones", "media — recorrido panorámico, sin grandes subidas"],
+            ["i laghi des Chéserys", "los Lacs des Chéserys", "media — paso obligado antes de llegar al Lac Blanc"]
+        ]},
+        { titulo: "Glaciares y nieves permanentes", headers: ["Italiano", "Español", "Acceso"], columnasConSonido: [0], rows: [
+            ["la mer de Glace", "el Mar de Hielo", "el glaciar más grande de Francia — accesible en tren"],
+            ["il ghiacciaio des Bossons", "el Glaciar des Bossons", "visible desde el pueblo, sin subir"],
+            ["il ghiacciaio d'Argentière", "el Glaciar de Argentière", "visible desde el pueblo de Argentière"]
+        ]},
+        { titulo: "Valles y relieve general", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la valle di Chamonix", "el Valle de Chamonix", "17 km de largo, entre 758 y 4 805 m de altura"],
+            ["Argentière", "Argentière", "pueblo del valle, 1 252 m, punto de partida de varias rutas"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"]
+        ]}
+    ];
+
+    const terrenoNuevoGeoPortugues = [
+        { titulo: "Picos y cumbres", headers: ["Português", "Español", "Altura"], columnasConSonido: [0], rows: [
+            ["o Monte Branco", "el Mont Blanc", "4 805 m — el más alto de Europa occidental"],
+            ["a Aiguille du Midi", "la Aiguille du Midi", "3 842 m — se sube en teleférico desde el pueblo"],
+            ["as Aiguilles Rouges", "las Aiguilles Rouges", "hasta 2 965 m — cadena frente al Mont Blanc, mejor vista panorámica"],
+            ["o Mont Maudit", "el Mont Maudit", "4 465 m — al lado del Mont Blanc, ruta de alpinistas"],
+            ["as Grandes Jorasses", "las Grandes Jorasses", "4 208 m — pared muy técnica, solo alpinismo experto"]
+        ]},
+        { titulo: "Zonas de senderismo", headers: ["Português", "Español", "Dificultad y distancia"], columnasConSonido: [0], rows: [
+            ["o lac Blanc", "el Lac Blanc", "difícil — 11 km, +950 m de desnivel, tramos con escalerillas"],
+            ["a trilha para a mer de Glace", "el sendero a la Mer de Glace", "fácil — tren de montaña + caminata corta"],
+            ["a trilha dos Balcões", "el Sendero de los Balcones", "media — recorrido panorámico, sin grandes subidas"],
+            ["os lagos des Chéserys", "los Lacs des Chéserys", "media — paso obligado antes de llegar al Lac Blanc"]
+        ]},
+        { titulo: "Glaciares y nieves permanentes", headers: ["Português", "Español", "Acceso"], columnasConSonido: [0], rows: [
+            ["a mer de Glace", "el Mar de Hielo", "el glaciar más grande de Francia — accesible en tren"],
+            ["a geleira des Bossons", "el Glaciar des Bossons", "visible desde el pueblo, sin subir"],
+            ["a geleira d'Argentière", "el Glaciar de Argentière", "visible desde el pueblo de Argentière"]
+        ]},
+        { titulo: "Valles y relieve general", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["o vale de Chamonix", "el Valle de Chamonix", "17 km de largo, entre 758 y 4 805 m de altura"],
+            ["Argentière", "Argentière", "pueblo del valle, 1 252 m, punto de partida de varias rutas"],
+            ["Les Houches", "Les Houches", "pueblo del valle, zona de esquí para principiantes"]
+        ]}
+    ];
+
     const geografiaNuevoGeoFrances = [
         { titulo: "Fauna de Chamonix / los Alpes", headers: ["Francés", "Español"], columnasConSonido: [0], traducirDebajo: true, rows: [
             ["le chamois||el rebeco/gamuza", ""], ["la marmotte||la marmota", ""], ["le bouquetin||el íbice/cabra montés", ""],
@@ -6606,21 +6691,177 @@
         ]}
     ];
 
+    const actividadesGeoInviernoFrances = [
+        { titulo: "Deportes de invierno", headers: ["Francés", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["le ski alpin", "el esquí alpino", "le Brévent, la Flégère, les Grands Montets, le Tour, les Houches"],
+            ["le ski de randonnée", "el esquí de travesía / fuera de pista", "la Vallée Blanche, les Grands Montets"],
+            ["la raquette à neige", "las raquetas de nieve", "le Tour, la réserve des Aiguilles Rouges"],
+            ["la cascade de glace", "la escalada en cascada de hielo", "alrededores del valle, con guía de montaña"]
+        ]},
+        { titulo: "Equipo de esquí", headers: ["Francés", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["les skis", "los esquís", "Rossignol y Salomon (ambas francesas), Atomic (austríaca), Head"],
+            ["les bâtons", "los bastones", "—"],
+            ["les chaussures de ski", "las botas de esquí", "—"],
+            ["le casque", "el casco", "—"]
+        ]},
+        { titulo: "Equipo de travesía y hielo", headers: ["Francés", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["les peaux de phoque", "las pieles de foca (para subir)", "—"],
+            ["le baudrier", "el arnés", "Petzl (francesa, hecha cerca de los Alpes), Black Diamond (EEUU)"],
+            ["le piolet", "el piolet", "Petzl, Black Diamond, Grivel (italiana)"],
+            ["les crampons", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["la corde", "la cuerda", "Mammut, Petzl"]
+        ]}
+    ];
+
+    const actividadesGeoVeranoFrances = [
+        { titulo: "Deportes de verano", headers: ["Francés", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["la randonnée", "el senderismo", "le lac Blanc, le sentier des Balcons, les lacs des Chéserys"],
+            ["l'alpinisme", "el alpinismo", "el Mont Blanc, l'aiguille du Midi, les Grandes Jorasses"],
+            ["l'escalade", "la escalada en roca", "varias paredes del valle, con guía de montaña"],
+            ["le parapente", "el parapente", "Planpraz"],
+            ["le VTT", "el mountain bike", "varios senderos del valle"]
+        ]},
+        { titulo: "Equipo de senderismo", headers: ["Francés", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["les bâtons de marche", "los bastones de trekking", "—"],
+            ["le sac à dos", "la mochila", "—"],
+            ["les chaussures de randonnée", "el calzado de trekking", "—"],
+            ["la gourde", "la cantimplora", "—"]
+        ]},
+        { titulo: "Equipo de alpinismo y escalada", headers: ["Francés", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["le piolet", "el piolet", "Petzl, Black Diamond, Grivel"],
+            ["les crampons", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["le baudrier", "el arnés", "Petzl, Black Diamond"],
+            ["la corde", "la cuerda", "Mammut, Petzl"],
+            ["le casque", "el casco", "Petzl, Black Diamond"],
+            ["les mousquetons", "los mosquetones", "Petzl, Black Diamond"]
+        ]},
+        { titulo: "Parapente", headers: ["Francés", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["l'aile (parapente)", "el ala", "—"],
+            ["le baudrier (parapente)", "el arnés (de parapente)", "se hace en tándem con un piloto, no necesita experiencia previa"]
+        ]}
+    ];
+
+    const actividadesGeoInviernoItaliano = [
+        { titulo: "Deportes de invierno", headers: ["Italiano", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["lo sci alpino", "el esquí alpino", "le Brévent, la Flégère, les Grands Montets, le Tour, les Houches"],
+            ["lo sci alpinismo", "el esquí de travesía / fuera de pista", "la Vallée Blanche, les Grands Montets"],
+            ["le racchette da neve", "las raquetas de nieve", "le Tour, la réserve des Aiguilles Rouges"],
+            ["la cascata di ghiaccio", "la escalada en cascada de hielo", "alrededores del valle, con guía de montaña"]
+        ]},
+        { titulo: "Equipo de esquí", headers: ["Italiano", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["gli sci", "los esquís", "Rossignol y Salomon (ambas francesas), Atomic (austríaca), Head"],
+            ["i bastoncini", "los bastones", "—"],
+            ["gli scarponi da sci", "las botas de esquí", "—"],
+            ["il casco", "el casco", "—"]
+        ]},
+        { titulo: "Equipo de travesía y hielo", headers: ["Italiano", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["le pelli di foca", "las pieles de foca (para subir)", "—"],
+            ["l'imbracatura", "el arnés", "Petzl (francesa, hecha cerca de los Alpes), Black Diamond (EEUU)"],
+            ["la piccozza", "el piolet", "Petzl, Black Diamond, Grivel (italiana)"],
+            ["i ramponi", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["la corda", "la cuerda", "Mammut, Petzl"]
+        ]}
+    ];
+
+    const actividadesGeoVeranoItaliano = [
+        { titulo: "Deportes de verano", headers: ["Italiano", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["l'escursionismo", "el senderismo", "le lac Blanc, le sentier des Balcons, les lacs des Chéserys"],
+            ["l'alpinismo", "el alpinismo", "el Mont Blanc, l'aiguille du Midi, les Grandes Jorasses"],
+            ["l'arrampicata", "la escalada en roca", "varias paredes del valle, con guía de montaña"],
+            ["il parapendio", "el parapente", "Planpraz"],
+            ["la mountain bike", "el mountain bike", "varios senderos del valle"]
+        ]},
+        { titulo: "Equipo de senderismo", headers: ["Italiano", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["i bastoncini da trekking", "los bastones de trekking", "—"],
+            ["lo zaino", "la mochila", "—"],
+            ["gli scarponi da trekking", "el calzado de trekking", "—"],
+            ["la borraccia", "la cantimplora", "—"]
+        ]},
+        { titulo: "Equipo de alpinismo y escalada", headers: ["Italiano", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["la piccozza", "el piolet", "Petzl, Black Diamond, Grivel"],
+            ["i ramponi", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["l'imbracatura", "el arnés", "Petzl, Black Diamond"],
+            ["la corda", "la cuerda", "Mammut, Petzl"],
+            ["il casco", "el casco", "Petzl, Black Diamond"],
+            ["i moschettoni", "los mosquetones", "Petzl, Black Diamond"]
+        ]},
+        { titulo: "Parapente", headers: ["Italiano", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["la vela (parapendio)", "el ala", "—"],
+            ["l'imbracatura (parapendio)", "el arnés (de parapente)", "se hace en tándem con un piloto, no necesita experiencia previa"]
+        ]}
+    ];
+
+    const actividadesGeoInviernoPortugues = [
+        { titulo: "Deportes de invierno", headers: ["Português", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["o esqui alpino", "el esquí alpino", "le Brévent, la Flégère, les Grands Montets, le Tour, les Houches"],
+            ["o esqui de montanha", "el esquí de travesía / fuera de pista", "la Vallée Blanche, les Grands Montets"],
+            ["a raquete de neve", "las raquetas de nieve", "le Tour, la réserve des Aiguilles Rouges"],
+            ["a cascata de gelo", "la escalada en cascada de hielo", "alrededores del valle, con guía de montaña"]
+        ]},
+        { titulo: "Equipo de esquí", headers: ["Português", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["os esquis", "los esquís", "Rossignol y Salomon (ambas francesas), Atomic (austríaca), Head"],
+            ["os bastões", "los bastones", "—"],
+            ["as botas de esqui", "las botas de esquí", "—"],
+            ["o casco", "el casco", "—"]
+        ]},
+        { titulo: "Equipo de travesía y hielo", headers: ["Português", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["as peles de foca", "las pieles de foca (para subir)", "—"],
+            ["o arnês", "el arnés", "Petzl (francesa, hecha cerca de los Alpes), Black Diamond (EEUU)"],
+            ["a picareta", "el piolet", "Petzl, Black Diamond, Grivel (italiana)"],
+            ["os grampos", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["a corda", "la cuerda", "Mammut, Petzl"]
+        ]}
+    ];
+
+    const actividadesGeoVeranoPortugues = [
+        { titulo: "Deportes de verano", headers: ["Português", "Español", "Zonas"], columnasConSonido: [0], rows: [
+            ["a caminhada", "el senderismo", "le lac Blanc, le sentier des Balcons, les lacs des Chéserys"],
+            ["o alpinismo", "el alpinismo", "el Mont Blanc, l'aiguille du Midi, les Grandes Jorasses"],
+            ["a escalada", "la escalada en roca", "varias paredes del valle, con guía de montaña"],
+            ["o parapente", "el parapente", "Planpraz"],
+            ["o mountain bike", "el mountain bike", "varios senderos del valle"]
+        ]},
+        { titulo: "Equipo de senderismo", headers: ["Português", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["os bastões de trekking", "los bastones de trekking", "—"],
+            ["a mochila", "la mochila", "—"],
+            ["as botas de trekking", "el calzado de trekking", "—"],
+            ["a garrafa de água", "la cantimplora", "—"]
+        ]},
+        { titulo: "Equipo de alpinismo y escalada", headers: ["Português", "Español", "Marcas conocidas"], columnasConSonido: [0], rows: [
+            ["a picareta", "el piolet", "Petzl, Black Diamond, Grivel"],
+            ["os grampos", "los crampones", "Petzl, Grivel, Black Diamond, Camp"],
+            ["o arnês", "el arnés", "Petzl, Black Diamond"],
+            ["a corda", "la cuerda", "Mammut, Petzl"],
+            ["o casco", "el casco", "Petzl, Black Diamond"],
+            ["os mosquetões", "los mosquetones", "Petzl, Black Diamond"]
+        ]},
+        { titulo: "Parapente", headers: ["Português", "Español", "Dato"], columnasConSonido: [0], rows: [
+            ["a vela (parapente)", "el ala", "—"],
+            ["o arnês (parapente)", "el arnés (de parapente)", "se hace en tándem con un piloto, no necesita experiencia previa"]
+        ]}
+    ];
+
+    const ACTIVIDADES_GEOGRAFIA_POR_IDIOMA = {
+        "FRANCÉS": { invierno: actividadesGeoInviernoFrances, verano: actividadesGeoVeranoFrances },
+        "ITALIANO": { invierno: actividadesGeoInviernoItaliano, verano: actividadesGeoVeranoItaliano },
+        "PORTUGUÉS": { invierno: actividadesGeoInviernoPortugues, verano: actividadesGeoVeranoPortugues }
+    };
+
     const GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA = {
         "FRANCÉS": {
-            terreno: [],
+            terreno: terrenoNuevoGeoFrances,
             florafauna: geografiaNuevoGeoFrances,
             climaestaciones: [...climaNuevoGeoFrances, ...estacionesNuevoGeoFrances],
             actividades: []
         },
         "ITALIANO": {
-            terreno: [],
+            terreno: terrenoNuevoGeoItaliano,
             florafauna: geografiaNuevoGeoItaliano,
             climaestaciones: [...climaNuevoGeoItaliano, ...estacionesNuevoGeoItaliano],
             actividades: []
         },
         "PORTUGUÉS": {
-            terreno: [],
+            terreno: terrenoNuevoGeoPortugues,
             florafauna: geografiaNuevoGeoPortugues,
             climaestaciones: [...climaNuevoGeoPortugues, ...estacionesNuevoGeoPortugues],
             actividades: []
@@ -6632,6 +6873,7 @@
     // propia caja de "Tarjetas" — mismo patrón que Partículas/Personas.
     // Arranca con todas las tarjetas ocultas, igual que el resto del sistema.
     let modoGeografiaClimaNuevo = "terreno";
+    let temporadaActividadesActual = "invierno";
     const geografiaClimaNuevoEstado = {};
 
     const TEMAS_GEOGRAFIA_CLIMA = {
@@ -6662,6 +6904,12 @@
         const t = TEMAS_GEOGRAFIA_CLIMA[nuevoModo];
         document.getElementById('btnModoGeografiaClimaNuevo').innerText = `${t.es} ${t.emoji}`;
         document.getElementById('menuModoGeografiaClimaNuevo').classList.remove("show");
+        // El selector de Temporada (Invierno/Verano) solo tiene sentido
+        // dentro del tema "actividades" — en los demás temas (Terreno, Flora
+        // y Fauna, Clima y Estaciones) se oculta, igual patrón que el
+        // selector de grupo de Los Números y el Tiempo.
+        const visibleTemporada = nuevoModo === "actividades" && !editorLibreActivo;
+        document.getElementById('selectorTemporadaActividadesWrap').style.display = visibleTemporada ? "inline-block" : "none";
         aplicarColorDeUnidad(idioma);
         actualizarPantalla();
     }
@@ -6670,11 +6918,18 @@
         document.getElementById('mesaDeTarjetas').style.display = "block";
         document.getElementById('contentTable').style.display = "none";
         posicionarMesaDeTarjetas();
-        const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+        // "actividades" tiene 2 sub-conjuntos de tarjetas (Invierno/Verano) —
+        // el resto de los temas siempre devuelve su único array de siempre.
+        const tarjetas = modoGeografiaClimaNuevo === "actividades"
+            ? ACTIVIDADES_GEOGRAFIA_POR_IDIOMA[idioma][temporadaActividadesActual]
+            : GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+        // El id de cada tarjeta incluye la temporada cuando aplica, para que
+        // Invierno y Verano no compitan por las mismas posiciones guardadas.
+        const sufijoTemporada = modoGeografiaClimaNuevo === "actividades" ? "__" + temporadaActividadesActual : "";
 
         let html = `<div style="position:relative; width:100%; height:100%;">`;
         tarjetas.forEach((t, i) => {
-            const id = idioma + "__" + modoGeografiaClimaNuevo + "__t" + i;
+            const id = idioma + "__" + modoGeografiaClimaNuevo + sufijoTemporada + "__t" + i;
             if (!geografiaClimaNuevoEstado[id]) {
                 geografiaClimaNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
             }
@@ -6697,6 +6952,27 @@
         document.getElementById('mesaDeTarjetas').classList.toggle("editor-activo", editorLibreActivo);
         requestAnimationFrame(() => inicializarArrastreGeografiaClimaNuevo());
         return null;
+    }
+
+    // Selector de Temporada (Invierno/Verano), solo visible dentro del tema
+    // "actividades" — mismo patrón que el selector de grupo de números.
+    function inicializarMenuTemporadaActividades() {
+        const menu = document.getElementById('menuTemporadaActividades');
+        menu.innerHTML = "";
+        [["invierno", "Invierno ❄️"], ["verano", "Verano ☀️"]].forEach(([clave, etiqueta]) => {
+            const div = document.createElement('div');
+            div.innerText = etiqueta;
+            div.onclick = () => cambiarTemporadaActividades(clave);
+            menu.appendChild(div);
+        });
+        document.getElementById('btnTemporadaActividades').innerText = temporadaActividadesActual === "invierno" ? "Invierno ❄️" : "Verano ☀️";
+    }
+
+    function cambiarTemporadaActividades(nuevaTemporada) {
+        temporadaActividadesActual = nuevaTemporada;
+        document.getElementById('btnTemporadaActividades').innerText = nuevaTemporada === "invierno" ? "Invierno ❄️" : "Verano ☀️";
+        document.getElementById('menuTemporadaActividades').classList.remove("show");
+        actualizarPantalla();
     }
 
     function inicializarArrastreGeografiaClimaNuevo() {
@@ -7466,6 +7742,11 @@
         if (unidadActualKey === "LOS NÚMEROS Y EL TIEMPO" && modoNumerosTiempoNuevo === "numeros") {
             document.getElementById('selectorGrupoNumerosNuevoWrap').style.display = editorLibreActivo ? "none" : "inline-block";
         }
+        // Mismo criterio para el selector de Temporada (Invierno/Verano),
+        // solo dentro del tema "actividades" de Geografía y Clima.
+        if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA" && modoGeografiaClimaNuevo === "actividades") {
+            document.getElementById('selectorTemporadaActividadesWrap').style.display = editorLibreActivo ? "none" : "inline-block";
+        }
         const lienzo = document.getElementById('lienzoActivo');
         if (lienzo) {
             lienzo.classList.toggle("editor-activo", editorLibreActivo);
@@ -7569,10 +7850,13 @@
         if (unidadActualKey === "LA GEOGRAFÍA Y EL CLIMA") {
             const menu = document.getElementById('menuTarjetasLibre');
             const idioma = document.getElementById('btnIdioma').dataset.idioma;
-            const tarjetas = GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+            const tarjetas = modoGeografiaClimaNuevo === "actividades"
+                ? ACTIVIDADES_GEOGRAFIA_POR_IDIOMA[idioma][temporadaActividadesActual]
+                : GEOGRAFIA_CLIMA_NUEVO_POR_IDIOMA[idioma][modoGeografiaClimaNuevo];
+            const sufijoTemporada = modoGeografiaClimaNuevo === "actividades" ? "__" + temporadaActividadesActual : "";
             menu.innerHTML = "";
             tarjetas.forEach((t, i) => {
-                const id = idioma + "__" + modoGeografiaClimaNuevo + "__t" + i;
+                const id = idioma + "__" + modoGeografiaClimaNuevo + sufijoTemporada + "__t" + i;
                 if (!geografiaClimaNuevoEstado[id]) {
                     geografiaClimaNuevoEstado[id] = { left: 0, top: 0, alto: null, tamanoManual: false, visible: false };
                 }
