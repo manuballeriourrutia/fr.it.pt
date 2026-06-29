@@ -7426,11 +7426,13 @@
 
     function guardarPosicionesLibres() {
         if (UNIDADES_NUEVAS_DE_CERO.includes(unidadActualKey)) {
-            // Todavía sin persistencia real en LocalStorage — el botón da el
-            // mismo feedback visual igual, mientras se termina de armar.
+            // Guarda TODO de una vez (las 6 estructuras juntas) — así nunca
+            // queda una unidad "guardada" y otra no, sin importar desde cuál
+            // unidad se apretó el botón.
             const boton = document.getElementById('btnGuardarLibre');
+            const exito = guardarPosicionesEnLocalStorage();
             const textoOriginal = boton.innerText;
-            boton.innerText = "¡Guardado!";
+            boton.innerText = exito ? "¡Guardado!" : "Error al guardar";
             setTimeout(() => { boton.innerText = textoOriginal; }, 1200);
         }
     }
@@ -7753,6 +7755,53 @@
             for (var i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('show');
         }
     }
+
+    // Persistencia real de las posiciones de tarjetas — guarda las 6
+    // estructuras de estado (una por unidad con editor libre) juntas, bajo
+    // una sola clave de localStorage. Esto sobrevive cerrar/reabrir la app
+    // (incluso como ícono de pantalla de inicio en iPad), porque localStorage
+    // vive en el origen del sitio, no en la sesión de la pestaña.
+    const CLAVE_LOCALSTORAGE_POSICIONES = "appIdiomas_posicionesTarjetas_v1";
+    const ESTRUCTURAS_DE_ESTADO_PERSISTENTES = {
+        particulasEstado, culturaEstado, personasNuevoEstado,
+        geografiaClimaNuevoEstado, numerosTiempoNuevoEstado, vocabularioNuevoEstado
+    };
+
+    function guardarPosicionesEnLocalStorage() {
+        try {
+            const datos = {};
+            Object.keys(ESTRUCTURAS_DE_ESTADO_PERSISTENTES).forEach(clave => {
+                datos[clave] = ESTRUCTURAS_DE_ESTADO_PERSISTENTES[clave];
+            });
+            localStorage.setItem(CLAVE_LOCALSTORAGE_POSICIONES, JSON.stringify(datos));
+            return true;
+        } catch (error) {
+            console.error("No se pudo guardar en localStorage:", error);
+            return false;
+        }
+    }
+
+    // Se llama UNA sola vez, antes de que cualquier render real empiece a
+    // usar las estructuras — vuelca lo guardado DENTRO de los mismos objetos
+    // ya declarados (Object.assign, no reemplazo), porque varias funciones ya
+    // capturaron una referencia directa a estos objetos y reemplazarlos
+    // rompería esas referencias.
+    function cargarPosicionesDesdeLocalStorage() {
+        try {
+            const crudo = localStorage.getItem(CLAVE_LOCALSTORAGE_POSICIONES);
+            if (!crudo) return;
+            const datos = JSON.parse(crudo);
+            Object.keys(ESTRUCTURAS_DE_ESTADO_PERSISTENTES).forEach(clave => {
+                if (datos[clave]) {
+                    Object.assign(ESTRUCTURAS_DE_ESTADO_PERSISTENTES[clave], datos[clave]);
+                }
+            });
+        } catch (error) {
+            console.error("No se pudo cargar desde localStorage:", error);
+        }
+    }
+
+    cargarPosicionesDesdeLocalStorage();
 
     inicializarMenuUnidades();
     inicializarMenuVerbos();
