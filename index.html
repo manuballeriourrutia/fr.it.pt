@@ -40,14 +40,14 @@
   --btn-size:      44px;
   --btn-bg:        #ffffff;
   --btn-border:    #b8b8b6;
-  --btn-active-dot:#aaff00;   /* verde lima fijo — nunca cambia con el idioma */
+  --btn-active-glow:#aaff00;
+  --btn-active-border:#88cc00;
 
   /* Tarjetas */
   --card-bg:       #ffffff;
-  --card-border:   #c0c0be;
   --card-radius:   16px;
   --card-padding:  16px;
-  --card-border-w: 2.5px;
+  --card-border-w: 3px;
 
   /* Fuente */
   --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
@@ -90,8 +90,10 @@ header {
 .selector {
   height: var(--sel-h);
   border-radius: var(--sel-radius);
-  border: 2px solid var(--sel-border);
-  background: var(--sel-bg);
+  border: var(--card-border-w) solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #c8c8c6, #a0a0a0) border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +103,7 @@ header {
   font-weight: 500;
   letter-spacing: 0.5px;
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: background 0.15s;
   white-space: nowrap;
   text-transform: uppercase;
 }
@@ -113,8 +115,22 @@ header {
 
 /* Estado activo (tiene contenido): borde de color, texto oscuro */
 .selector.activo {
-  border-color: #888886;
   color: #3a3a38;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #888886, #606060) border-box;
+}
+
+/* Selector sin contenido siguiente — se achica a círculo */
+.selector.circulo {
+  min-width: 0 !important;
+  width: var(--sel-h);
+  padding: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #d8d8d6, #c0c0be) border-box;
+  color: transparent;
 }
 
 /* --- BOTONES EDICIÓN (derecha) --- */
@@ -128,8 +144,10 @@ header {
   width: var(--btn-size);
   height: var(--btn-size);
   border-radius: 50%;
-  border: 2px solid var(--btn-border);
-  background: var(--btn-bg);
+  border: var(--card-border-w) solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #c8c8c6, #a0a0a0) border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,32 +155,25 @@ header {
   cursor: pointer;
   position: relative;
   filter: grayscale(100%) opacity(0.5);
-  transition: filter 0.15s;
+  transition: filter 0.15s, background 0.15s;
   flex-shrink: 0;
 }
 
 /* Prendido */
 .btn-editor.activo {
   filter: none;
-}
-
-/* Punto verde lima — indicador de activo */
-.btn-editor.activo::after {
-  content: '';
-  position: absolute;
-  bottom: 1px;
-  right: 1px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--btn-active-dot);
-  border: 2px solid #ffffff;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #88cc00, #aaff00) border-box;
+  box-shadow:
+    0 0 0 3px rgba(170,255,0,0.10),
+    0 0 12px 3px rgba(170,255,0,0.28);
 }
 
 /* Deshabilitado (mesa fija) */
 .btn-editor.deshabilitado {
   pointer-events: none;
-  opacity: 0.25;
+  opacity: 0.2;
   filter: grayscale(100%);
 }
 
@@ -202,20 +213,25 @@ header {
   position: absolute;
   background: var(--card-bg);
   border-radius: var(--card-radius);
-  border: var(--card-border-w) solid var(--card-border);
+  border: var(--card-border-w) solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #c8c8c6, #a0a0a0) border-box;
   display: inline-flex;
   flex-direction: column;
   min-width: 160px;
   max-width: 420px;
 }
 
-/* Borde en degradado — se sobreescribe por sub-tema/tema/unidad */
-.tarjeta.con-borde-degradado {
-  border: none;
+.tarjeta-fija {
   background:
-    linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-    linear-gradient(135deg, #c0c0be, #a0a0a0) border-box;
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #c8c8c6, #a0a0a0) border-box;
   border: var(--card-border-w) solid transparent;
+  border-radius: var(--card-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Título — zona de arrastre */
@@ -292,7 +308,10 @@ header {
   top: calc(var(--header-h) - 4px);
   left: 20px;
   background: #ffffff;
-  border: 1.5px solid #c8c8c6;
+  border: 3px solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #c8c8c6, #a0a0a0) border-box;
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.10);
   min-width: 200px;
@@ -465,25 +484,76 @@ document.addEventListener('click', e => {
   }
 });
 
+// ── Actualizar estado visual de los 3 selectores ──────────────────────
+function actualizarSelectores() {
+  const u = estado.unidad ? UNIDADES[estado.unidad] : null;
+
+  // Selector 1 — siempre activo con el nombre de la unidad
+  const s1 = document.getElementById('selUnidad');
+  s1.textContent = u ? u.nombre : 'Unidad';
+  s1.classList.toggle('activo', !!u);
+  s1.classList.remove('circulo');
+
+  const s2 = document.getElementById('selTema');
+  const s3 = document.getElementById('selSubtema');
+
+  // Sin unidad
+  if (!u) {
+    s2.textContent = ''; s2.className = 'selector sel-tema circulo';
+    s3.textContent = ''; s3.className = 'selector sel-subtema circulo';
+    return;
+  }
+
+  // Caso especial Verbos: siempre muestra los 3 con texto fijo
+  if (estado.unidad === 'G') {
+    s2.textContent = estado.tema
+      ? UNIDADES['G'].temas[estado.tema].nombre
+      : 'Temas';
+    s2.className = 'selector sel-tema activo';
+    s3.textContent = 'Sub-temas';
+    s3.className = 'selector sel-subtema';
+    s3.style.pointerEvents = 'none';
+    return;
+  }
+
+  // Con temas
+  if (u.temas) {
+    const primerTemaKey = Object.keys(u.temas)[0];
+    const temaActual = estado.tema || primerTemaKey;
+    if (!estado.tema) estado.tema = primerTemaKey;
+    s2.textContent = UNIDADES[estado.unidad].temas[temaActual].nombre;
+    s2.className = 'selector sel-tema activo';
+    s2.style.pointerEvents = '';
+
+    // Con sub-temas
+    const temaObj = u.temas[temaActual];
+    if (temaObj.subtemas) {
+      const primerSubKey = Object.keys(temaObj.subtemas)[0];
+      if (!estado.subtema) estado.subtema = primerSubKey;
+      s3.textContent = temaObj.subtemas[estado.subtema].nombre;
+      s3.className = 'selector sel-subtema activo';
+      s3.style.pointerEvents = '';
+    } else {
+      s3.textContent = '';
+      s3.className = 'selector sel-subtema circulo';
+    }
+  } else {
+    // Sin temas — selector 2 y 3 en círculo
+    estado.tema = null;
+    estado.subtema = null;
+    s2.textContent = ''; s2.className = 'selector sel-tema circulo';
+    s3.textContent = ''; s3.className = 'selector sel-subtema circulo';
+  }
+}
+
 // ── Elegir unidad ─────────────────────────────────────────────────────
 function elegirUnidad(key, nombre, tipo) {
-  estado.unidad  = key;
-  estado.tema    = null;
-  estado.subtema = null;
+  estado.unidad   = key;
+  estado.tema     = null;
+  estado.subtema  = null;
   estado.tipoMesa = tipo;
 
-  // Resetear editor al cambiar de unidad
   if (estado.editor) apagarEditor();
-
-  // Actualizar selectores
-  const selU = document.getElementById('selUnidad');
-  selU.textContent = nombre;
-  selU.classList.add('activo');
-
-  document.getElementById('selTema').textContent = 'Tema';
-  document.getElementById('selTema').classList.remove('activo');
-  document.getElementById('selSubtema').textContent = 'Sub-tema';
-  document.getElementById('selSubtema').classList.remove('activo');
 
   // Llenar dropdown de temas
   const dropTema = document.getElementById('dropTema');
@@ -499,13 +569,9 @@ function elegirUnidad(key, nombre, tipo) {
     });
   }
 
-  // Cerrar dropdown
   document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('visible'));
-
-  // Botones: mesa fija → deshabilitados; libre → lápiz disponible
   actualizarBotones();
-
-  // Renderizar mesa
+  actualizarSelectores();
   renderMesa();
 }
 
@@ -513,13 +579,6 @@ function elegirUnidad(key, nombre, tipo) {
 function elegirTema(key, nombre) {
   estado.tema    = key;
   estado.subtema = null;
-
-  const selT = document.getElementById('selTema');
-  selT.textContent = nombre;
-  selT.classList.add('activo');
-
-  document.getElementById('selSubtema').textContent = 'Sub-tema';
-  document.getElementById('selSubtema').classList.remove('activo');
 
   // Sub-temas del tema elegido
   const u = UNIDADES[estado.unidad];
@@ -537,16 +596,15 @@ function elegirTema(key, nombre) {
   }
 
   document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('visible'));
+  actualizarSelectores();
   renderMesa();
 }
 
 // ── Elegir sub-tema ───────────────────────────────────────────────────
 function elegirSubtema(key, nombre) {
   estado.subtema = key;
-  const selS = document.getElementById('selSubtema');
-  selS.textContent = nombre;
-  selS.classList.add('activo');
   document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('visible'));
+  actualizarSelectores();
   renderMesa();
 }
 
@@ -701,6 +759,11 @@ function iniciarDropdownUnidades() {
 }
 
 iniciarDropdownUnidades();
+
+// Cargar la primera unidad automáticamente al abrir la app
+const primeraKey = Object.keys(UNIDADES)[0];
+const primeraUnidad = UNIDADES[primeraKey];
+elegirUnidad(primeraKey, primeraUnidad.nombre, primeraUnidad.tipo);
 
 </script>
 </body>
