@@ -795,12 +795,12 @@ elegirUnidad(primeraKey, primeraUnidad.nombre, primeraUnidad.tipo);
       color: grises[Math.floor(Math.random() * grises.length)],
       speed: 0.35 + Math.random() * 0.4
     });
-    // Intervalo variable para que no se vean sincronizados
-    setTimeout(spawnRipple, 350 + Math.random() * 900);
+    // Intervalo más corto para más ripples simultáneas bien distribuidas
+    setTimeout(spawnRipple, 150 + Math.random() * 400);
   }
 
   // Arranca con varios ripples ya en progreso para que no empiece vacío
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 16; i++) {
     const maxR = 35 + Math.random() * 55;
     ripples.push({
       x:     Math.random() * canvas.width,
