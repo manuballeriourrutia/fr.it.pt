@@ -121,6 +121,25 @@ header {
     linear-gradient(135deg, #888886, #606060) border-box;
 }
 
+/* Verbos — borde tira LED en sentido horario: amarillo→naranja→rojo→rosa→violeta→azul→verde */
+.selector.verbos-activo {
+  color: #2a2a28;
+  font-weight: 600;
+  background:
+    linear-gradient(#fffef5, #fffef5) padding-box,
+    conic-gradient(
+      from 0deg,
+      #f5c800,
+      #f58c00 50deg,
+      #e03030 100deg,
+      #d44090 150deg,
+      #7b3fd6 200deg,
+      #2f7fe0 250deg,
+      #3ab840 300deg,
+      #f5c800 360deg
+    ) border-box;
+}
+
 /* Selector sin contenido siguiente — se achica a círculo */
 .selector.circulo {
   min-width: 0 !important;
