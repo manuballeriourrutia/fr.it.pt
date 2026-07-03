@@ -188,6 +188,7 @@ header {
   height: calc(100dvh - var(--mesa-top));
   background: transparent;
   overflow: hidden;
+  z-index: 1;
 }
 
 /* Estado vacío */
@@ -766,5 +767,78 @@ const primeraUnidad = UNIDADES[primeraKey];
 elegirUnidad(primeraKey, primeraUnidad.nombre, primeraUnidad.tipo);
 
 </script>
+<!-- FONDO DE PARTÍCULAS RIPPLE -->
+<canvas id="canvasRipple" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+
+<script>
+(function() {
+  const canvas = document.getElementById('canvasRipple');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+
+  // Paleta de grises neutros — se reemplaza por colores del tema cuando se cargue contenido
+  const grises = ['#b0b0ae','#989896','#c8c8c6','#a0a0a0','#d0d0ce','#888886'];
+
+  const ripples = [];
+
+  function spawnRipple() {
+    ripples.push({
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * canvas.height,
+      r:     0,
+      maxR:  35 + Math.random() * 55,
+      color: grises[Math.floor(Math.random() * grises.length)],
+      speed: 0.35 + Math.random() * 0.4
+    });
+    // Intervalo variable para que no se vean sincronizados
+    setTimeout(spawnRipple, 350 + Math.random() * 900);
+  }
+
+  // Arranca con varios ripples ya en progreso para que no empiece vacío
+  for (let i = 0; i < 8; i++) {
+    const maxR = 35 + Math.random() * 55;
+    ripples.push({
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * canvas.height,
+      r:     Math.random() * maxR,
+      maxR,
+      color: grises[Math.floor(Math.random() * grises.length)],
+      speed: 0.35 + Math.random() * 0.4
+    });
+  }
+  spawnRipple();
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.r += rp.speed;
+      const progress = rp.r / rp.maxR;
+      const alpha    = (1 - progress) * 0.3;
+
+      if (alpha <= 0.005) { ripples.splice(i, 1); continue; }
+
+      ctx.beginPath();
+      ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+      ctx.strokeStyle = rp.color;
+      ctx.lineWidth   = 1.8 * (1 - progress * 0.7);
+      ctx.globalAlpha = alpha;
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+})();
+</script>
+
 </body>
 </html>
