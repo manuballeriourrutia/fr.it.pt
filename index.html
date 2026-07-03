@@ -24,7 +24,7 @@
 
   /* Paleta neutra */
   --bg-app:        #e9e9e7;
-  --bg-header:     #f2f2f0;
+  --bg-header:     #e9e9e7;
   --border-header: #d4d4d2;
   --bg-mesa:       #d8d8d6;
 
@@ -72,7 +72,7 @@ header {
   width: var(--w);
   height: var(--header-h);
   background: var(--bg-header);
-  border-bottom: 1px solid var(--border-header);
+  border-bottom: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -186,7 +186,7 @@ header {
   left: 0;
   width: var(--w);
   height: calc(100dvh - var(--mesa-top));
-  background: var(--bg-mesa);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -287,17 +287,8 @@ header {
   box-sizing: border-box;
 }
 
-.tarjeta-fija {
-  background: var(--card-bg);
-  border-radius: var(--card-radius);
-  border: var(--card-border-w) solid var(--card-border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
 .tarjeta-fija .tarjeta-titulo {
-  cursor: default; /* no arrastrable */
+  cursor: default;
 }
 
 /* =====================================================================
@@ -675,22 +666,31 @@ function renderMesa() {
   }
 }
 
-// Mesa fija: 4×2 placeholders en gris (ejemplo para Verbos)
+// Mesa fija: 4×2 con colores de referencia por posición (igual que la app original)
 function renderMesaFija(mesa) {
   mesa.innerHTML = '';
   const grid = document.createElement('div');
   grid.className = 'mesa-fija';
 
-  const titulos = [
-    'Tiempo 1','Tiempo 2','Tiempo 3','Tiempo 4',
-    'Tiempo 5','Tiempo 6','Tiempo 7','Tiempo 8'
+  const tiempos = [
+    { titulo: 'Tiempo 1', color1: '#d63b2f', color2: '#c02a20' },
+    { titulo: 'Tiempo 2', color1: '#e8821e', color2: '#c86a10' },
+    { titulo: 'Tiempo 3', color1: '#e8c91e', color2: '#c8a810' },
+    { titulo: 'Tiempo 4', color1: '#e85ca8', color2: '#c84090' },
+    { titulo: 'Tiempo 5', color1: '#3a3a3a', color2: '#1a1a1a' },
+    { titulo: 'Tiempo 6', color1: '#4caf3a', color2: '#2a8f20' },
+    { titulo: 'Tiempo 7', color1: '#2f7fe0', color2: '#1060c0' },
+    { titulo: 'Tiempo 8', color1: '#7b3fd6', color2: '#5a20b0' }
   ];
 
-  titulos.forEach(t => {
+  tiempos.forEach(t => {
     const card = document.createElement('div');
     card.className = 'tarjeta-fija';
+    card.style.background = `linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, ${t.color1}, ${t.color2}) border-box`;
+    card.style.border = `var(--card-border-w) solid transparent`;
+    card.style.borderRadius = `var(--card-radius)`;
     card.innerHTML = `
-      <div class="tarjeta-titulo">${t}</div>
+      <div class="tarjeta-titulo" style="color: ${t.color1};">${t.titulo}</div>
       <div class="tarjeta-cuerpo" style="flex:1; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:12px;">
         contenido
       </div>`;
