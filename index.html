@@ -363,20 +363,6 @@ header {
 ===================================================================== -->
 <script>
 
-// ── Inicialización ────────────────────────────────────────────────────
-function iniciarDropdownUnidades() {
-  const drop = document.getElementById('dropUnidad');
-  drop.innerHTML = '';
-  Object.entries(UNIDADES).forEach(([key, u]) => {
-    const div = document.createElement('div');
-    div.className = 'dropdown-item';
-    div.textContent = u.nombre;
-    div.onclick = () => elegirUnidad(key, u.nombre, u.tipo);
-    drop.appendChild(div);
-  });
-}
-
-iniciarDropdownUnidades();
 const estado = {
   unidad:   null,
   tema:     null,
