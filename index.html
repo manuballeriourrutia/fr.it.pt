@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1366, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Idiomas Zero</title>
 <style>
 
@@ -16,7 +18,7 @@
 :root {
   /* Dimensiones fijas */
   --w: 1366px;
-  --h: 1024px;
+  --h: 100dvh;
   --header-h: 72px;
   --mesa-top: 72px;
 
@@ -53,7 +55,7 @@
 
 html, body {
   width: var(--w);
-  height: var(--h);
+  height: 100dvh;
   overflow: hidden;
   background: var(--bg-app);
   font-family: var(--font);
@@ -171,7 +173,7 @@ header {
   top: var(--mesa-top);
   left: 0;
   width: var(--w);
-  height: calc(var(--h) - var(--mesa-top));
+  height: calc(100dvh - var(--mesa-top));
   background: var(--bg-mesa);
   overflow: hidden;
 }
@@ -261,10 +263,11 @@ header {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 14px;
-  padding: 20px;
+  gap: 12px;
+  padding: 14px 16px;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .tarjeta-fija {
@@ -343,11 +346,7 @@ header {
 </header>
 
 <!-- DROPDOWNS -->
-<div class="dropdown" id="dropUnidad">
-  <div class="dropdown-item" onclick="elegirUnidad('A', 'Abecedario', 'libre')">Abecedario</div>
-  <div class="dropdown-item" onclick="elegirUnidad('B', 'Verbos', 'fija')">Verbos</div>
-  <div class="dropdown-item" onclick="elegirUnidad('C', 'Cultura', 'libre')">Cultura</div>
-</div>
+<div class="dropdown" id="dropUnidad"></div>
 <div class="dropdown" id="dropTema"></div>
 <div class="dropdown" id="dropSubtema"></div>
 
@@ -364,6 +363,21 @@ header {
 ===================================================================== -->
 <script>
 
+// ── Inicialización ────────────────────────────────────────────────────
+function iniciarDropdownUnidades() {
+  const drop = document.getElementById('dropUnidad');
+  drop.innerHTML = '';
+  Object.entries(UNIDADES).forEach(([key, u]) => {
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    div.textContent = u.nombre;
+    div.onclick = () => elegirUnidad(key, u.nombre, u.tipo);
+    drop.appendChild(div);
+  });
+}
+
+iniciarDropdownUnidades();
+
 // ── Estado global ─────────────────────────────────────────────────────
 const estado = {
   unidad:   null,
@@ -377,27 +391,74 @@ const estado = {
 // ── Árbol de unidades (placeholder — se carga por idioma) ─────────────
 const UNIDADES = {
   'A': {
-    nombre:  'Abecedario',
-    tipo:    'libre',
-    temas:   null
+    nombre: 'Abecedario',
+    tipo: 'libre',
+    temas: null
   },
   'B': {
-    nombre:  'Verbos',
-    tipo:    'fija',
+    nombre: 'Cultura',
+    tipo: 'libre',
     temas: {
-      'B1': { nombre: 'Auxiliares', subtemas: null },
-      'B2': { nombre: 'Irregulares', subtemas: null },
-      'B3': { nombre: 'Regulares', subtemas: null }
+      'B1': { nombre: 'Chamonix',    subtemas: null },
+      'B2': { nombre: 'Actividades', subtemas: null },
+      'B3': { nombre: 'País',        subtemas: null }
     }
   },
   'C': {
-    nombre:  'Cultura',
-    tipo:    'libre',
+    nombre: 'La Geografía y el Clima',
+    tipo: 'libre',
     temas: {
-      'C1': { nombre: 'Chamonix', subtemas: null },
-      'C2': { nombre: 'Actividades', subtemas: null },
-      'C3': { nombre: 'País', subtemas: null }
+      'C1': { nombre: 'Terreno',            subtemas: null },
+      'C2': { nombre: 'Flora y Fauna',      subtemas: null },
+      'C3': { nombre: 'Clima y Estaciones', subtemas: null },
+      'C4': {
+        nombre: 'Actividades',
+        subtemas: {
+          'C4a': { nombre: 'Invierno' },
+          'C4b': { nombre: 'Verano' }
+        }
+      }
     }
+  },
+  'D': {
+    nombre: 'Los Números y el Tiempo',
+    tipo: 'libre',
+    temas: {
+      'D1': { nombre: 'Números',    subtemas: null },
+      'D2': { nombre: 'El Tiempo',  subtemas: null }
+    }
+  },
+  'E': {
+    nombre: 'Modos y Frases',
+    tipo: 'libre',
+    temas: {
+      'E1': { nombre: 'Imperativo',  subtemas: null },
+      'E2': { nombre: 'Subjuntivo',  subtemas: null },
+      'E3': { nombre: 'Preguntas',   subtemas: null },
+      'E4': { nombre: 'Frases',      subtemas: null }
+    }
+  },
+  'F': {
+    nombre: 'Personas',
+    tipo: 'libre',
+    temas: {
+      'F1': { nombre: 'Sujetos',    subtemas: null },
+      'F2': { nombre: 'Artículos',  subtemas: null }
+    }
+  },
+  'G': {
+    nombre: 'Verbos',
+    tipo: 'fija',
+    temas: {
+      'G1': { nombre: 'Auxiliares',   subtemas: null },
+      'G2': { nombre: 'Irregulares',  subtemas: null },
+      'G3': { nombre: 'Regulares',    subtemas: null }
+    }
+  },
+  'H': {
+    nombre: 'Vocabulario',
+    tipo: 'libre',
+    temas: null
   }
 };
 
