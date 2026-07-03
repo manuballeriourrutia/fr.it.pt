@@ -295,7 +295,7 @@ header {
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.10);
   min-width: 200px;
-  z-index: 200;
+  z-index: 500;
   overflow: hidden;
   display: none;
 }
@@ -377,8 +377,6 @@ function iniciarDropdownUnidades() {
 }
 
 iniciarDropdownUnidades();
-
-// ── Estado global ─────────────────────────────────────────────────────
 const estado = {
   unidad:   null,
   tema:     null,
@@ -699,6 +697,21 @@ function activarArrastre(tarjeta, id) {
     document.addEventListener('pointerup', soltar);
   });
 }
+
+// ── Inicialización al cargar ──────────────────────────────────────────
+function iniciarDropdownUnidades() {
+  const drop = document.getElementById('dropUnidad');
+  drop.innerHTML = '';
+  Object.entries(UNIDADES).forEach(([key, u]) => {
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    div.textContent = u.nombre;
+    div.onclick = () => elegirUnidad(key, u.nombre, u.tipo);
+    drop.appendChild(div);
+  });
+}
+
+iniciarDropdownUnidades();
 
 </script>
 </body>
